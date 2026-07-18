@@ -1,6 +1,6 @@
 # 🚀 Confix.json
 
-> **Turn your JSON Schemas into beautiful, guided UIs.**  
+> **No more raw text. Just clean config UIs based on JSON Schema**  
 > A blazing-fast, cross-platform config editor powered by Avalonia UI.
 
 [![GitHub license](https://shields.io)](LICENSE)
