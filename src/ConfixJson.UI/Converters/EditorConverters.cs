@@ -1,16 +1,17 @@
 using System.Globalization;
 using Avalonia.Data.Converters;
+using ConfixJson.Core.Models;
 
 namespace ConfixJson.UI.Converters;
 
 public static class EditorConverters
 {
-    public static readonly IValueConverter EditorModeToBool = new FuncValueConverter<Models.EditorMode, string, bool>((mode, target) =>
-        (mode == Models.EditorMode.Object && target == "Object") ||
-        (mode == Models.EditorMode.ArraySplit && target == "ArraySplit") ||
-        (mode == Models.EditorMode.Scalar && target == "Scalar") ||
-        (mode == Models.EditorMode.Text && target == "Text") ||
-        (mode == Models.EditorMode.Empty && target == "Empty")
+    public static readonly IValueConverter EditorModeToBool = new FuncValueConverter<EditorMode, string, bool>((mode, target) =>
+        (mode == EditorMode.Object && target == "Object") ||
+        (mode == EditorMode.ArraySplit && target == "ArraySplit") ||
+        (mode == EditorMode.Scalar && target == "Scalar") ||
+        (mode == EditorMode.Text && target == "Text") ||
+        (mode == EditorMode.Empty && target == "Empty")
     );
 
     public static readonly IValueConverter BoolToVisibility = new FuncValueConverter<bool, bool>(b => b);

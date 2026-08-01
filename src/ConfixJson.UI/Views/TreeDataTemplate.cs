@@ -4,7 +4,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
-using ConfixJson.UI.Models;
+using ConfixJson.Core.Models;
 using ConfixJson.UI.ViewModels;
 
 namespace ConfixJson.UI.Views;
@@ -17,6 +17,9 @@ public class TreeDataTemplate : IDataTemplate
             return null;
 
         var indent = node.Depth * 14.0 + 8.0;
+        var isExpanded = node.IsExpanded;
+        var isSelected = node.IsSelected;
+        var hasErrors = node.HasErrors;
 
         var rootBorder = new Border
         {
@@ -24,44 +27,36 @@ public class TreeDataTemplate : IDataTemplate
             MinHeight = 24,
             Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand),
             BorderThickness = new Thickness(2, 0, 0, 0),
-            BorderBrush = Brushes.Transparent
+            BorderBrush = isSelected
+                ? Application.Current!.Resources["SelectedBorderBrush"] as IBrush
+                : Brushes.Transparent
         };
 
-        // Selection state
-        rootBorder.AttachedToVisualTree += (s, e) =>
-        {
-            var border = (Border)s!;
-            if (border.DataContext is JsonEditorNode n)
-            {
-                border.Classes.Set("Selected", n.IsSelected);
-                if (n.IsSelected)
-                    border.BorderBrush = Application.Current!.Resources["SelectedBorderBrush"] as IBrush;
-            }
-        };
+        if (isSelected)
+            rootBorder.Background = Application.Current!.Resources["SelectedBackgroundBrush"] as IBrush;
 
         // Hover effect
         rootBorder.PointerEntered += (_, _) =>
         {
-            if (rootBorder.DataContext is JsonEditorNode n && !n.IsSelected)
+            if (!isSelected)
                 rootBorder.Background = Application.Current!.Resources["TreeHoverBrush"] as IBrush;
         };
         rootBorder.PointerExited += (_, _) =>
         {
-            rootBorder.Background = Brushes.Transparent;
+            rootBorder.Background = isSelected
+                ? Application.Current!.Resources["SelectedBackgroundBrush"] as IBrush
+                : Brushes.Transparent;
         };
 
         // Click to select + toggle
         rootBorder.PointerPressed += (_, _) =>
         {
-            if (rootBorder.DataContext is JsonEditorNode n)
+            var topLevel = TopLevel.GetTopLevel(rootBorder);
+            if (topLevel?.DataContext is MainWindowViewModel vm)
             {
-                var topLevel = TopLevel.GetTopLevel(rootBorder);
-                if (topLevel?.DataContext is MainWindowViewModel vm)
-                {
-                    if (n.IsExpandable && !n.IsExpanded)
-                        vm.ToggleExpandCommand.Execute(n);
-                    vm.SelectNodeCommand.Execute(n);
-                }
+                if (node.IsExpandable && !node.IsExpanded)
+                    vm.ToggleExpandCommand.Execute(node);
+                vm.SelectNodeCommand.Execute(node);
             }
         };
 
@@ -82,14 +77,14 @@ public class TreeDataTemplate : IDataTemplate
 
         if (node.IsExpandable)
         {
-            chevron.Data = node.IsExpanded
+            chevron.Data = isExpanded
                 ? Application.Current!.Resources["GeomChevronDown"] as StreamGeometry
                 : Application.Current!.Resources["GeomChevron"] as StreamGeometry;
             chevron.Foreground = Application.Current!.Resources["TextTertiaryBrush"] as IBrush;
         }
         row.Children.Add(chevron);
 
-        // Array bracket icon
+        // Array bracket or scalar dot
         if (node.NodeType == "array")
         {
             row.Children.Add(new PathIcon
@@ -151,13 +146,8 @@ public class TreeDataTemplate : IDataTemplate
             VerticalAlignment = VerticalAlignment.Center,
             Data = Application.Current!.Resources["GeomError"] as StreamGeometry,
             Foreground = Application.Current!.Resources["ErrorBrush"] as IBrush,
-            Margin = new Thickness(4, 0, 0, 0)
-        };
-        errorIcon.IsVisible = node.HasErrors;
-        node.PropertyChanged += (s, e) =>
-        {
-            if (e.PropertyName == nameof(JsonEditorNode.HasErrors))
-                errorIcon.IsVisible = node.HasErrors;
+            Margin = new Thickness(4, 0, 0, 0),
+            IsVisible = hasErrors
         };
         row.Children.Add(errorIcon);
 
@@ -169,15 +159,9 @@ public class TreeDataTemplate : IDataTemplate
             var childrenControl = new ItemsControl
             {
                 ItemsSource = node.Children,
-                IsVisible = node.IsExpanded
+                IsVisible = isExpanded
             };
             childrenControl.ItemTemplate = new TreeDataTemplate();
-
-            node.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(JsonEditorNode.IsExpanded))
-                    childrenControl.IsVisible = node.IsExpanded;
-            };
 
             wrapper.Children.Add(rootBorder);
             wrapper.Children.Add(childrenControl);

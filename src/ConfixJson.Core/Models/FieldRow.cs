@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace ConfixJson.UI.Models;
+namespace ConfixJson.Core.Models;
 
 public class FieldRow
 {
@@ -16,7 +14,6 @@ public class FieldRow
     public string? Comment { get; set; }
     public double? Minimum { get; set; }
     public double? Maximum { get; set; }
-    public List<string>? EnumValues { get; set; }
     public string? NestedObjectSummary { get; set; }
     public string ArrayItemCount { get; set; } = "0";
     public string? ScalarValue { get; set; }

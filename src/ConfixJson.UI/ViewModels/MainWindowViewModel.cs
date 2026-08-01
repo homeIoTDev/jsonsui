@@ -1,29 +1,22 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ConfixJson.Core.Models;
 using ConfixJson.Core.Services;
-using ConfixJson.UI.Models;
 
 namespace ConfixJson.UI.ViewModels;
 
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly UndoRedoService _undoRedo = new();
+    private readonly EditorState _state = new();
 
-    private JsonNode _json = new JsonObject();
-    private JsonNode _originalJson = new JsonObject();
-    private string[] _selectedPath = [];
-    private HashSet<string> _expanded = [];
-    private int? _cardIndex;
-    private string[]? _focusFieldPath;
-
-    // --- Observable Properties ---
+    // --- UI-only Observable Properties ---
 
     [ObservableProperty]
     public partial bool Dark { get; set; } = true;
@@ -38,7 +31,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public partial bool ShowSaved { get; set; }
 
     [ObservableProperty]
-    public partial string DocumentFilename { get; set; } = "config.json";
+    public partial string DocumentFilename { get; set; } = "";
 
     [ObservableProperty]
     public partial string SelectedPathString { get; set; } = "";
@@ -106,420 +99,73 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     public partial SchemaFieldInfo HelpInfo { get; set; } = new();
 
-    // Tree data
     public ObservableCollection<JsonEditorNode> TreeRootNodes { get; } = [];
-    private JsonEditorNode? _rootNode;
 
-    // Validation
-    private ValidationError[] _allErrors = [];
+    // --- Refresh UI from EditorState ---
 
-    // Flat node lookup by path key
-    private readonly Dictionary<string, JsonEditorNode> _nodeByPathKey = new();
-
-    public MainWindowViewModel()
+    private void RefreshUI()
     {
-    }
-
-    // --- Tree Building ---
-
-    private void RebuildTree()
-    {
-        TreeRootNodes.Clear();
-        _nodeByPathKey.Clear();
-        _rootNode = BuildNode(_json, "root", [], 0, null);
-        _rootNode.IsExpanded = true;
-        _rootNode.IsSelected = _selectedPath.Length == 0;
-        TreeRootNodes.Add(_rootNode);
-    }
-
-    private JsonEditorNode BuildNode(JsonNode? value, string label, string[] path, int depth, JsonEditorNode? parent)
-    {
-        var node = new JsonEditorNode
-        {
-            Label = label,
-            Path = path,
-            Value = value,
-            Depth = depth,
-            Parent = parent
-        };
-
-        var pathKey = node.PathKey;
-        _nodeByPathKey[pathKey] = node;
-
-        if (value is JsonObject obj)
-        {
-            node.NodeType = path.Length == 0 || path[^1] == "root" ? "root" : "object";
-            foreach (var kvp in obj)
-            {
-                var childPath = path.Concat([kvp.Key]).ToArray();
-                var child = BuildNode(kvp.Value, kvp.Key, childPath, depth + 1, node);
-                child.IsExpanded = _expanded.Contains(child.PathKey);
-                node.Children.Add(child);
-            }
-        }
-        else if (value is JsonArray arr)
-        {
-            node.NodeType = "array";
-            for (int i = 0; i < arr.Count; i++)
-            {
-                var childPath = path.Concat([i.ToString()]).ToArray();
-                var child = BuildNode(arr[i], $"[{i}]", childPath, depth + 1, node);
-                if (arr[i] is JsonObject)
-                    child.IsExpanded = _expanded.Contains(child.PathKey);
-                node.Children.Add(child);
-            }
-        }
-        else
-        {
-            node.NodeType = "scalar";
-        }
-
-        return node;
-    }
-
-    private void UpdateNodeSelection()
-    {
-        var selectedKey = string.Join("/", _selectedPath);
-        foreach (var (key, node) in _nodeByPathKey)
-        {
-            node.IsSelected = key == selectedKey || _selectedPath.Length > 0 && key.StartsWith(selectedKey + "/");
-        }
-    }
-
-    private void MarkErrors()
-    {
-        foreach (var node in _nodeByPathKey.Values)
-            node.HasErrors = false;
-
-        foreach (var err in _allErrors)
-        {
-            var key = string.Join("/", err.Path);
-            if (_nodeByPathKey.TryGetValue(key, out var node))
-                node.HasErrors = true;
-        }
-    }
-
-    // --- Document Operations ---
-
-    public void SetValueAtPath(string[] path, JsonNode? value)
-    {
-        var oldValue = JsonDocumentService.GetByPath(_json, path);
-        _json = JsonDocumentService.SetByPath(_json, path, value ?? JsonValue.Create<string?>(null)!);
-        _undoRedo.PushUndo(new UndoCommand
-        {
-            Path = path,
-            OldValue = oldValue?.DeepClone(),
-            NewValue = value?.DeepClone()
-        });
-        OnDocumentChanged();
-    }
-
-    public void AddArrayItem(string[] arrayPath)
-    {
-        var arr = JsonDocumentService.GetByPath(_json, arrayPath) as JsonArray;
-        JsonNode? template;
-        if (arr != null && arr.Count > 0)
-            template = JsonDocumentService.CreateTemplate(arr[0]);
-        else
-            template = new JsonObject();
-
-        _json = JsonDocumentService.AddArrayItem(_json, arrayPath, template!);
-        var newIndex = ((JsonArray?)JsonDocumentService.GetByPath(_json, arrayPath))?.Count - 1 ?? 0;
-        _undoRedo.PushUndo(new UndoCommand
-        {
-            Path = arrayPath,
-            NewValue = template,
-            Action = "add_array_item",
-            ArrayIndex = newIndex
-        });
-
-        OnDocumentChanged();
-
-        // Auto-select new item
-        if (NestedCtx != null)
-            NestedCtx.CardIndex = newIndex;
-        else
-            _cardIndex = newIndex;
-
-        RefreshDerived();
-    }
-
-    public void RemoveArrayItem(string[] arrayPath, int index)
-    {
-        var oldValue = (JsonDocumentService.GetByPath(_json, arrayPath) as JsonArray)?[index];
-        _json = JsonDocumentService.RemoveArrayItem(_json, arrayPath, index);
-        _undoRedo.PushUndo(new UndoCommand
-        {
-            Path = arrayPath,
-            OldValue = oldValue?.DeepClone(),
-            Action = "remove_array_item",
-            ArrayIndex = index
-        });
-
-        // Clear selection if needed
-        int activeCard = NestedCtx?.CardIndex ?? _cardIndex ?? -1;
-        if (activeCard >= index)
-        {
-            var arr = JsonDocumentService.GetByPath(_json, arrayPath) as JsonArray;
-            int newCount = arr?.Count ?? 0;
-            if (newCount == 0)
-            {
-                if (NestedCtx != null)
-                    NestedCtx.CardIndex = null;
-                else
-                    _cardIndex = null;
-            }
-            else if (activeCard >= newCount)
-            {
-                if (NestedCtx != null)
-                    NestedCtx.CardIndex = newCount - 1;
-                else
-                    _cardIndex = newCount - 1;
-            }
-        }
-
-        OnDocumentChanged();
-        RefreshDerived();
-    }
-
-    private void OnDocumentChanged()
-    {
-        ValidateDocument();
-        RebuildTree();
-        UpdateNodeSelection();
-        MarkErrors();
-        UpdateCanUndoRedo();
-        RefreshDerived();
-    }
-
-    // --- Validation ---
-
-    private void ValidateDocument()
-    {
-        var errors = new List<ValidationError>();
-        ValidateNode(_json, [], errors);
-        _allErrors = errors.ToArray();
-        ErrorCount = _allErrors.Length;
+        // Sync state-derived observable properties
+        SelectedPathString = EditorLogic.GetSelectedPathString(_state);
+        CardArrayPathString = EditorLogic.GetCardArrayPathString(_state);
+        DetailPathString = EditorLogic.GetDetailPathString(_state);
+        CurrentEditorMode = EditorLogic.GetEditorMode(_state, TextMode);
+        ErrorCount = _state.Errors.Length;
         HasErrors = ErrorCount > 0;
-    }
-
-    private void ValidateNode(JsonNode? node, string[] path, List<ValidationError> errors)
-    {
-        if (node is JsonObject obj)
-        {
-            foreach (var kvp in obj)
-            {
-                var childPath = path.Concat([kvp.Key]).ToArray();
-                if (kvp.Value is JsonValue val && val.GetValueKind() == JsonValueKind.Null)
-                {
-                    errors.Add(new ValidationError { Path = childPath, Message = $"{kvp.Key} is null" });
-                }
-                else if (kvp.Value is JsonValue sv && sv.TryGetValue<string>(out var str) && string.IsNullOrEmpty(str))
-                {
-                    errors.Add(new ValidationError { Path = childPath, Message = $"{kvp.Key} is empty" });
-                }
-                else
-                {
-                    ValidateNode(kvp.Value, childPath, errors);
-                }
-            }
-        }
-        else if (node is JsonArray arr)
-        {
-            for (int i = 0; i < arr.Count; i++)
-                ValidateNode(arr[i], path.Concat([i.ToString()]).ToArray(), errors);
-        }
-    }
-
-    // --- Derived Properties / State Refresh ---
-
-    private void RefreshDerived()
-    {
-        UpdateDerivedProperties();
-    }
-
-    private void UpdateDerivedProperties()
-    {
-        var selected = JsonDocumentService.GetByPath(_json, _selectedPath);
-        SelectedPathString = string.Join(" / ", _selectedPath);
-
-        // Determine card array path and active card index
-        string[] cardArrayPath;
-        int? activeCardIndex;
-
-        if (NestedCtx != null)
-        {
-            cardArrayPath = NestedCtx.ArrayPath;
-            activeCardIndex = NestedCtx.CardIndex;
-        }
-        else if (selected is JsonArray)
-        {
-            cardArrayPath = _selectedPath;
-            activeCardIndex = _cardIndex;
-        }
-        else
-        {
-            cardArrayPath = [];
-            activeCardIndex = null;
-        }
-
-        CardArrayPathString = string.Join(" / ", cardArrayPath);
-
-        if (TextMode)
-        {
-            CurrentEditorMode = EditorMode.Text;
-            TextEditorPathString = string.Join(" / ", _selectedPath);
-            TextContent = JsonDocumentService.ToFormattedJson(selected ?? _json);
-            HasTextParseError = false;
-            TextParseError = "";
-        }
-        else if ((selected is JsonArray && ((JsonArray)selected).Count > 0) || NestedCtx != null)
-        {
-            CurrentEditorMode = EditorMode.ArraySplit;
-            BuildCardItems(cardArrayPath);
-            BuildDetailPanel(cardArrayPath, activeCardIndex);
-        }
-        else if (selected is JsonObject)
-        {
-            CurrentEditorMode = EditorMode.Object;
-            BuildObjectFields(_selectedPath);
-        }
-        else if (selected is JsonValue)
-        {
-            CurrentEditorMode = EditorMode.Scalar;
-            ScalarNode = BuildScalarNode(_selectedPath, selected);
-        }
-        else
-        {
-            CurrentEditorMode = EditorMode.Empty;
-        }
-
-        UpdateHelpInfo();
-    }
-
-    private void BuildCardItems(string[] arrayPath)
-    {
-        CardItems.Clear();
-        var arr = JsonDocumentService.GetByPath(_json, arrayPath) as JsonArray;
-        if (arr == null) return;
-
-        int activeIndex = NestedCtx?.CardIndex ?? _cardIndex ?? -1;
-
-        for (int i = 0; i < arr.Count; i++)
-        {
-            var itemPath = arrayPath.Concat([i.ToString()]).ToArray();
-            CardItems.Add(new CardItem
-            {
-                Index = i,
-                ItemPath = itemPath,
-                Preview = BuildCardPreview(arr[i]),
-                HasErrors = _allErrors.Any(e => e.PathString == string.Join(".", itemPath)),
-                IsSelected = i == activeIndex
-            });
-        }
-    }
-
-    private static string BuildCardPreview(JsonNode? item)
-    {
-        if (item is JsonObject obj)
-        {
-            var pairs = obj.Take(3).Select(kvp => $"{kvp.Key}: {JsonDocumentService.GetScalarPreview(kvp.Value, 20)}");
-            return string.Join(", ", pairs) + (obj.Count > 3 ? ", ..." : "");
-        }
-        return JsonDocumentService.GetScalarPreview(item, 60);
-    }
-
-    private void BuildDetailPanel(string[] arrayPath, int? cardIndex)
-    {
-        if (cardIndex == null)
-        {
-            DetailPathString = "";
-            ObjectFields.Clear();
-            return;
-        }
-
-        var itemPath = arrayPath.Concat([cardIndex.Value.ToString()]).ToArray();
-        var itemValue = JsonDocumentService.GetByPath(_json, itemPath);
-
-        DetailPathString = string.Join(" / ", itemPath);
-
-        if (itemValue is JsonObject)
-            BuildObjectFields(itemPath);
-        else if (itemValue is JsonValue)
-            ScalarNode = BuildScalarNode(itemPath, itemValue);
-    }
-
-    private void BuildObjectFields(string[] objectPath)
-    {
-        ObjectFields.Clear();
-        var obj = JsonDocumentService.GetByPath(_json, objectPath) as JsonObject;
-        if (obj == null) return;
-
-        foreach (var kvp in obj)
-        {
-            var fieldPath = objectPath.Concat([kvp.Key]).ToArray();
-            var fieldType = kvp.Value switch
-            {
-                JsonObject => "object",
-                JsonArray => "array",
-                _ => "scalar"
-            };
-
-            var row = new FieldRow
-            {
-                Key = kvp.Key,
-                Path = fieldPath,
-                FieldType = fieldType,
-                IsRequired = false, // Would come from schema
-                HasErrors = _allErrors.Any(e => e.PathString == string.Join(".", fieldPath))
-            };
-
-            if (kvp.Value is JsonObject nestedObj)
-                row.NestedObjectSummary = $"{{{nestedObj.Count} fields}}";
-            else if (kvp.Value is JsonArray nestedArr)
-                row.ArrayItemCount = $"[{nestedArr.Count}]";
-            else if (kvp.Value is JsonValue)
-                row.ScalarValue = JsonDocumentService.GetScalarPreview(kvp.Value, 200);
-
-            ObjectFields.Add(row);
-        }
-    }
-
-    private JsonEditorNode? BuildScalarNode(string[] path, JsonNode? value)
-    {
-        if (value is not JsonValue) return null;
-        var node = new JsonEditorNode
-        {
-            Label = path.Length > 0 ? path[^1] : "value",
-            Path = path,
-            Value = value,
-            NodeType = "scalar"
-        };
-        node.HasErrors = _allErrors.Any(e => e.PathString == string.Join(".", path));
-        return node;
-    }
-
-    private void UpdateHelpInfo()
-    {
-        var focusPath = _focusFieldPath ?? _selectedPath;
-        var pathStr = string.Join(" / ", focusPath);
-
-        var errors = _allErrors.Where(e => string.Join(".", e.Path) == string.Join(".", focusPath)).ToArray();
-
-        HelpInfo = new SchemaFieldInfo
-        {
-            PathString = pathStr,
-            HasValidationErrors = errors.Length > 0,
-            ErrorMessages = errors.Length > 0
-                ? string.Join("; ", errors.Select(e => e.Message))
-                : null
-        };
-    }
-
-    private void UpdateCanUndoRedo()
-    {
         CanUndo = _undoRedo.CanUndo;
         CanRedo = _undoRedo.CanRedo;
+        NestedCtx = _state.NestedCtx;
+        HelpInfo = EditorLogic.GetHelpInfo(_state);
+
+        // Rebuild tree
+        var root = EditorLogic.BuildTree(_state);
+        EditorLogic.MarkErrors(root, _state.Errors);
+        TreeRootNodes.Clear();
+        TreeRootNodes.Add(root);
+
+        // Build mode-specific content
+        var mode = CurrentEditorMode;
+        if (mode == EditorMode.Text)
+        {
+            TextEditorPathString = SelectedPathString;
+            var selected = EditorLogic.GetSelectedValue(_state);
+            TextContent = JsonDocumentService.ToFormattedJson(selected ?? _state.Json);
+        }
+        else if (mode == EditorMode.ArraySplit)
+        {
+            var (cardArrayPath, _) = EditorLogic.GetCardArrayContext(_state);
+            CardItems = new ObservableCollection<CardItem>(EditorLogic.BuildCardItems(_state, cardArrayPath));
+
+            var detailPath = EditorLogic.GetDetailItemPath(_state);
+            if (detailPath != null)
+            {
+                var detailValue = EditorLogic.GetDetailItemValue(_state);
+                if (detailValue is JsonObject)
+                    ObjectFields = new ObservableCollection<FieldRow>(EditorLogic.BuildObjectFields(_state, detailPath));
+                else if (detailValue is JsonValue)
+                    ScalarNode = EditorLogic.BuildScalarNode(_state, detailPath, detailValue);
+                else
+                    ObjectFields.Clear();
+            }
+            else
+            {
+                ObjectFields.Clear();
+            }
+        }
+        else if (mode == EditorMode.Object)
+        {
+            ObjectFields = new ObservableCollection<FieldRow>(EditorLogic.BuildObjectFields(_state, _state.SelectedPath));
+        }
+        else if (mode == EditorMode.Scalar)
+        {
+            var selected = EditorLogic.GetSelectedValue(_state);
+            ScalarNode = EditorLogic.BuildScalarNode(_state, _state.SelectedPath, selected);
+        }
+        else
+        {
+            ObjectFields.Clear();
+            CardItems.Clear();
+        }
     }
 
     // --- Commands ---
@@ -528,43 +174,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void SelectNode(JsonEditorNode? node)
     {
         if (node == null) return;
-
-        _selectedPath = node.Path;
-        NestedCtx = null;
-        _cardIndex = null;
-
-        if (node.NodeType == "object" || node.NodeType == "root")
-        {
-            if (!node.IsExpanded)
-            {
-                node.IsExpanded = true;
-                _expanded.Add(node.PathKey);
-            }
-        }
-
-        if (node.Value is JsonArray arr && arr.Count > 0)
-            _cardIndex = 0;
-
-        UpdateNodeSelection();
-        RefreshDerived();
-        OnPropertyChanged(nameof(TreeRootNodes));
+        EditorLogic.SelectNode(_state, node);
+        RefreshUI();
     }
 
     [RelayCommand]
     private void ToggleExpand(JsonEditorNode? node)
     {
-        if (node == null || !node.IsExpandable) return;
-
-        node.IsExpanded = !node.IsExpanded;
-        if (node.IsExpanded)
-            _expanded.Add(node.PathKey);
-        else
-            _expanded.Remove(node.PathKey);
-
-        _selectedPath = node.Path;
-        UpdateNodeSelection();
-        RefreshDerived();
-        OnPropertyChanged(nameof(TreeRootNodes));
+        if (node == null) return;
+        EditorLogic.ToggleExpand(_state, node);
+        RefreshUI();
     }
 
     [RelayCommand]
@@ -573,62 +192,51 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (parameter is not object[] args || args.Length < 2) return;
         if (args[0] is not string[] path) return;
 
-        var value = args[1];
-        var jsonNode = value switch
-        {
-            string s => (JsonNode?)JsonValue.Create(s),
-            bool b => JsonValue.Create(b),
-            int i => JsonValue.Create(i),
-            double d => JsonValue.Create(d),
-            long l => JsonValue.Create(l),
-            _ => null
-        };
-
+        var jsonNode = EditorLogic.ConvertToJsonNode(args[1]);
         if (jsonNode != null)
-            SetValueAtPath(path, jsonNode);
+        {
+            EditorLogic.SetValueAtPath(_state, path, jsonNode, _undoRedo);
+            RefreshUI();
+        }
     }
 
     [RelayCommand]
     private void AddCard()
     {
-        var arrayPath = NestedCtx?.ArrayPath ?? _selectedPath;
-        AddArrayItem(arrayPath);
+        var arrayPath = _state.NestedCtx?.ArrayPath ?? _state.SelectedPath;
+        EditorLogic.AddArrayItem(_state, arrayPath, _undoRedo);
+        RefreshUI();
     }
 
     [RelayCommand]
     private void DeleteCard(int? index)
     {
         if (index == null) return;
-        var arrayPath = NestedCtx?.ArrayPath ?? _selectedPath;
-        RemoveArrayItem(arrayPath, index.Value);
+        var arrayPath = _state.NestedCtx?.ArrayPath ?? _state.SelectedPath;
+        EditorLogic.RemoveArrayItem(_state, arrayPath, index.Value, _undoRedo);
+        RefreshUI();
     }
 
     [RelayCommand]
     private void SelectCard(int? index)
     {
-        if (index == null) return;
-        if (NestedCtx != null)
-            NestedCtx.CardIndex = index.Value;
-        else
-            _cardIndex = index.Value;
-        RefreshDerived();
+        EditorLogic.SelectCard(_state, index);
+        RefreshUI();
     }
 
     [RelayCommand]
     private void DrillIntoArray(string[]? path)
     {
         if (path == null) return;
-        NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0 };
-        _focusFieldPath = null;
-        RefreshDerived();
+        EditorLogic.DrillIntoArray(_state, path);
+        RefreshUI();
     }
 
     [RelayCommand]
     private void ExitNestedArray()
     {
-        NestedCtx = null;
-        _focusFieldPath = null;
-        RefreshDerived();
+        EditorLogic.ExitNestedArray(_state);
+        RefreshUI();
     }
 
     [RelayCommand]
@@ -636,8 +244,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            JsonFileService.SaveToFile(DocumentFilename, _json);
-            _originalJson = _json.DeepClone();
+            EditorLogic.SaveDocument(DocumentFilename, _state.Json);
+            _state.OriginalJson = _state.Json.DeepClone();
             ShowSaved = true;
             Task.Delay(2000).ContinueWith(_ =>
             {
@@ -661,19 +269,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void ToggleTextMode()
     {
         TextMode = !TextMode;
-        if (TextMode)
-            TextContent = JsonDocumentService.ToFormattedJson(JsonDocumentService.GetByPath(_json, _selectedPath) ?? _json);
-        RefreshDerived();
+        RefreshUI();
     }
 
     [RelayCommand]
     private void OpenDiff()
     {
         ShowDiff = true;
-        var original = JsonDocumentService.ToFormattedJson(_originalJson);
-        var current = JsonDocumentService.ToFormattedJson(_json);
-        var diff = JsonDiffService.ComputeDiff(original, current);
-        DiffLines = new ObservableCollection<JsonDiffLine>(diff);
+        DiffLines = new ObservableCollection<JsonDiffLine>(EditorLogic.GetDiffLines(_state));
     }
 
     [RelayCommand]
@@ -685,8 +288,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void FocusField(string[]? path)
     {
-        _focusFieldPath = path;
-        UpdateHelpInfo();
+        EditorLogic.FocusField(_state, path);
+        HelpInfo = EditorLogic.GetHelpInfo(_state);
     }
 
     [RelayCommand]
@@ -701,13 +304,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         TextContent = text;
         try
         {
-            var node = JsonNode.Parse(text);
-            if (node != null && _selectedPath.Length > 0)
-            {
-                _json = JsonDocumentService.SetByPath(_json, _selectedPath, node);
-                OnDocumentChanged();
-                HasTextParseError = false;
-            }
+            EditorLogic.ParseText(_state, text);
+            HasTextParseError = false;
+            TextParseError = "";
+            RefreshUI();
         }
         catch (JsonException ex)
         {
@@ -719,15 +319,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void Undo()
     {
-        _json = _undoRedo.ApplyUndo(_json);
-        OnDocumentChanged();
+        EditorLogic.Undo(_state, _undoRedo);
+        RefreshUI();
     }
 
     [RelayCommand]
     private void Redo()
     {
-        _json = _undoRedo.ApplyRedo(_json);
-        OnDocumentChanged();
+        EditorLogic.Redo(_state, _undoRedo);
+        RefreshUI();
     }
 
     [RelayCommand]
@@ -750,28 +350,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             var file = files[0];
             await using var stream = await file.OpenReadAsync();
             var node = await JsonFileService.LoadFromStreamAsync(stream);
-            InitDocument(node, file.Name);
+            EditorLogic.InitDocument(_state, node, file.Name);
+            DocumentFilename = file.Name;
+            _undoRedo.Clear();
+            RefreshUI();
         }
     }
 
     public void LoadJsonFromFile(string filePath)
     {
-        var node = JsonFileService.LoadFromFile(filePath);
-        InitDocument(node, System.IO.Path.GetFileName(filePath));
-    }
-
-    private void InitDocument(JsonNode node, string filename)
-    {
-        _json = node;
-        _originalJson = node.DeepClone();
-        DocumentFilename = filename;
-        _selectedPath = [];
-        _expanded = [];
-        _cardIndex = null;
-        NestedCtx = null;
+        var node = EditorLogic.LoadDocument(filePath);
+        EditorLogic.InitDocument(_state, node, System.IO.Path.GetFileName(filePath));
+        DocumentFilename = System.IO.Path.GetFileName(filePath);
         _undoRedo.Clear();
-        RebuildTree();
-        SelectNodeByPath([]);
+        RefreshUI();
     }
 
     [RelayCommand]
@@ -796,16 +388,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             var schema = await loader.LoadFromFileAsync(file.Path.LocalPath);
             var parser = new SchemaParser();
             var model = parser.Parse(schema);
-            HelpInfo.Description = model.Description ?? $"Schema loaded: {file.Name}";
+            HelpInfo = new SchemaFieldInfo { Description = model.Description ?? $"Schema loaded: {file.Name}" };
         }
-    }
-
-    // --- Helper ---
-
-    private void SelectNodeByPath(string[] path)
-    {
-        _selectedPath = path;
-        UpdateNodeSelection();
-        UpdateDerivedProperties();
     }
 }

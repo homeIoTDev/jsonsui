@@ -1,38 +1,72 @@
 # ConfixJson Development Guide
 
+> **Always read `ARCHITECTURE_OVERVIEW.md` first** — it defines the project architecture, design decisions, and the strict separation between Core (UI-independent) and UI layers.
+
 ## Project Structure
 
-- `src/ConfixJson.Core/` - JSON Schema handling, validation, and shared logic
-- `src/ConfixJson.UI/` - Avalonia desktop UI application
+- `src/ConfixJson.Core/` - UI-independent logic: models, services, document CRUD, validation, diff, undo/redo, file I/O
+- `src/ConfixJson.UI/` - Avalonia desktop UI application (MVVM with CommunityToolkit.Mvvm)
 - `ConfixJson.slnx` - .NET solution file
 
-The UI project references the Core library.
+The UI project references the Core library. **Core must never reference UI.**
+
+## Key Documentation
+
+- **`ARCHITECTURE_OVERVIEW.md`** — Architecture decisions, requirements, Core/UI boundary definition
+- **`ui.intent.json`** — Technology-neutral UI specification (layout, panels, widgets, design tokens)
 
 ## Entry Points
 
-**Desktop App:** Run `dotnet run --project src/ConfixJson.UI/ConfixJson.UI.csproj`
+**Desktop App:** `dotnet run --project src/ConfixJson.UI/ConfixJson.UI.csproj`
 **Core Library:** Use `src/ConfixJson.Core` as package reference
-
-## Key Code Files
-
-- `src/ConfixJson.Core/Models/*` - Data models (SchemaModel, SchemaProperty)
-- `src/ConfixJson.Core/Services/` - Core services (SchemaParser, SchemaValidator, SchemaLoader)
-- `src/ConfixJson.UI/Program.cs` - Avalonia app entry point
-- `src/ConfixJson.UI/Views/` - UI views
-- `src/ConfixJson.UI/ViewModels/` - View models
 
 ## Build & Run
 
 1. Build solution: `dotnet build ConfixJson.slnx`
 2. Run desktop app: `dotnet run --project src/ConfixJson.UI/ConfixJson.UI.csproj`
-3. Core tests may exist for validation logic in `src/ConfixJson.Core`
 
-## Architecture Notes
+## Architecture: Core vs UI boundary
 
-- **Core (`.Core`)**: UI-independent JSON schema parsing, validation, and diff logic (used by both desktop and web versions)
-- **UI (`.UI`)**: Avalonia-based desktop interface
-- Schema-driven: JSON Schema defines UI completely (types → UI elements, descriptions → help text)
-- Plugin system supported (DLLs loaded dynamically at runtime)
+**Core (`.Core`)** — Zero UI dependencies. Contains:
+- JSON document CRUD (`JsonDocumentService`)
+- File I/O (`JsonFileService`)
+- Diff computation (`JsonDiffService`)
+- Undo/Redo (`UndoRedoService`)
+- Schema parsing & validation (`SchemaParser`, `SchemaValidator`, `SchemaLoader`)
+- Validation models (`ValidationError`)
+- Future: `EditorState`, `EditorLogic`, UI-neutral models (`JsonEditorNode`, `FieldRow`, `CardItem`, `NestedContext`, `SchemaFieldInfo`)
+
+**UI (`.UI`)** — Avalonia MVVM. Contains:
+- ViewModels (`MainWindowViewModel` with `[ObservableProperty]`, `[RelayCommand]`)
+- Views (`MainWindow.axaml`, `TreeDataTemplate`)
+- Controls, styles, themes, converters
+- File picker dialogs (Avalonia-specific), theme toggling
+
+**Rule:** File I/O (`File.ReadAllText`, `StreamReader`, `JsonNode.Parse` for loaded files) belongs in Core. UI only calls Core services.
+
+## Key Code Files
+
+| Layer | Path | Purpose |
+|---|---|---|
+| Core | `Services/JsonDocumentService.cs` | GetByPath, SetByPath, Clone, Array CRUD, CreateTemplate |
+| Core | `Services/JsonFileService.cs` | LoadFromFile, LoadFromStream(Async), SaveToFile |
+| Core | `Services/JsonDiffService.cs` | ComputeDiff (line-by-line) |
+| Core | `Services/UndoRedoService.cs` | Command-based undo/redo stack |
+| Core | `Services/SchemaParser.cs` | JSON Schema → SchemaModel |
+| Core | `Services/SchemaValidator.cs` | Schema validation |
+| Core | `Services/SchemaLoader.cs` | Load schema files |
+| Core | `Models/SchemaModel.cs` | Schema data model |
+| Core | `Models/SchemaProperty.cs` | Schema property model |
+| UI | `ViewModels/MainWindowViewModel.cs` | Application state, commands, tree/editor logic |
+| UI | `Views/MainWindow.axaml` | Complete window layout |
+| UI | `Views/TreeDataTemplate.cs` | Recursive tree node rendering |
+| UI | `Models/JsonEditorNode.cs` | Observable tree node (UI layer) |
+| UI | `Models/FieldRow.cs` | Property grid row (UI layer) |
+| UI | `Models/CardItem.cs` | Array card item (UI layer) |
+| UI | `Converters/EditorConverters.cs` | XAML value converters |
+| UI | `Styles/EditorStyles.axaml` | Global component styles |
+| UI | `Styles/ThemeDark.axaml` | Dark theme resources |
+| UI | `Styles/ThemeLight.axaml` | Light theme resources |
 
 ## UI Type Mapping
 
@@ -44,12 +78,6 @@ The UI project references the Core library.
 - "object" → ObjectPanel
 - "array" → ArrayPanel
 
-## Core Services (just a good deal)
-
-1. **SchemaParser**: Converts JSON Schema to SchemaModel objects
-2. **SchemaValidator**: Validates JSON files against schemas
-3. **SchemaLoader**: Locates and loads schema files or from schema servers
-
 ## Configuration
 
 JSON Schema Auto-Detection:
@@ -57,30 +85,13 @@ JSON Schema Auto-Detection:
 2. Browse schema folder if not present
 3. Query schema server (future capability)
 
-## Development Workflow
-
-1. Modify JSON Schema → Core updates type mappings → UI reflects automatically
-2. Validate JSON files against schemas using Core library
-3. Run desktop app to test UI generation
-4. UI preview shows schema-driven properties with live validation
-
 ## Required Dependencies
 
-Based on project files:
 - `JsonSchema.Net` package in Core
 - `Avalonia*` packages in UI (Avalonia UI framework)
+- `CommunityToolkit.Mvvm` in UI
 - .NET 10.0+ runtime target framework
-
-## File Structure of Core
-
-`src/ConfixJson.Core/` contains:
-- **Models**: `SchemaModel.cs`, `SchemaProperty.cs`, `UiElementType.cs` (enum for UI element types)
-- **Services**: `SchemaLoader.cs`, `SchemaParser.cs`, `SchemaValidator.cs`
 
 ## Outlook
 
 Desktop (Avalonia) and future Web (Blazor) versions share identical Core logic.
-
-## Current Status
-
-Basic build (console output shows successful)

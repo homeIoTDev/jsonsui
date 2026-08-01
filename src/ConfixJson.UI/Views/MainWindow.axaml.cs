@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using ConfixJson.UI.Models;
+using ConfixJson.Core.Models;
 using ConfixJson.UI.ViewModels;
 
 namespace ConfixJson.UI.Views;

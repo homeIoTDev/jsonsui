@@ -1,4 +1,4 @@
-namespace ConfixJson.UI.Models;
+namespace ConfixJson.Core.Models;
 
 public enum EditorMode
 {
