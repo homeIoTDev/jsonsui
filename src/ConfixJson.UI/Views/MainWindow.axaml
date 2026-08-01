@@ -4,6 +4,7 @@
         xmlns:models="using:ConfixJson.Core.Models"
         xmlns:services="using:ConfixJson.Core.Services"
         xmlns:conv="clr-namespace:ConfixJson.UI.Converters"
+        xmlns:views="using:ConfixJson.UI.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
@@ -35,9 +36,6 @@
     <StreamGeometry x:Key="GeomArrowLeft">M9,4 L6,7 L9,10 M3.5,4 L0.5,7 L3.5,10</StreamGeometry>
     <StreamGeometry x:Key="GeomClose">M2,2 L10,10 M10,2 L2,10</StreamGeometry>
 
-    <!-- Tree Node DataTemplate -->
-    <TreeDataTemplate x:Key="TreeTemplate" />
-
   </Window.Resources>
 
   <Panel>
@@ -67,9 +65,9 @@
             <TextBlock Text="saved" Foreground="{DynamicResource AccentBrush}"
                        FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
                        FontSize="9" FontWeight="Bold" />
-          </Border>
-        </DockPanel>
-      </Border>
+            </Border>
+          </DockPanel>
+        </Border>
 
       <!-- ===== BODY ===== -->
       <Grid ColumnDefinitions="240,*">
@@ -77,18 +75,17 @@
         <Border Grid.Column="0" BorderThickness="0,0,1,0"
                 BorderBrush="{DynamicResource PanelBorderBrush}"
                 Background="{DynamicResource TreeBackgroundBrush}">
-          <DockPanel>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <Grid RowDefinitions="*,Auto">
+            <!-- Tree Scroll Area -->
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
               <ItemsControl ItemsSource="{Binding TreeRootNodes}" Margin="0,4,0,0">
                 <ItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="models:JsonEditorNode">
-                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource TreeTemplate}" />
-                  </DataTemplate>
+                  <views:TreeDataTemplate />
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
             </ScrollViewer>
             <!-- Tree Toolbar -->
-            <Border Classes="Toolbar TreeToolbar" DockPanel.Dock="Bottom" Padding="6,0">
+            <Border Grid.Row="1" Classes="Toolbar TreeToolbar" Padding="6,0">
               <StackPanel Orientation="Horizontal" Spacing="6"
                           HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
@@ -124,7 +121,7 @@
                 </Button>
               </StackPanel>
             </Border>
-          </DockPanel>
+          </Grid>
         </Border>
 
         <!-- ===== CONTENT AREA: TEXT MODE ===== -->

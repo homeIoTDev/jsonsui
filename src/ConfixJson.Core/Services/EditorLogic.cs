@@ -45,7 +45,7 @@ public static class EditorLogic
 
         if (value is JsonObject obj)
         {
-            node.NodeType = path.Length == 0 || (path.Length > 0 && path[^1] == "root") ? "root" : "object";
+            node.NodeType = path.Length == 0 ? "root" : "object";
             foreach (var kvp in obj)
             {
                 var childPath = path.Concat([kvp.Key]).ToArray();

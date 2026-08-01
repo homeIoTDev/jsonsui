@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ConfixJson Extreme Test Schema",
+  "type": "object",
+  "required": ["project", "matrixData", "servers", "workflows"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "version", "owners"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "owners": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["userId", "name", "permissions", "history"],
+            "properties": {
+              "userId": { "type": "integer" },
+              "name": { "type": "string" },
+              "permissions": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["read", "write", "admin"]
+                }
+              },
+              "history": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["timestamp", "action", "meta"],
+                  "properties": {
+                    "timestamp": { "type": "string", "format": "date-time" },
+                    "action": {
+                      "type": "string",
+                      "enum": ["created", "updated", "deleted"]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "required": ["ip", "location", "tags"],
+                      "properties": {
+                        "ip": { "type": "string" },
+                        "location": { "type": "string" },
+                        "tags": {
+                          "type": "array",
+                          "items": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "matrixData": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["x", "y", "value"],
+          "properties": {
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "value": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "servers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "host", "port", "ssl", "routes"],
+        "properties": {
+          "name": { "type": "string" },
+          "host": { "type": "string" },
+          "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+          "ssl": { "type": "boolean" },
+          "routes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["path", "methods", "responses"],
+              "properties": {
+                "path": { "type": "string" },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": ["GET", "POST", "PUT", "DELETE"]
+                  }
+                },
+                "responses": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["status", "schema"],
+                    "properties": {
+                      "status": { "type": "integer" },
+                      "schema": {
+                        "type": "object",
+                        "required": ["fields"],
+                        "properties": {
+                          "fields": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": ["name", "type"],
+                              "properties": {
+                                "name": { "type": "string" },
+                                "type": {
+                                  "type": "string",
+                                  "enum": ["string", "integer", "number", "boolean"]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "enabled", "steps"],
+        "properties": {
+          "name": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["stepId", "type"],
+              "properties": {
+                "stepId": { "type": "integer" },
+                "type": {
+                  "type": "string",
+                  "enum": ["fetch", "transform", "upload"]
+                },
+
+                "targets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["url", "retry"],
+                    "properties": {
+                      "url": { "type": "string", "format": "uri" },
+                      "retry": { "type": "integer", "minimum": 0 }
+                    }
+                  }
+                },
+
+                "rules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["ruleId", "conditions", "actions"],
+                    "properties": {
+                      "ruleId": { "type": "string" },
+                      "conditions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": ["field"],
+                          "properties": {
+                            "field": { "type": "string" },
+                            "equals": { "type": "string" },
+                            "greaterThan": { "type": "number" }
+                          }
+                        }
+                      },
+                      "actions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "set": {
+                              "type": "object",
+                              "additionalProperties": { "type": "string" }
+                            },
+                            "multiply": {
+                              "type": "object",
+                              "additionalProperties": { "type": "number" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+
+                "destinations": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["server", "paths"],
+                    "properties": {
+                      "server": { "type": "string" },
+                      "paths": {
+                        "type": "array",
+                        "items": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

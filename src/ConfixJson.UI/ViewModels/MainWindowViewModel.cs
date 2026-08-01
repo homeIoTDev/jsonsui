@@ -123,6 +123,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         TreeRootNodes.Clear();
         TreeRootNodes.Add(root);
 
+        // Reset all mode-specific content
+        ObjectFields.Clear();
+        CardItems.Clear();
+        ScalarNode = null;
+        TextContent = "";
+        TextEditorPathString = "";
+
         // Build mode-specific content
         var mode = CurrentEditorMode;
         if (mode == EditorMode.Text)
@@ -144,12 +151,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                     ObjectFields = new ObservableCollection<FieldRow>(EditorLogic.BuildObjectFields(_state, detailPath));
                 else if (detailValue is JsonValue)
                     ScalarNode = EditorLogic.BuildScalarNode(_state, detailPath, detailValue);
-                else
-                    ObjectFields.Clear();
-            }
-            else
-            {
-                ObjectFields.Clear();
             }
         }
         else if (mode == EditorMode.Object)
@@ -160,11 +161,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             var selected = EditorLogic.GetSelectedValue(_state);
             ScalarNode = EditorLogic.BuildScalarNode(_state, _state.SelectedPath, selected);
-        }
-        else
-        {
-            ObjectFields.Clear();
-            CardItems.Clear();
         }
     }
 

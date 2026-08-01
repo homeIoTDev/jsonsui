@@ -10,7 +10,9 @@
     <AvaloniaResource Include="Assets\**" />
     <AvaloniaResource Include="Styles\**" />
   </ItemGroup>
-
+<ItemGroup>
+  <Content Include="TestData\*.json" CopyToOutputDirectory="Always" />
+</ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.0" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />

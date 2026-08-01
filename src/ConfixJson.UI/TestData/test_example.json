@@ -1,0 +1,151 @@
+{
+  "project": {
+    "id": "confix-001",
+    "name": "ConfixJson Extreme Test",
+    "version": "3.0.0",
+    "owners": [
+      {
+        "userId": 1,
+        "name": "Sebastian",
+        "permissions": ["read", "write", "admin"],
+        "history": [
+          {
+            "timestamp": "2026-07-01T12:00:00Z",
+            "action": "created",
+            "meta": {
+              "ip": "192.168.0.10",
+              "location": "DE",
+              "tags": ["initial", "system"]
+            }
+          },
+          {
+            "timestamp": "2026-07-02T09:30:00Z",
+            "action": "updated",
+            "meta": {
+              "ip": "192.168.0.11",
+              "location": "DE",
+              "tags": ["edit", "manual"]
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  "matrixData": [
+    [
+      { "x": 1, "y": 2, "value": "A" },
+      { "x": 3, "y": 4, "value": "B" }
+    ],
+    [
+      { "x": 5, "y": 6, "value": "C" },
+      { "x": 7, "y": 8, "value": "D" }
+    ]
+  ],
+
+  "servers": [
+    {
+      "name": "primary",
+      "host": "localhost",
+      "port": 8080,
+      "ssl": false,
+      "routes": [
+        {
+          "path": "/api/v1/users",
+          "methods": ["GET", "POST"],
+          "responses": [
+            {
+              "status": 200,
+              "schema": {
+                "fields": [
+                  { "name": "id", "type": "integer" },
+                  { "name": "username", "type": "string" }
+                ]
+              }
+            },
+            {
+              "status": 500,
+              "schema": {
+                "fields": [
+                  { "name": "error", "type": "string" },
+                  { "name": "traceId", "type": "string" }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "path": "/api/v1/products",
+          "methods": ["GET"],
+          "responses": [
+            {
+              "status": 200,
+              "schema": {
+                "fields": [
+                  { "name": "productId", "type": "integer" },
+                  { "name": "title", "type": "string" },
+                  { "name": "price", "type": "number" }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "backup",
+      "host": "backup.local",
+      "port": 8081,
+      "ssl": true,
+      "routes": []
+    }
+  ],
+
+  "workflows": [
+    {
+      "name": "daily-sync",
+      "enabled": true,
+      "steps": [
+        {
+          "stepId": 1,
+          "type": "fetch",
+          "targets": [
+            { "url": "https://api.example.com/data", "retry": 3 },
+            { "url": "https://api.example.com/backup", "retry": 1 }
+          ]
+        },
+        {
+          "stepId": 2,
+          "type": "transform",
+          "rules": [
+            {
+              "ruleId": "r1",
+              "conditions": [
+                { "field": "status", "equals": "active" },
+                { "field": "count", "greaterThan": 10 }
+              ],
+              "actions": [
+                { "set": { "priority": "high" } },
+                { "multiply": { "count": 2 } }
+              ]
+            }
+          ]
+        },
+        {
+          "stepId": 3,
+          "type": "upload",
+          "destinations": [
+            {
+              "server": "primary",
+              "paths": ["/upload/main", "/upload/backup"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "schema": {
+    "$ref": "./test_example.schema.json"
+  }
+}
