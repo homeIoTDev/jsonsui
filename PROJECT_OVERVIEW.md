@@ -34,29 +34,76 @@ Das Tool soll sowohl **lokal** als native App laufen (Avalonia UI) als auch spä
 - Pflichtfelder werden markiert.
 - Ungültige Eingaben werden ignoriert oder optional gelöscht.
 - Live‑Validierung direkt am Feld.
-- Baumansicht für Objekte auf der linken Seite, rechts der Editorbereich.
-- Im Editorbereich soll die aktuelle Hilfestellung zum fokussierten UI-Element angezeigt werden. st nichts fokussiert, wird die Beschreibung des gesamten Dokuments aus dem Schema angezeigt. Die Hilfestellung besteht aus den Feldern description, default, deprecated, readOnly und – falls vorhanden – $comment 
-- Die Werte $id und $schema werden verdeckt angezeigt, also nicht sofort sichtbar.
-- Links befindet sich der Baum, der die JSON‑Struktur zeigt; rechts wird der Inhalt angezeigt (Editorbereich).
-  - Im Baum wird hinter jedem Element die Anzahl der Unterelemente (abgedunkelt) angezeigt, z. B. {6} oder [9].
-  - Im Baum kann man nur zu einem JSON-Objekt oder einem Array springen. Einzelelemente sollen nicht aufgeklappt werden können, da man diese bereits im Editorbereich sieht. Ein Aufklappen ist nur möglich, wenn sich unter einem Objekt weitere Objekte befinden oder in einem Array-Objekt weitere Objekte existieren. Array-Objekte werden mit [0], [1] usw. als Knoten dargestellt – allerdings nur, wenn darunter weitere Objekte liegen.
-  - Im Baum wird vor dem Element angezeigt durch den Pfeil nach rechts, ob aufgeklappt werden kann oder ein [] zeichen, das anzeigt das es ein Array ist. Ist es aufgeklapt, zeigt der Pfeil nach unten
-  - Über der Baumansicht ist ein Suchfeld
-  - Im Editorbereich wird oben ein Breadcrumb angezeigt, der die Position im Baum widerspiegelt (z. B. root / plugins / [0]). Ein Klick darauf springt direkt an die entsprechende Stelle in der Baumstruktur. 
-- Arrays werden im Editorbereich als Array‑Item‑Cards in einer nebeneinander geteilten Ansicht dargestellt, anstatt als „Array‑Item‑Nodes“ in der Baumstruktur. Das gilt auch für tief verschachtelte JSON‑Objekte, die Arrays enthalten. In diesem Fall wird die Baumstruktur bis zu diesem Objekt visualisiert, und der Editorbereich zeigt ab dieser Ebene den Inhalt an. Wenn dort ein Array vorhanden ist, wird der Editorbereich nicht erneut  geteilt und die Ansicht wird nicht enger..
+- Links befindet sich der Baum, der die JSON‑Struktur zeigt; rechts wird der Inhalt angezeigt (Editorbereich). Im Editorbereich soll die aktuelle Hilfestellung zum fokussierten UI-Element angezeigt werden. Die Werte $id und $schema werden verdeckt angezeigt, also nicht sofort sichtbar.
+
+ 
+#### Baumansicht (links)
+- Zeigt die JSON‑Struktur.
+- Hinter jedem Element wird die Anzahl der Unterelemente angezeigt, z. B. `{6}` oder `[9]`.
+- Einzelelemente werden nicht aufgeklappt, da sie im Editorbereich sichtbar sind.
+- Array‑Objekte werden als `[0]`, `[1]` usw. dargestellt – aber nur, wenn darunter Objekte liegen.
+- Pfeile zeigen den Aufklappstatus:
+  - `▶` für zugeklappt
+  - `▼` für aufgeklappt
+  - `[]` für Arrays
+- Über der Baumansicht befindet sich ein Suchfeld.
+- Im Baum kann man nur zu einem JSON-Objekt oder einem Array springen. Einzelelemente sollen nicht mit einzel klick aufgeklappt werden können, da man diese bereits im Editorbereich sieht. Ein Aufklappen mit einfach klick ist nur möglich, wenn sich unter einem JSON-Objekt weitere  JSON-Objekte befinden oder unter einem Array-Objekt weitere JSON-Objekte existieren. 
+
+#### Editorbereich (rechts)
+- Zeigt die Inhalte des selektierten JSON‑Objekts.
+- Oben wird ein Breadcrumb angezeigt (z. B. `root / plugins / [0]`).
+- Ein Klick auf den Breadcrumb springt direkt an die entsprechende Stelle im Baum.
+
+##### Editieren im Editorbereich (rechts)
+- Alle Änderungen am jeweiligen JSON‑Teil müssen vom UI‑Control, das diesen Teil visualisiert, im Speicher mitverfolgt werden, um auf geänderte Daten den Benutzer hinzuweisen und ggf es rückgängig machen zu können.
+- Ist im Baum keine Liste fokussiert, entfällt der vertikal geteilte Bereich, und es wird der Editorbereich über die gesamte Breite angezeigt.
+- Das JEDES UI-Controll muss fokusierbar sein mit seinem Text und Knopf im gesamten. Der Fokus muss leicht für den Benutzer angedeutet sein, damit er den Bezug zur Hilfetellung erkennt.
+
+#### Arrays im Editorbereich
+- Arrays werden im Editorbereich als Array‑Item‑Cards angezeigt. Die Anzeige teilt den Editorbereich vertikal und links sind die Array‑Item‑Cards, rechts weiter der Editorbereich.
+  - Diese Darstellung wird auch für tief verschachtelte JSON‑Objekte genutzt, die Arrays enthalten. In diesem Fall wird die Baumstruktur bis zu diesem Objekt visualisiert, und der Editorbereich zeigt ab dieser Ebene den Inhalt an. Wenn dort ein Array vorhanden ist, wird der Editorbereich nicht erneut  geteilt und die Ansicht wird nicht enger.Bei verschachtelten Arrays bleibt die Baumselektion stabil; der Editorbereich zeigt die tiefere Ebene.
   - Jedes Card‑Item besitzt einen „Bearbeiten“‑Button zum Öffnen des Detail‑Editors und einen „Löschen“‑Button zum Entfernen des Items.
   - Unter der Liste befindet sich ein „Hinzufügen“‑Button, um neue Array‑Items anzulegen.
   - Wenn eine Liste selektiert ist, wird über der Liste die Hilfestellung aus dem JSON-Schema kompakt angezeigt.
-  - Befindet sich im rechten Detail‑Editorbereich wiederum eine Liste, erscheint auch hier ein Button, und alle drei Fensterbereiche fokusiere sich entsprechend auf diesen diesen Hierarchie-Abschnitt. Die Selektion im Baum bleibt dabei auf dem JSON-Objekt und wird nicht verändert.
-- Alle Änderungen am jeweiligen JSON‑Teil müssen vom UI‑Control, das diesen Teil visualisiert, im Speicher mitverfolgt werden, um auf geänderte Daten den Benutzer hinzuweisen und ggf es rückgängig machen zu können.
-- Die UI soll einen Dark‑ und Light‑Mode besitzen. Im Dark‑Mode sollen beispielsweise Rahmen in Neonfarben gestaltet sein, um ein modernes Design zu erzeugen.
-- Die Hilfestellung zum fokussierten UI-Control (das einen JSON-Teil visualisiert) wird immer ganz unten im rechten Detail-Editorbereich angezeigt – kompakt, aber vollständig mit allen Hilfselementen aus dem JSON-Schema. Sie bleibt auch beim Scrollen im Editorbereich sichtbar, da nur der darüberliegende Bereich mit den UI-Controls gescrollt wird.
-- Ist im Baum keine Liste fokussiert, entfällt der vertikal geteilte Bereich, und es wird nur der Detail‑Editorbereich über die gesamte Breite angezeigt. 
-- Unter der Baumstruktur ist ein schmaler Streifen für Icons und Schaltflächen vorgesehen. Dort können der Dark‑Mode umgeschaltet, der Editorbereich in den Textmodus gewechselt, die Datei gespeichert oder die Diff‑Ansicht aktiviert werden.
-- Der Texteditor ist ein eigener Modus und wird über einen Button aktiviert. Er zeigt nur für das aktuell selektierte Objekt den Teil-JSON als Text an und ersetzt den mit UI-Elementen visualisierten Editorbereich. Um die gesamte JSON-Datei zu sehen, muss auf das oberste Element im Baum selektiert werden. Die Baumstruktur bleibt dabei immer sichtbar, und die Selektion kann jederzeit gewechselt werden, um den entsprechenden JSON-Teil anzuzeigen.
-   - Unter dem Editorbereich wird weiterhin kompakt die Hilfestellung aus dem Schema angezeigt – abhängig davon, wo sich der Cursor im Editorfenster befindet.
-   - Eine oder zwei Zeilen darüber erscheinen mögliche Validierungsfehler. Diese beziehen sich auf den selektierten Teil im Baum. Globale Fehler werden in der Baumstruktur mit einem „!“ markiert.
+  - Befindet sich im rechten Editorbereich wiederum eine Liste, erscheint auch hier ein Button, und alle drei Fensterbereiche fokusiere sich entsprechend auf diesen diesen Hierarchie-Abschnitt. Die Selektion im Baum bleibt dabei auf dem JSON-Objekt und wird nicht verändert.
+ 
 
+#### Hilfestellung
+- Wird immer unten im Editorbereich angezeigt.
+- Bleibt beim Scrollen sichtbar.
+- Enthält:
+  - `description`
+  - `default`
+  - `deprecated`
+  - `readOnly`
+  - `$comment`
+- Die Hilfestellung gehört immer zum fokussierten UI-Control (das einen JSON-Teil visualisiert)
+- Wenn nichts fokussiert ist, wird die Dokumentbeschreibung angezeigt.
+
+#### Dark/Light‑Mode
+- Umschaltbar über Icon.
+- Im Dark‑Mode werden Rahmen neonfarben dargestellt.
+
+#### Textmodus
+- Aktivierbar über Icon und ist somit ein eigener Modus um JSON zu als Text zu editieren.
+- Zeigt den JSON‑Text des selektierten Objekts im Baum.
+- Baum bleibt sichtbar.
+  - Die Selektion im Baum kann jederzeit gewechselt werden.
+- Hilfestellung bleibt sichtbar und zeigt die Hilfe in Abhängigkeit, wo sich der Cursor im Editorfenster befindet.
+- Validierungsfehler erscheinen unter dem Editor.
+- Globale Fehler werden im Baum mit „!“ markiert.
+
+#### Icon‑Streifen (unter der Baumstruktur)
+Nur Icons, keine Textbuttons:
+
+| Funktion | Icon |
+|---------|------|
+| Datei öffnen | 📂 |
+| Datei speichern | 💾 |
+| Schema laden | 🗂 |
+| Dark/Light‑Mode | 🌓 |
+| Textmodus | 📝 |
+| Diff‑Ansicht | 🔀 |
 
 ### 2.3 Diff‑Ansicht
 - Zwei JSON‑Configs nebeneinander.
@@ -66,7 +113,7 @@ Das Tool soll sowohl **lokal** als native App laufen (Avalonia UI) als auch spä
 
 ### 2.4 Schema‑Auto‑Erkennung
 - `$schema` im JSON wird automatisch erkannt.
-- Falls nicht vorhanden:
+- Falls nicht vorhanden:a
   - User wählt Schema manuell.
   - Tool durchsucht Schema‑Ordner.
   - Tool kann Schema‑Server abfragen (später).
@@ -87,6 +134,8 @@ Plugins sollen später:
 - Schema‑Erweiterungen bereitstellen  
 
 Plugins sind DLLs und werden dynamisch geladen.
+
+
 
 ---
 
