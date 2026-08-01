@@ -1,0 +1,49 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Chevron (right-pointing triangle) -->
+  <StreamGeometry x:Key="IconChevron">M6 3.5 L9 7 L6 10.5 Z</StreamGeometry>
+
+  <!-- Chevron Open (down-pointing triangle) -->
+  <StreamGeometry x:Key="IconChevronDown">M3.5 6 L7 9 L10.5 6 Z</StreamGeometry>
+
+  <!-- Dot -->
+  <StreamGeometry x:Key="IconDot">M6,6 A3,3 0 1,1 8,3 A3,3 0 0,1 6,6 Z</StreamGeometry>
+
+  <!-- Bracket -->
+  <StreamGeometry x:Key="IconBracket">M2 2 L2 12 M2 2 L4 2 M2 12 L4 12 M10 12 L10 2 M8 2 L10 2 M8 12 L10 12</StreamGeometry>
+
+  <!-- Error -->
+  <StreamGeometry x:Key="IconError">M7 2 L13 12 L1 12 Z M7 7 L7 10 M7 4 L7 5</StreamGeometry>
+
+  <!-- Moon -->
+  <StreamGeometry x:Key="IconMoon">M10.5 12 A5.5 5.5 0 1 1 4.5 0.5 A7 7 0 0 0 10.5 12 Z</StreamGeometry>
+
+  <!-- Sun -->
+  <StreamGeometry x:Key="IconSun">M7 0 L7 2 M7 12 L7 14 M0 7 L2 7 M12 7 L14 7 M2.1 2.1 L3.5 3.5 M10.5 10.5 L11.9 11.9 M2.1 11.9 L3.5 10.5 M10.5 3.5 L11.9 2.1 M7 4 A3 3 0 1 0 7 10 A3 3 0 1 0 7 4 Z</StreamGeometry>
+
+  <!-- Code (angle brackets) -->
+  <StreamGeometry x:Key="IconCode">M4 3.5 L1 7 L4 10.5 M9 3.5 L12 7 L9 10.5 M6 2.5 L8 11.5</StreamGeometry>
+
+  <!-- Save (floppy disk) -->
+  <StreamGeometry x:Key="IconSave">M1 0 L11 0 L14 3 L14 14 L1 14 Z M3 14 L3 9 L11 9 L11 14 Z M3 0 L3 4 L9 4 L9 0 Z</StreamGeometry>
+
+  <!-- Diff -->
+  <StreamGeometry x:Key="IconDiff">M0 2 L14 2 M0 7 L14 7 M0 12 L14 12 M10 5.5 L13 7 L10 8.5</StreamGeometry>
+
+  <!-- Trash -->
+  <StreamGeometry x:Key="IconTrash">M3 2 L5 0 L9 0 L11 2 L14 2 L14 3 L0 3 L0 2 Z M1.5 4 L12.5 4 L11.5 14 L2.5 14 Z M5 5.5 L5 12 M7 5.5 L7 12 M9 5.5 L9 12</StreamGeometry>
+
+  <!-- Plus -->
+  <StreamGeometry x:Key="IconPlus">M6 0 L8 0 L8 6 L14 6 L14 8 L8 8 L8 14 L6 14 L6 8 L0 8 L0 6 L6 6 Z</StreamGeometry>
+
+  <!-- Arrow Right -->
+  <StreamGeometry x:Key="IconArrowRight">M2 3.5 L5 7 L2 10.5 M7.5 3.5 L10.5 7 L7.5 10.5</StreamGeometry>
+
+  <!-- Arrow Left -->
+  <StreamGeometry x:Key="IconArrowLeft">M9 3.5 L6 7 L9 10.5 M3.5 3.5 L0.5 7 L3.5 10.5</StreamGeometry>
+
+  <!-- Close -->
+  <StreamGeometry x:Key="IconClose">M1 1 L11 11 M11 1 L1 11</StreamGeometry>
+
+</ResourceDictionary>

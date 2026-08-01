@@ -1,22 +1,480 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ConfixJson.UI.ViewModels"
+        xmlns:models="using:ConfixJson.UI.Models"
+        xmlns:services="using:ConfixJson.Core.Services"
+        xmlns:conv="clr-namespace:ConfixJson.UI.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d"
         x:Class="ConfixJson.UI.Views.MainWindow"
-        x:DataType="vm:MainViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="ConfixJson.UI">
+        x:DataType="vm:MainWindowViewModel"
+        x:Name="RootWindow"
+        Title="{Binding DocumentFilename}"
+        Width="1200" Height="800"
+        MinWidth="800" MinHeight="500"
+        Background="{DynamicResource BackgroundBrush}">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainViewModel />
-    </Design.DataContext>
+  <Window.Resources>
 
-    <TextBox Text="{Binding Greeting}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+    <!-- Icons -->
+    <StreamGeometry x:Key="GeomOpenFile">M2,1 L5,1 L7,3 L12,3 L12,12 L2,12 Z M2,3 L2,13 L12,13 L12,5 L2,5 Z</StreamGeometry>
+    <StreamGeometry x:Key="GeomChevron">M6 4 L10 8 L6 12 Z</StreamGeometry>
+    <StreamGeometry x:Key="GeomChevronDown">M4 6 L8 10 L12 6 Z</StreamGeometry>
+    <StreamGeometry x:Key="GeomDot">M6,6 A2,2 0 1,1 8,4 A2,2 0 0,1 6,6 Z</StreamGeometry>
+    <StreamGeometry x:Key="GeomBracket">M3,3 L3,11 M3,3 L5,3 M3,11 L5,11 M11,3 L11,11 M9,3 L11,3 M9,11 L11,11</StreamGeometry>
+    <StreamGeometry x:Key="GeomError">M7,2 L13,12 L1,12 Z M7,7 L7,10 M7,4 L7,5</StreamGeometry>
+    <StreamGeometry x:Key="GeomMoon">M10.5,12 A5.5,5.5 0 1,1 4.5,0.5 A7,7 0 0,0 10.5,12 Z</StreamGeometry>
+    <StreamGeometry x:Key="GeomSun">M7,0 L7,2 M7,12 L7,14 M0,7 L2,7 M12,7 L14,7 M2.1,2.1 L3.5,3.5 M10.5,10.5 L11.9,11.9 M2.1,11.9 L3.5,10.5 M10.5,3.5 L11.9,2.1 M7,4 A3,3 0 1,0 7,10 A3,3 0 1,0 7,4 Z</StreamGeometry>
+    <StreamGeometry x:Key="GeomCode">M4,3.5 L1,7 L4,10.5 M9,3.5 L12,7 L9,10.5 M6,2.5 L8,11.5</StreamGeometry>
+    <StreamGeometry x:Key="GeomSave">M2,0 L10,0 L13,3 L13,13 L2,13 Z M4,13 L4,8 L10,8 L10,13 M4,-1 L4,3 L8,3 L8,-1</StreamGeometry>
+    <StreamGeometry x:Key="GeomDiff">M0,3 L12,3 M0,7 L12,7 M0,11 L12,11 M9,5.5 L11,7 L9,8.5</StreamGeometry>
+    <StreamGeometry x:Key="GeomTrash">M3,2 L5,0 L9,0 L11,2 L14,2 L14,3 L0,3 L0,2 Z M1.5,4 L12.5,4 L11.5,14 L2.5,14 Z M5,6 L5,12 M7,6 L7,12 M9,6 L9,12</StreamGeometry>
+    <StreamGeometry x:Key="GeomPlus">M6,0 L8,0 L8,6 L14,6 L14,8 L8,8 L8,14 L6,14 L6,8 L0,8 L0,6 L6,6 Z</StreamGeometry>
+    <StreamGeometry x:Key="GeomArrowRight">M3,4 L6,7 L3,10 M8.5,4 L11.5,7 L8.5,10</StreamGeometry>
+    <StreamGeometry x:Key="GeomArrowLeft">M9,4 L6,7 L9,10 M3.5,4 L0.5,7 L3.5,10</StreamGeometry>
+    <StreamGeometry x:Key="GeomClose">M2,2 L10,10 M10,2 L2,10</StreamGeometry>
+
+    <!-- Tree Node DataTemplate -->
+    <TreeDataTemplate x:Key="TreeTemplate" />
+
+  </Window.Resources>
+
+  <Panel>
+
+    <!-- ===== MAIN LAYOUT ===== -->
+    <DockPanel>
+
+      <!-- ===== TOP HEADER ===== -->
+      <Border Classes="Toolbar TopHeader" DockPanel.Dock="Top" Padding="14,0">
+        <DockPanel VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="12" DockPanel.Dock="Left">
+            <TextBlock Text="JSON EDITOR" Classes="HeaderLabel" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding DocumentFilename}"
+                       Foreground="{DynamicResource TextTertiaryBrush}"
+                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                       FontSize="10" VerticalAlignment="Center" />
+          </StackPanel>
+          <Border Classes="StatusError" IsVisible="{Binding HasErrors}"
+                  DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
+            <TextBlock Text="{Binding ErrorCount, StringFormat={}{0} errors}"
+                       Foreground="{DynamicResource ErrorBrush}"
+                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                       FontSize="9" FontWeight="Bold" />
+          </Border>
+          <Border Classes="StatusSuccess" IsVisible="{Binding ShowSaved}"
+                  DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
+            <TextBlock Text="saved" Foreground="{DynamicResource AccentBrush}"
+                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                       FontSize="9" FontWeight="Bold" />
+          </Border>
+        </DockPanel>
+      </Border>
+
+      <!-- ===== BODY ===== -->
+      <Grid ColumnDefinitions="240,*">
+        <!-- ===== TREE PANEL ===== -->
+        <Border Grid.Column="0" BorderThickness="0,0,1,0"
+                BorderBrush="{DynamicResource PanelBorderBrush}"
+                Background="{DynamicResource TreeBackgroundBrush}">
+          <DockPanel>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <ItemsControl ItemsSource="{Binding TreeRootNodes}" Margin="0,4,0,0">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="models:JsonEditorNode">
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource TreeTemplate}" />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+            <!-- Tree Toolbar -->
+            <Border Classes="Toolbar TreeToolbar" DockPanel.Dock="Bottom" Padding="6,0">
+              <StackPanel Orientation="Horizontal" Spacing="6"
+                          HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
+                        ToolTip.Tip="Open file" Width="28" Height="28" Padding="4">
+                  <PathIcon Data="{StaticResource GeomOpenFile}" Width="14" Height="14"
+                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Button>
+                <Button Command="{Binding ToggleThemeCommand}" Classes="IconBtn"
+                        ToolTip.Tip="Toggle theme" Width="28" Height="28" Padding="4">
+                  <Panel>
+                    <PathIcon Data="{StaticResource GeomMoon}" Width="14" Height="14"
+                              Foreground="{DynamicResource TextSecondaryBrush}"
+                              IsVisible="{Binding Dark}" />
+                    <PathIcon Data="{StaticResource GeomSun}" Width="14" Height="14"
+                              Foreground="{DynamicResource TextSecondaryBrush}"
+                              IsVisible="{Binding Dark, Converter={x:Static conv:EditorConverters.InverseBool}}" />
+                  </Panel>
+                </Button>
+                <Button Command="{Binding ToggleTextModeCommand}" Classes="IconBtn"
+                        ToolTip.Tip="Toggle text mode" Width="28" Height="28" Padding="4">
+                  <PathIcon Data="{StaticResource GeomCode}" Width="14" Height="14"
+                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Button>
+                <Button Command="{Binding SaveCommand}" Classes="IconBtn"
+                        ToolTip.Tip="Save" Width="28" Height="28" Padding="4">
+                  <PathIcon Data="{StaticResource GeomSave}" Width="14" Height="14"
+                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Button>
+                <Button Command="{Binding OpenDiffCommand}" Classes="IconBtn"
+                        ToolTip.Tip="Show diff" Width="28" Height="28" Padding="4">
+                  <PathIcon Data="{StaticResource GeomDiff}" Width="14" Height="14"
+                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                </Button>
+              </StackPanel>
+            </Border>
+          </DockPanel>
+        </Border>
+
+        <!-- ===== CONTENT AREA: TEXT MODE ===== -->
+        <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}"
+                IsVisible="{Binding TextMode}">
+          <DockPanel>
+            <Border Classes="PanelHeader" DockPanel.Dock="Top">
+              <DockPanel VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="TEXT" Classes="HeaderLabel" />
+                  <TextBlock Text="{Binding TextEditorPathString}" Classes="HeaderSubtitle" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <Border Classes="ErrorBanner" DockPanel.Dock="Top"
+                    IsVisible="{Binding HasTextParseError}">
+              <TextBlock Text="{Binding TextParseError}" Classes="ErrorText" />
+            </Border>
+            <TextBox Text="{Binding TextContent}"
+                     Classes="MonoEditor" AcceptsReturn="True"
+                     Background="{DynamicResource InputBackgroundBrush}" BorderThickness="0" />
+            <Border Classes="HelpStrip" DockPanel.Dock="Bottom">
+              <StackPanel Spacing="3">
+                <TextBlock Text="{Binding HelpInfo.PathString}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           FontStyle="Italic" FontSize="11" />
+                <TextBlock Text="{Binding HelpInfo.Description}"
+                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11"
+                           IsVisible="{Binding HelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+              </StackPanel>
+            </Border>
+          </DockPanel>
+        </Border>
+
+        <!-- ===== CONTENT AREA: OBJECT MODE ===== -->
+        <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}"
+                IsVisible="{Binding IsObjectMode}">
+          <DockPanel>
+            <Border Classes="PanelHeader" DockPanel.Dock="Top">
+              <DockPanel VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="OBJECT" Classes="HeaderLabel" />
+                  <TextBlock Text="{Binding SelectedPathString}" Classes="HeaderSubtitle" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="4" DockPanel.Dock="Right">
+                  <Button Command="{Binding UndoCommand}" Classes="IconBtn"
+                          IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
+                          Width="22" Height="22" Padding="2">
+                    <PathIcon Data="{StaticResource GeomArrowLeft}" Width="11" Height="11"
+                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                  </Button>
+                  <Button Command="{Binding RedoCommand}" Classes="IconBtn"
+                          IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
+                          Width="22" Height="22" Padding="2">
+                    <PathIcon Data="{StaticResource GeomArrowRight}" Width="11" Height="11"
+                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                  </Button>
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="models:FieldRow">
+                    <Border Margin="0,0,0,8" Padding="0"
+                            Tapped="FieldRow_Tapped" Tag="{Binding Path}">
+                      <Grid ColumnDefinitions="130,10,*">
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                          <DockPanel>
+                            <TextBlock Text="*" Foreground="{DynamicResource ErrorBrush}"
+                                       FontWeight="Bold" Margin="0,0,2,0"
+                                       IsVisible="{Binding IsRequired}" DockPanel.Dock="Right" />
+                            <TextBlock Text="{Binding Key}" Classes="FieldLabel"
+                                       TextTrimming="CharacterEllipsis" />
+                          </DockPanel>
+                        </StackPanel>
+                        <Grid Grid.Column="1" />
+                        <Grid Grid.Column="2" VerticalAlignment="Center">
+                          <StackPanel IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
+                                      Opacity="0.5">
+                            <TextBlock Text="{Binding NestedObjectSummary}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="10" />
+                          </StackPanel>
+                          <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
+                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
+                                  CommandParameter="{Binding Path}"
+                                  Background="{DynamicResource CardBackgroundBrush}"
+                                  BorderBrush="{DynamicResource PanelBorderBrush}"
+                                  BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <PathIcon Data="{StaticResource GeomBracket}" Width="10" Height="10"
+                                        Foreground="{DynamicResource AccentBrush}" />
+                              <TextBlock Text="{Binding ArrayItemCount}"
+                                         FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
+                              <PathIcon Data="{StaticResource GeomArrowRight}" Width="10" Height="10"
+                                        Foreground="{DynamicResource TextTertiaryBrush}" />
+                            </StackPanel>
+                          </Button>
+                          <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
+                                   Width="250" HorizontalAlignment="Left" />
+                        </Grid>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+            <Border Classes="HelpStrip" DockPanel.Dock="Bottom">
+              <StackPanel Spacing="4">
+                <Border IsVisible="{Binding HelpInfo.HasValidationErrors}">
+                  <TextBlock Text="{Binding HelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
+                </Border>
+                <WrapPanel>
+                  <TextBlock Text="{Binding HelpInfo.PathString}"
+                             Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
+                             Margin="0,0,12,0" />
+                  <TextBlock Text="{Binding HelpInfo.Description}" Classes="HelpDescription"
+                             IsVisible="{Binding HelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                </WrapPanel>
+                <WrapPanel>
+                  <Border Classes="Badge BadgeWarn" IsVisible="{Binding HelpInfo.IsDeprecated}">
+                    <TextBlock Text="DEPRECATED" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
+                  </Border>
+                  <Border Classes="Badge BadgeMuted" IsVisible="{Binding HelpInfo.IsReadOnly}">
+                    <TextBlock Text="READ-ONLY" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
+                  </Border>
+                  <TextBlock Text="{Binding HelpInfo.Comment}" Classes="HelpComment"
+                             IsVisible="{Binding HelpInfo.Comment, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+          </DockPanel>
+        </Border>
+
+        <!-- ===== CONTENT AREA: ARRAY SPLIT MODE ===== -->
+        <Grid Grid.Column="1" ColumnDefinitions="240,*" IsVisible="{Binding IsArrayMode}">
+          <!-- Card List -->
+          <Border Grid.Column="0" BorderThickness="0,0,1,0"
+                  BorderBrush="{DynamicResource PanelBorderBrush}"
+                  Background="{DynamicResource PanelBackgroundBrush}">
+            <DockPanel>
+              <Border Classes="PanelHeader" DockPanel.Dock="Top">
+                <DockPanel VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="ARRAY" Classes="HeaderLabel" />
+                    <TextBlock Text="{Binding CardArrayPathString}" Classes="HeaderSubtitle" />
+                  </StackPanel>
+                  <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
+                          DockPanel.Dock="Right" Classes="IconBtn"
+                          Command="{Binding ExitNestedArrayCommand}"
+                          Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
+                    <PathIcon Data="{StaticResource GeomArrowLeft}" Width="11" Height="11"
+                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                  </Button>
+                </DockPanel>
+              </Border>
+              <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding CardItems}" Margin="10,12">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:CardItem">
+                      <Border Classes="CardItem" Margin="0,0,0,6"
+                              Tapped="CardItem_Tapped">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Grid.Column="0" Spacing="4">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <TextBlock Text="{Binding Index, StringFormat=[{0}]}"
+                                         FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                                         FontSize="10" FontWeight="Bold"
+                                         Foreground="{DynamicResource AccentBrush}" />
+                              <PathIcon Data="{StaticResource GeomError}" Width="10" Height="10"
+                                        Foreground="{DynamicResource ErrorBrush}"
+                                        IsVisible="{Binding HasErrors}" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding Preview}" Classes="CardPreview" TextTrimming="CharacterEllipsis" />
+                          </StackPanel>
+                          <Button Grid.Column="1" VerticalAlignment="Top"
+                                  Classes="IconBtn" Width="20" Height="20" Padding="2"
+                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
+                                  CommandParameter="{Binding Index}"
+                                  Tapped="CardDelete_Tapped" ToolTip.Tip="Delete">
+                            <PathIcon Data="{StaticResource GeomTrash}" Width="12" Height="12"
+                                      Foreground="{DynamicResource TextTertiaryBrush}" />
+                          </Button>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+              <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
+                      DockPanel.Dock="Bottom" Padding="8,12">
+                <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
+                        HorizontalAlignment="Stretch" Height="32">
+                  <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                    <PathIcon Data="{StaticResource GeomPlus}" Width="12" Height="12"
+                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <TextBlock Text="Hinzufügen"
+                               FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="10" />
+                  </StackPanel>
+                </Button>
+              </Border>
+            </DockPanel>
+          </Border>
+          <!-- Detail Panel -->
+          <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}">
+            <DockPanel>
+              <Border Classes="PanelHeader" DockPanel.Dock="Top">
+                <DockPanel VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="DETAIL" Classes="HeaderLabel" />
+                    <TextBlock Text="{Binding DetailPathString}" Classes="HeaderSubtitle" />
+                  </StackPanel>
+                </DockPanel>
+              </Border>
+              <Border IsVisible="{Binding HasObjectFields, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Kein Item ausgewählt"
+                           Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="13" />
+              </Border>
+              <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasObjectFields}">
+                <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="models:FieldRow">
+                      <Border Margin="0,0,0,8" Tapped="FieldRow_Tapped" Tag="{Binding Path}">
+                        <Grid ColumnDefinitions="130,10,*">
+                          <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
+                                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                          <Grid Grid.Column="1" />
+                          <Grid Grid.Column="2" VerticalAlignment="Center">
+                            <StackPanel IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
+                                        Opacity="0.5">
+                              <TextBlock Text="{Binding NestedObjectSummary}"
+                                         Foreground="{DynamicResource TextSecondaryBrush}"
+                                         FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="10" />
+                            </StackPanel>
+                            <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
+                                    Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
+                                    CommandParameter="{Binding Path}"
+                                    Background="{DynamicResource CardBackgroundBrush}"
+                                    BorderBrush="{DynamicResource PanelBorderBrush}"
+                                    BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+                              <StackPanel Orientation="Horizontal" Spacing="6">
+                                <PathIcon Data="{StaticResource GeomBracket}" Width="10" Height="10"
+                                          Foreground="{DynamicResource AccentBrush}" />
+                                <TextBlock Text="{Binding ArrayItemCount}"
+                                           FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
+                                <PathIcon Data="{StaticResource GeomArrowRight}" Width="10" Height="10"
+                                          Foreground="{DynamicResource TextTertiaryBrush}" />
+                              </StackPanel>
+                            </Button>
+                            <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
+                                     Width="250" HorizontalAlignment="Left" />
+                          </Grid>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+              <Border Classes="HelpStrip HelpStripCompact" DockPanel.Dock="Bottom">
+                <StackPanel Spacing="3">
+                  <Border IsVisible="{Binding HelpInfo.HasValidationErrors}">
+                    <TextBlock Text="{Binding HelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
+                  </Border>
+                  <WrapPanel>
+                    <TextBlock Text="{Binding HelpInfo.PathString}"
+                               Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
+                               Margin="0,0,12,0" />
+                    <TextBlock Text="{Binding HelpInfo.Description}" Classes="HelpDescription"
+                               IsVisible="{Binding HelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+            </DockPanel>
+          </Border>
+        </Grid>
+
+        <!-- ===== CONTENT AREA: SCALAR MODE ===== -->
+        <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}"
+                IsVisible="{Binding IsScalarMode}">
+          <DockPanel>
+            <Border Classes="PanelHeader" DockPanel.Dock="Top">
+              <DockPanel VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="VALUE" Classes="HeaderLabel" />
+                  <TextBlock Text="{Binding SelectedPathString}" Classes="HeaderSubtitle" />
+                </StackPanel>
+              </DockPanel>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid Margin="12,14" VerticalAlignment="Top">
+                <TextBox Text="{Binding ScalarNode.Label}"
+                         Classes="EditorInput" Width="300" />
+              </Grid>
+            </ScrollViewer>
+            <Border Classes="HelpStrip" DockPanel.Dock="Bottom">
+              <WrapPanel>
+                <TextBlock Text="{Binding HelpInfo.PathString}"
+                           Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
+                           Margin="0,0,12,0" />
+                <TextBlock Text="{Binding HelpInfo.Description}" Classes="HelpDescription"
+                           IsVisible="{Binding HelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+              </WrapPanel>
+            </Border>
+          </DockPanel>
+        </Border>
+
+      </Grid>
+    </DockPanel>
+
+    <!-- ===== DIFF MODAL OVERLAY ===== -->
+    <Border IsVisible="{Binding ShowDiff}" Classes="DiffOverlay" Tapped="DiffOverlay_Tapped">
+      <Border Classes="DiffPanel" Width="800" Height="600"
+              HorizontalAlignment="Center" VerticalAlignment="Center">
+        <DockPanel>
+          <Border Classes="PanelHeader" DockPanel.Dock="Top">
+            <DockPanel VerticalAlignment="Center">
+              <TextBlock Text="DIFF — original vs. current" Classes="HeaderLabel" />
+              <Button DockPanel.Dock="Right" Classes="IconBtn"
+                      Command="{Binding CloseDiffCommand}" Width="22" Height="22" Padding="2">
+                <PathIcon Data="{StaticResource GeomClose}" Width="12" Height="12"
+                          Foreground="{DynamicResource TextSecondaryBrush}" />
+              </Button>
+            </DockPanel>
+          </Border>
+          <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding DiffLines}" Margin="0,4">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="services:JsonDiffLine">
+                  <Border Background="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToBackground}}"
+                          Padding="8,1">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                      <TextBlock Text="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarker}}"
+                                 Width="12"
+                                 FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                                 FontSize="11" FontWeight="Bold"
+                                 Foreground="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarkerColor}}" />
+                      <TextBlock Text="{Binding Text}"
+                                 FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </DockPanel>
+      </Border>
+    </Border>
+
+  </Panel>
 
 </Window>

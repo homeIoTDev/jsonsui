@@ -1,0 +1,48 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Backgrounds -->
+  <SolidColorBrush x:Key="BackgroundBrush" Color="#0a0a0a" />
+  <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#111111" />
+  <SolidColorBrush x:Key="TreeBackgroundBrush" Color="#0d0d0d" />
+  <SolidColorBrush x:Key="InputBackgroundBrush" Color="#181818" />
+  <SolidColorBrush x:Key="CardBackgroundBrush" Color="#161616" />
+  <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#0d0d0d" />
+
+  <!-- Text -->
+  <SolidColorBrush x:Key="TextPrimaryBrush" Color="#e8e8e8" />
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="#999999" />
+  <SolidColorBrush x:Key="TextTertiaryBrush" Color="#555555" />
+
+  <!-- Borders -->
+  <SolidColorBrush x:Key="PanelBorderBrush" Color="#2a2a2a" />
+  <SolidColorBrush x:Key="BorderStrongBrush" Color="#444444" />
+
+  <!-- Accent -->
+  <SolidColorBrush x:Key="AccentBrush" Color="#00ffee" />
+  <SolidColorBrush x:Key="AccentForegroundBrush" Color="#000000" />
+  <SolidColorBrush x:Key="AccentSoftBrush" Color="#001a18" />
+  <SolidColorBrush x:Key="AccentDimBrush" Color="#0a2a28" />
+
+  <!-- Selection -->
+  <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#001a18" />
+  <SolidColorBrush x:Key="SelectedBorderBrush" Color="#00ffee" />
+
+  <!-- Hover -->
+  <SolidColorBrush x:Key="TreeHoverBrush" Color="#1a1a1a" />
+
+  <!-- Error -->
+  <SolidColorBrush x:Key="ErrorBrush" Color="#ff4422" />
+  <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#1a0500" />
+  <SolidColorBrush x:Key="ErrorDimBrush" Color="#1a0804" />
+  <SolidColorBrush x:Key="ErrorBorderBrush" Color="#ff4422" />
+
+  <!-- Warn -->
+  <SolidColorBrush x:Key="WarnBrush" Color="#ffaa00" />
+  <SolidColorBrush x:Key="WarnSoftBrush" Color="#1a1200" />
+
+  <!-- Scrollbar -->
+  <SolidColorBrush x:Key="ScrollbarBrush" Color="#2a2a2a" />
+
+  <!-- Muted -->
+  <SolidColorBrush x:Key="MutedBackgroundBrush" Color="#1a1a1a" />
+</ResourceDictionary>

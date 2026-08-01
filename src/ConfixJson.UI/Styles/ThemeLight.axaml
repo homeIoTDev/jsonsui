@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <SolidColorBrush x:Key="BackgroundBrush" Color="#f5f5f5" />
+  <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#ffffff" />
+  <SolidColorBrush x:Key="TreeBackgroundBrush" Color="#fafafa" />
+  <SolidColorBrush x:Key="InputBackgroundBrush" Color="#ffffff" />
+  <SolidColorBrush x:Key="CardBackgroundBrush" Color="#f0f0f0" />
+  <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#e8e8e8" />
+
+  <SolidColorBrush x:Key="TextPrimaryBrush" Color="#111111" />
+  <SolidColorBrush x:Key="TextSecondaryBrush" Color="#555555" />
+  <SolidColorBrush x:Key="TextTertiaryBrush" Color="#888888" />
+
+  <SolidColorBrush x:Key="PanelBorderBrush" Color="#cccccc" />
+  <SolidColorBrush x:Key="BorderStrongBrush" Color="#888888" />
+
+  <SolidColorBrush x:Key="AccentBrush" Color="#0066ff" />
+  <SolidColorBrush x:Key="AccentForegroundBrush" Color="#ffffff" />
+  <SolidColorBrush x:Key="AccentSoftBrush" Color="#e6f0ff" />
+  <SolidColorBrush x:Key="AccentDimBrush" Color="#e6f0ff" />
+
+  <SolidColorBrush x:Key="SelectedBackgroundBrush" Color="#e6f0ff" />
+  <SolidColorBrush x:Key="SelectedBorderBrush" Color="#0066ff" />
+
+  <SolidColorBrush x:Key="TreeHoverBrush" Color="#f0f0f0" />
+
+  <SolidColorBrush x:Key="ErrorBrush" Color="#cc2200" />
+  <SolidColorBrush x:Key="ErrorBackgroundBrush" Color="#fff0ee" />
+  <SolidColorBrush x:Key="ErrorDimBrush" Color="#fff0ee" />
+  <SolidColorBrush x:Key="ErrorBorderBrush" Color="#cc2200" />
+
+  <SolidColorBrush x:Key="WarnBrush" Color="#aa5500" />
+  <SolidColorBrush x:Key="WarnSoftBrush" Color="#fff4e6" />
+
+  <SolidColorBrush x:Key="ScrollbarBrush" Color="#cccccc" />
+
+  <SolidColorBrush x:Key="MutedBackgroundBrush" Color="#e8e8e8" />
+</ResourceDictionary>

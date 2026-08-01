@@ -1,0 +1,77 @@
+using System.Text.Json.Nodes;
+
+namespace ConfixJson.Core.Services;
+
+public class UndoCommand
+{
+    public string[] Path { get; init; } = [];
+    public JsonNode? OldValue { get; init; }
+    public JsonNode? NewValue { get; init; }
+    public string Action { get; init; } = "set"; // set, remove_array_item, add_array_item
+    public int ArrayIndex { get; init; } = -1;
+}
+
+public class UndoRedoService
+{
+    private readonly Stack<UndoCommand> _undoStack = new();
+    private readonly Stack<UndoCommand> _redoStack = new();
+
+    public bool CanUndo => _undoStack.Count > 0;
+    public bool CanRedo => _redoStack.Count > 0;
+
+    public void PushUndo(UndoCommand command)
+    {
+        _undoStack.Push(command);
+        _redoStack.Clear();
+    }
+
+    public UndoCommand? PopUndo()
+    {
+        if (_undoStack.Count == 0) return null;
+        var cmd = _undoStack.Pop();
+        _redoStack.Push(cmd);
+        return cmd;
+    }
+
+    public UndoCommand? PopRedo()
+    {
+        if (_redoStack.Count == 0) return null;
+        var cmd = _redoStack.Pop();
+        _undoStack.Push(cmd);
+        return cmd;
+    }
+
+    public void Clear()
+    {
+        _undoStack.Clear();
+        _redoStack.Clear();
+    }
+
+    public JsonNode ApplyUndo(JsonNode document)
+    {
+        var cmd = PopUndo();
+        if (cmd == null) return document;
+
+        return cmd.Action switch
+        {
+            "set" => JsonDocumentService.SetByPath(document, cmd.Path, cmd.OldValue!),
+            "remove_array_item" => JsonDocumentService.AddArrayItem(document, cmd.Path, cmd.OldValue!),
+            "add_array_item" => JsonDocumentService.RemoveArrayItem(document, cmd.Path, cmd.ArrayIndex),
+            _ => document
+        };
+    }
+
+    public JsonNode ApplyRedo(JsonNode document)
+    {
+        var cmd = PopRedo();
+        if (cmd == null) return document;
+
+        return cmd.Action switch
+        {
+            "set" => JsonDocumentService.SetByPath(document, cmd.Path, cmd.NewValue!),
+            "remove_array_item" => JsonDocumentService.RemoveArrayItem(document, cmd.Path, cmd.ArrayIndex),
+            "add_array_item" => JsonDocumentService.AddArrayItem(document, cmd.Path, cmd.NewValue!),
+            _ => document
+        };
+    }
+}

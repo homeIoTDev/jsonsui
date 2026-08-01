@@ -1,0 +1,246 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Window base -->
+  <Style Selector="Window">
+    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter, sans-serif" />
+    <Setter Property="FontSize" Value="13" />
+  </Style>
+
+  <!-- PanelHeader -->
+  <Style Selector="Border.PanelHeader">
+    <Setter Property="Height" Value="34" />
+    <Setter Property="Padding" Value="7,0,12,0" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.HeaderLabel">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.HeaderSubtitle">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Tree -->
+  <Style Selector="TextBlock.TreeLabel">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="11" />
+  </Style>
+
+  <Style Selector="TextBlock.TreeTag">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+  </Style>
+
+  <!-- Field Row -->
+  <Style Selector="TextBlock.FieldLabel">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="11" />
+  </Style>
+
+  <!-- Card -->
+  <Style Selector="Border.CardItem">
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="7,10" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="Border.CardItem:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.CardPreview">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+  </Style>
+
+  <!-- Scalar Input -->
+  <Style Selector="TextBox.EditorInput">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Padding" Value="5,8" />
+    <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+  </Style>
+
+  <Style Selector="TextBox.EditorInput:focus">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Help Strip -->
+  <Style Selector="Border.HelpStrip">
+    <Setter Property="Padding" Value="8,14" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}" />
+  </Style>
+
+  <Style Selector="Border.HelpStripCompact">
+    <Setter Property="Padding" Value="6,12" />
+  </Style>
+
+  <Style Selector="TextBlock.HelpDescription">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    <Setter Property="FontStyle" Value="Italic" />
+  </Style>
+
+  <Style Selector="TextBlock.HelpComment">
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+    <Setter Property="FontStyle" Value="Italic" />
+  </Style>
+
+  <!-- Badges -->
+  <Style Selector="Border.Badge">
+    <Setter Property="CornerRadius" Value="2" />
+    <Setter Property="Padding" Value="4,2" />
+  </Style>
+
+  <Style Selector="Border.BadgeWarn">
+    <Setter Property="Background" Value="{DynamicResource WarnSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource WarnBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style Selector="Border.BadgeMuted">
+    <Setter Property="Background" Value="{DynamicResource MutedBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource TextTertiaryBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style Selector="TextBlock.BadgeText">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="9" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+
+  <!-- Error Banner -->
+  <Style Selector="Border.ErrorBanner">
+    <Setter Property="Background" Value="{DynamicResource ErrorBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Padding" Value="8,6" />
+  </Style>
+
+  <Style Selector="TextBlock.ErrorText">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+  </Style>
+
+  <!-- Text Editor -->
+  <Style Selector="TextBox.MonoEditor">
+    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="AcceptsReturn" Value="True" />
+    <Setter Property="TextWrapping" Value="NoWrap" />
+    <Setter Property="Padding" Value="8" />
+    <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+
+  <!-- Toolbar -->
+  <Style Selector="Border.Toolbar">
+    <Setter Property="Background" Value="{DynamicResource ToolbarBackgroundBrush}" />
+  </Style>
+
+  <Style Selector="Border.TopHeader">
+    <Setter Property="Height" Value="38" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="Background" Value="{DynamicResource ToolbarBackgroundBrush}" />
+  </Style>
+
+  <Style Selector="Border.TreeToolbar">
+    <Setter Property="Height" Value="36" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="Background" Value="{DynamicResource ToolbarBackgroundBrush}" />
+  </Style>
+
+  <!-- Icon Buttons -->
+  <Style Selector="Button.IconBtn">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="4" />
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Height" Value="28" />
+  </Style>
+
+  <Style Selector="Button.IconBtn:pointerover">
+    <Setter Property="Background" Value="{DynamicResource TreeHoverBrush}" />
+    <Setter Property="CornerRadius" Value="3" />
+  </Style>
+
+  <!-- Dashed Add Button -->
+  <Style Selector="Button.DashedBtn">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="8,5" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
+
+  <Style Selector="Button.DashedBtn:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Diff Modal -->
+  <Style Selector="Border.DiffOverlay">
+    <Setter Property="Background" Value="#88000000" />
+    <Setter Property="ZIndex" Value="100" />
+  </Style>
+
+  <Style Selector="Border.DiffPanel">
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <!-- Status badge -->
+  <Style Selector="Border.StatusSuccess">
+    <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="6,2" />
+  </Style>
+
+  <Style Selector="Border.StatusError">
+    <Setter Property="Background" Value="#40FF4422" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="6,2" />
+  </Style>
+
+  <!-- Scrollbar -->
+  <Style Selector="ScrollBar">
+    <Setter Property="Width" Value="6" />
+  </Style>
+
+  <Style Selector="ScrollBar /template/ Border#track">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="ScrollBar /template/ Border#thumb">
+    <Setter Property="Background" Value="{DynamicResource ScrollbarBrush}" />
+    <Setter Property="CornerRadius" Value="3" />
+  </Style>
+
+</Styles>
