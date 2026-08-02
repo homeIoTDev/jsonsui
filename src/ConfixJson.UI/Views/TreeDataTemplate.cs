@@ -68,31 +68,43 @@ public class TreeDataTemplate : IDataTemplate
         };
 
         // Chevron
-        var chevron = new PathIcon
+        var chevron = new Path
         {
             Width = 10,
             Height = 10,
-            VerticalAlignment = VerticalAlignment.Center
+            Stretch = Stretch.Uniform,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            StrokeThickness = 2,
+            StrokeLineCap = PenLineCap.Round,
+            StrokeJoin = PenLineJoin.Round,
+            Fill = Brushes.Transparent
         };
 
         if (node.IsExpandable)
         {
             chevron.Data = isExpanded
-                ? Application.Current!.Resources["GeomChevronDown"] as StreamGeometry
-                : Application.Current!.Resources["GeomChevron"] as StreamGeometry;
-            chevron.Foreground = Application.Current!.Resources["TextTertiaryBrush"] as IBrush;
+                ? Application.Current!.Resources["feather-chevron-down"] as StreamGeometry
+                : Application.Current!.Resources["feather-chevron-right"] as StreamGeometry;
+            chevron.Stroke = Application.Current!.Resources["TextTertiaryBrush"] as IBrush;
         }
         row.Children.Add(chevron);
 
         // Array bracket or scalar dot
         if (node.NodeType == "array")
         {
-            row.Children.Add(new PathIcon
+            row.Children.Add(new Path
             {
                 Width = 10, Height = 10,
+                Stretch = Stretch.Uniform,
+                HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Data = Application.Current!.Resources["GeomBracket"] as StreamGeometry,
-                Foreground = Application.Current!.Resources["AccentBrush"] as IBrush
+                Data = Application.Current!.Resources["feather-bracket"] as StreamGeometry,
+                Stroke = Application.Current!.Resources["AccentBrush"] as IBrush,
+                StrokeThickness = 2,
+                StrokeLineCap = PenLineCap.Round,
+                StrokeJoin = PenLineJoin.Round,
+                Fill = Brushes.Transparent
             });
         }
         else if (node.NodeType == "scalar")
@@ -140,12 +152,18 @@ public class TreeDataTemplate : IDataTemplate
         }
 
         // Error icon
-        var errorIcon = new PathIcon
+        var errorIcon = new Path
         {
             Width = 10, Height = 10,
+            Stretch = Stretch.Uniform,
+            HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Data = Application.Current!.Resources["GeomError"] as StreamGeometry,
-            Foreground = Application.Current!.Resources["ErrorBrush"] as IBrush,
+            Data = Application.Current!.Resources["feather-alert-circle"] as StreamGeometry,
+            Stroke = Application.Current!.Resources["ErrorBrush"] as IBrush,
+            StrokeThickness = 2,
+            StrokeLineCap = PenLineCap.Round,
+            StrokeJoin = PenLineJoin.Round,
+            Fill = Brushes.Transparent,
             Margin = new Thickness(4, 0, 0, 0),
             IsVisible = hasErrors
         };

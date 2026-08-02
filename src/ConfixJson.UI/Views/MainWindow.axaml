@@ -19,22 +19,21 @@
   <Window.Resources>
 
     <!-- Icons -->
-    <StreamGeometry x:Key="GeomOpenFile">M2,1 L5,1 L7,3 L12,3 L12,12 L2,12 Z M2,3 L2,13 L12,13 L12,5 L2,5 Z</StreamGeometry>
-    <StreamGeometry x:Key="GeomChevron">M6 4 L10 8 L6 12 Z</StreamGeometry>
-    <StreamGeometry x:Key="GeomChevronDown">M4 6 L8 10 L12 6 Z</StreamGeometry>
-    <StreamGeometry x:Key="GeomDot">M6,6 A2,2 0 1,1 8,4 A2,2 0 0,1 6,6 Z</StreamGeometry>
-    <StreamGeometry x:Key="GeomBracket">M3,3 L3,11 M3,3 L5,3 M3,11 L5,11 M11,3 L11,11 M9,3 L11,3 M9,11 L11,11</StreamGeometry>
-    <StreamGeometry x:Key="GeomError">M7,2 L13,12 L1,12 Z M7,7 L7,10 M7,4 L7,5</StreamGeometry>
-    <StreamGeometry x:Key="GeomMoon">M10.5,12 A5.5,5.5 0 1,1 4.5,0.5 A7,7 0 0,0 10.5,12 Z</StreamGeometry>
-    <StreamGeometry x:Key="GeomSun">M7,0 L7,2 M7,12 L7,14 M0,7 L2,7 M12,7 L14,7 M2.1,2.1 L3.5,3.5 M10.5,10.5 L11.9,11.9 M2.1,11.9 L3.5,10.5 M10.5,3.5 L11.9,2.1 M7,4 A3,3 0 1,0 7,10 A3,3 0 1,0 7,4 Z</StreamGeometry>
-    <StreamGeometry x:Key="GeomCode">M4,3.5 L1,7 L4,10.5 M9,3.5 L12,7 L9,10.5 M6,2.5 L8,11.5</StreamGeometry>
-    <StreamGeometry x:Key="GeomSave">M2,0 L10,0 L13,3 L13,13 L2,13 Z M4,13 L4,8 L10,8 L10,13 M4,-1 L4,3 L8,3 L8,-1</StreamGeometry>
-    <StreamGeometry x:Key="GeomDiff">M0,3 L12,3 M0,7 L12,7 M0,11 L12,11 M9,5.5 L11,7 L9,8.5</StreamGeometry>
-    <StreamGeometry x:Key="GeomTrash">M3,2 L5,0 L9,0 L11,2 L14,2 L14,3 L0,3 L0,2 Z M1.5,4 L12.5,4 L11.5,14 L2.5,14 Z M5,6 L5,12 M7,6 L7,12 M9,6 L9,12</StreamGeometry>
-    <StreamGeometry x:Key="GeomPlus">M6,0 L8,0 L8,6 L14,6 L14,8 L8,8 L8,14 L6,14 L6,8 L0,8 L0,6 L6,6 Z</StreamGeometry>
-    <StreamGeometry x:Key="GeomArrowRight">M3,4 L6,7 L3,10 M8.5,4 L11.5,7 L8.5,10</StreamGeometry>
-    <StreamGeometry x:Key="GeomArrowLeft">M9,4 L6,7 L9,10 M3.5,4 L0.5,7 L3.5,10</StreamGeometry>
-    <StreamGeometry x:Key="GeomClose">M2,2 L10,10 M10,2 L2,10</StreamGeometry>
+    <StreamGeometry x:Key="feather-folder">M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z</StreamGeometry>
+    <StreamGeometry x:Key="feather-moon">M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z</StreamGeometry>
+    <StreamGeometry x:Key="feather-sun">M12 1v2m0 18v2M4.22 4.22l1.42 1.42m11.3 11.3 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z</StreamGeometry>
+    <StreamGeometry x:Key="feather-code">M16 18l6-6-6-6M8 6l-6 6 6 6</StreamGeometry>
+    <StreamGeometry x:Key="feather-save">M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3</StreamGeometry>
+    <StreamGeometry x:Key="feather-menu">M3 12h18M3 6h18M3 18h18</StreamGeometry>
+    <StreamGeometry x:Key="feather-chevron-right">M9 18l6-6-6-6</StreamGeometry>
+    <StreamGeometry x:Key="feather-chevron-down">M6 9l6 6 6-6</StreamGeometry>
+    <StreamGeometry x:Key="feather-bracket">M3,3 L3,11 M3,3 L5,3 M3,11 L5,11 M11,3 L11,11 M9,3 L11,3 M9,11 L11,11</StreamGeometry>
+    <StreamGeometry x:Key="feather-alert-circle">M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 8v4M12 16h.01</StreamGeometry>
+    <StreamGeometry x:Key="feather-trash-2">M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</StreamGeometry>
+    <StreamGeometry x:Key="feather-plus">M12 5v14M5 12h14</StreamGeometry>
+    <StreamGeometry x:Key="feather-arrow-right">M5 12h14m-7-7 7 7-7 7</StreamGeometry>
+    <StreamGeometry x:Key="feather-arrow-left">M19 12H5m7 7-7-7 7-7</StreamGeometry>
+    <StreamGeometry x:Key="feather-x">M18 6 6 18M6 6l12 12</StreamGeometry>
 
   </Window.Resources>
 
@@ -90,34 +89,34 @@
                           HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
                         ToolTip.Tip="Open file" Width="28" Height="28" Padding="4">
-                  <PathIcon Data="{StaticResource GeomOpenFile}" Width="14" Height="14"
-                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <Path Classes="Feather" Data="{StaticResource feather-folder}" Width="14" Height="14"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
                 <Button Command="{Binding ToggleThemeCommand}" Classes="IconBtn"
                         ToolTip.Tip="Toggle theme" Width="28" Height="28" Padding="4">
                   <Panel>
-                    <PathIcon Data="{StaticResource GeomMoon}" Width="14" Height="14"
-                              Foreground="{DynamicResource TextSecondaryBrush}"
+                    <Path Classes="Feather" Data="{StaticResource feather-moon}" Width="14" Height="14"
+                              Stroke="{DynamicResource TextSecondaryBrush}"
                               IsVisible="{Binding Dark}" />
-                    <PathIcon Data="{StaticResource GeomSun}" Width="14" Height="14"
-                              Foreground="{DynamicResource TextSecondaryBrush}"
+                    <Path Classes="Feather" Data="{StaticResource feather-sun}" Width="14" Height="14"
+                              Stroke="{DynamicResource TextSecondaryBrush}"
                               IsVisible="{Binding Dark, Converter={x:Static conv:EditorConverters.InverseBool}}" />
                   </Panel>
                 </Button>
                 <Button Command="{Binding ToggleTextModeCommand}" Classes="IconBtn"
                         ToolTip.Tip="Toggle text mode" Width="28" Height="28" Padding="4">
-                  <PathIcon Data="{StaticResource GeomCode}" Width="14" Height="14"
-                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <Path Classes="Feather" Data="{StaticResource feather-code}" Width="14" Height="14"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
                 <Button Command="{Binding SaveCommand}" Classes="IconBtn"
                         ToolTip.Tip="Save" Width="28" Height="28" Padding="4">
-                  <PathIcon Data="{StaticResource GeomSave}" Width="14" Height="14"
-                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <Path Classes="Feather" Data="{StaticResource feather-save}" Width="14" Height="14"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
                 <Button Command="{Binding OpenDiffCommand}" Classes="IconBtn"
                         ToolTip.Tip="Show diff" Width="28" Height="28" Padding="4">
-                  <PathIcon Data="{StaticResource GeomDiff}" Width="14" Height="14"
-                            Foreground="{DynamicResource TextSecondaryBrush}" />
+                  <Path Classes="Feather" Data="{StaticResource feather-menu}" Width="14" Height="14"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
               </StackPanel>
             </Border>
@@ -170,14 +169,14 @@
                   <Button Command="{Binding UndoCommand}" Classes="IconBtn"
                           IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
                           Width="22" Height="22" Padding="2">
-                    <PathIcon Data="{StaticResource GeomArrowLeft}" Width="11" Height="11"
-                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                              Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                   <Button Command="{Binding RedoCommand}" Classes="IconBtn"
                           IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
                           Width="22" Height="22" Padding="2">
-                    <PathIcon Data="{StaticResource GeomArrowRight}" Width="11" Height="11"
-                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="11" Height="11"
+                              Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                 </StackPanel>
               </DockPanel>
@@ -213,12 +212,12 @@
                                   BorderBrush="{DynamicResource PanelBorderBrush}"
                                   BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                              <PathIcon Data="{StaticResource GeomBracket}" Width="10" Height="10"
-                                        Foreground="{DynamicResource AccentBrush}" />
+                              <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
+                                        Stroke="{DynamicResource AccentBrush}" />
                               <TextBlock Text="{Binding ArrayItemCount}"
                                          FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
-                              <PathIcon Data="{StaticResource GeomArrowRight}" Width="10" Height="10"
-                                        Foreground="{DynamicResource TextTertiaryBrush}" />
+                              <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                                        Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
                           </Button>
                           <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
@@ -274,8 +273,8 @@
                           DockPanel.Dock="Right" Classes="IconBtn"
                           Command="{Binding ExitNestedArrayCommand}"
                           Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
-                    <PathIcon Data="{StaticResource GeomArrowLeft}" Width="11" Height="11"
-                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                              Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                 </DockPanel>
               </Border>
@@ -292,8 +291,8 @@
                                          FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
                                          FontSize="10" FontWeight="Bold"
                                          Foreground="{DynamicResource AccentBrush}" />
-                              <PathIcon Data="{StaticResource GeomError}" Width="10" Height="10"
-                                        Foreground="{DynamicResource ErrorBrush}"
+                              <Path Classes="Feather" Data="{StaticResource feather-alert-circle}" Width="10" Height="10"
+                                        Stroke="{DynamicResource ErrorBrush}"
                                         IsVisible="{Binding HasErrors}" />
                             </StackPanel>
                             <TextBlock Text="{Binding Preview}" Classes="CardPreview" TextTrimming="CharacterEllipsis" />
@@ -303,8 +302,8 @@
                                   Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
                                   CommandParameter="{Binding Index}"
                                   Tapped="CardDelete_Tapped" ToolTip.Tip="Delete">
-                            <PathIcon Data="{StaticResource GeomTrash}" Width="12" Height="12"
-                                      Foreground="{DynamicResource TextTertiaryBrush}" />
+                            <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
+                                      Stroke="{DynamicResource TextTertiaryBrush}" />
                           </Button>
                         </Grid>
                       </Border>
@@ -317,8 +316,8 @@
                 <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
                         HorizontalAlignment="Stretch" Height="32">
                   <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                    <PathIcon Data="{StaticResource GeomPlus}" Width="12" Height="12"
-                              Foreground="{DynamicResource TextSecondaryBrush}" />
+                    <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
+                              Stroke="{DynamicResource TextSecondaryBrush}" />
                     <TextBlock Text="Hinzufügen"
                                FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="10" />
                   </StackPanel>
@@ -365,12 +364,12 @@
                                     BorderBrush="{DynamicResource PanelBorderBrush}"
                                     BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
                               <StackPanel Orientation="Horizontal" Spacing="6">
-                                <PathIcon Data="{StaticResource GeomBracket}" Width="10" Height="10"
-                                          Foreground="{DynamicResource AccentBrush}" />
+                                <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
+                                          Stroke="{DynamicResource AccentBrush}" />
                                 <TextBlock Text="{Binding ArrayItemCount}"
                                            FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
-                                <PathIcon Data="{StaticResource GeomArrowRight}" Width="10" Height="10"
-                                          Foreground="{DynamicResource TextTertiaryBrush}" />
+                                <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                                          Stroke="{DynamicResource TextTertiaryBrush}" />
                               </StackPanel>
                             </Button>
                             <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
@@ -443,8 +442,8 @@
               <TextBlock Text="DIFF — original vs. current" Classes="HeaderLabel" />
               <Button DockPanel.Dock="Right" Classes="IconBtn"
                       Command="{Binding CloseDiffCommand}" Width="22" Height="22" Padding="2">
-                <PathIcon Data="{StaticResource GeomClose}" Width="12" Height="12"
-                          Foreground="{DynamicResource TextSecondaryBrush}" />
+                <Path Classes="Feather" Data="{StaticResource feather-x}" Width="12" Height="12"
+                          Stroke="{DynamicResource TextSecondaryBrush}" />
               </Button>
             </DockPanel>
           </Border>
