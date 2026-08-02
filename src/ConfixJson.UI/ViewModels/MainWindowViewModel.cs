@@ -101,9 +101,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public ObservableCollection<JsonEditorNode> TreeRootNodes { get; } = [];
 
+    public MainWindowViewModel()
+    {
+        RefreshUI();
+    }
+
     // --- Refresh UI from EditorState ---
 
-    private void RefreshUI()
+    public void RefreshUI()
     {
         // Sync state-derived observable properties
         SelectedPathString = EditorLogic.GetSelectedPathString(_state);
@@ -126,7 +131,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         // Reset all mode-specific content
         ObjectFields.Clear();
         CardItems.Clear();
-        ScalarNode = null;
+        ScalarNode = new ConfixJson.Core.Models.JsonEditorNode { Label = "", Path = [], NodeType = "scalar" };
         TextContent = "";
         TextEditorPathString = "";
 

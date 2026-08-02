@@ -74,9 +74,17 @@
         <Border Grid.Column="0" BorderThickness="0,0,1,0"
                 BorderBrush="{DynamicResource PanelBorderBrush}"
                 Background="{DynamicResource TreeBackgroundBrush}">
-          <Grid RowDefinitions="*,Auto">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <!-- Tree Search -->
+            <TextBox Grid.Row="0" PlaceholderText="Filter..." 
+                     FontFamily="{StaticResource FontJetBrainsMono}"
+                     FontSize="11" Padding="6,4"
+                     Background="{DynamicResource InputBackgroundBrush}"
+                     BorderBrush="{DynamicResource PanelBorderBrush}"
+                     BorderThickness="0,0,0,1"
+                     Margin="0" />
             <!-- Tree Scroll Area -->
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
               <ItemsControl ItemsSource="{Binding TreeRootNodes}" Margin="0,4,0,0">
                 <ItemsControl.ItemTemplate>
                   <views:TreeDataTemplate />
@@ -84,7 +92,7 @@
               </ItemsControl>
             </ScrollViewer>
             <!-- Tree Toolbar -->
-            <Border Grid.Row="1" Classes="Toolbar TreeToolbar" Padding="6,0">
+            <Border Grid.Row="2" Classes="Toolbar TreeToolbar" Padding="6,0">
               <StackPanel Orientation="Horizontal" Spacing="6"
                           HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"

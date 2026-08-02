@@ -27,28 +27,23 @@ public class TreeDataTemplate : IDataTemplate
             MinHeight = 24,
             Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand),
             BorderThickness = new Thickness(2, 0, 0, 0),
-            BorderBrush = isSelected
-                ? Application.Current!.Resources["SelectedBorderBrush"] as IBrush
-                : Brushes.Transparent
+            BorderBrush = isSelected ? Res<IBrush>("SelectedBorderBrush") : Brushes.Transparent,
+            Background = Brushes.Transparent
         };
 
         if (isSelected)
-            rootBorder.Background = Application.Current!.Resources["SelectedBackgroundBrush"] as IBrush;
+            rootBorder.Background = Res<IBrush>("SelectedBackgroundBrush") ?? Brushes.Magenta;
 
-        // Hover effect
         rootBorder.PointerEntered += (_, _) =>
         {
             if (!isSelected)
-                rootBorder.Background = Application.Current!.Resources["TreeHoverBrush"] as IBrush;
+                rootBorder.Background = Res<IBrush>("TreeHoverBrush") ?? Brushes.Yellow;
         };
         rootBorder.PointerExited += (_, _) =>
         {
-            rootBorder.Background = isSelected
-                ? Application.Current!.Resources["SelectedBackgroundBrush"] as IBrush
-                : Brushes.Transparent;
+            rootBorder.Background = isSelected ? (Res<IBrush>("SelectedBackgroundBrush") ?? Brushes.Magenta) : Brushes.Transparent;
         };
 
-        // Click to select + toggle
         rootBorder.PointerPressed += (_, _) =>
         {
             var topLevel = TopLevel.GetTopLevel(rootBorder);
@@ -70,8 +65,7 @@ public class TreeDataTemplate : IDataTemplate
         // Chevron
         var chevron = new Path
         {
-            Width = 10,
-            Height = 10,
+            Width = 10, Height = 10,
             Stretch = Stretch.Uniform,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
@@ -84,13 +78,12 @@ public class TreeDataTemplate : IDataTemplate
         if (node.IsExpandable)
         {
             chevron.Data = isExpanded
-                ? Application.Current!.Resources["feather-chevron-down"] as StreamGeometry
-                : Application.Current!.Resources["feather-chevron-right"] as StreamGeometry;
-            chevron.Stroke = Application.Current!.Resources["TextTertiaryBrush"] as IBrush;
+                ? Res<StreamGeometry>("feather-chevron-down")
+                : Res<StreamGeometry>("feather-chevron-right");
+            chevron.Stroke = Res<IBrush>("TextTertiaryBrush");
         }
         row.Children.Add(chevron);
 
-        // Array bracket or scalar dot
         if (node.NodeType == "array")
         {
             row.Children.Add(new Path
@@ -99,8 +92,8 @@ public class TreeDataTemplate : IDataTemplate
                 Stretch = Stretch.Uniform,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Data = Application.Current!.Resources["feather-bracket"] as StreamGeometry,
-                Stroke = Application.Current!.Resources["AccentBrush"] as IBrush,
+                Data = Res<StreamGeometry>("feather-bracket"),
+                Stroke = Res<IBrush>("AccentBrush"),
                 StrokeThickness = 2,
                 StrokeLineCap = PenLineCap.Round,
                 StrokeJoin = PenLineJoin.Round,
@@ -113,22 +106,21 @@ public class TreeDataTemplate : IDataTemplate
             {
                 Width = 6, Height = 6,
                 VerticalAlignment = VerticalAlignment.Center,
-                Fill = Application.Current!.Resources["TextTertiaryBrush"] as IBrush
+                Fill = Res<IBrush>("TextTertiaryBrush")
             });
         }
 
-        // Label
         var label = new TextBlock
         {
             Text = node.Label,
-            FontFamily = Application.Current!.Resources["FontJetBrainsMono"] as FontFamily ?? FontFamily.Default,
+            FontFamily = Res<FontFamily>("FontJetBrainsMono") ?? FontFamily.Default,
             FontSize = 11,
             VerticalAlignment = VerticalAlignment.Center
         };
 
         if (node.NodeType == "root")
         {
-            label.Foreground = Application.Current!.Resources["AccentBrush"] as IBrush;
+            label.Foreground = Res<IBrush>("AccentBrush");
             label.FontWeight = FontWeight.Bold;
         }
         else if (node.NodeType == "object")
@@ -137,29 +129,27 @@ public class TreeDataTemplate : IDataTemplate
         }
         row.Children.Add(label);
 
-        // Type tag
         if (node.NodeType is "object" or "array" or "scalar")
         {
             row.Children.Add(new TextBlock
             {
                 Text = node.TypeTag,
-                FontFamily = Application.Current!.Resources["FontJetBrainsMono"] as FontFamily ?? FontFamily.Default,
+                FontFamily = Res<FontFamily>("FontJetBrainsMono") ?? FontFamily.Default,
                 FontSize = 11,
-                Foreground = Application.Current!.Resources["TextTertiaryBrush"] as IBrush,
+                Foreground = Res<IBrush>("TextTertiaryBrush"),
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(4, 0, 0, 0)
             });
         }
 
-        // Error icon
         var errorIcon = new Path
         {
             Width = 10, Height = 10,
             Stretch = Stretch.Uniform,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Data = Application.Current!.Resources["feather-alert-circle"] as StreamGeometry,
-            Stroke = Application.Current!.Resources["ErrorBrush"] as IBrush,
+            Data = Res<StreamGeometry>("feather-alert-circle"),
+            Stroke = Res<IBrush>("ErrorBrush"),
             StrokeThickness = 2,
             StrokeLineCap = PenLineCap.Round,
             StrokeJoin = PenLineJoin.Round,
@@ -180,7 +170,6 @@ public class TreeDataTemplate : IDataTemplate
                 IsVisible = isExpanded
             };
             childrenControl.ItemTemplate = new TreeDataTemplate();
-
             wrapper.Children.Add(rootBorder);
             wrapper.Children.Add(childrenControl);
             return wrapper;
@@ -190,4 +179,18 @@ public class TreeDataTemplate : IDataTemplate
     }
 
     public bool Match(object? data) => data is JsonEditorNode;
+
+    private static T? Res<T>(string key) where T : class
+    {
+        var app = Application.Current;
+        if (app == null) return null;
+
+        var theme = app.RequestedThemeVariant;
+
+        // Use the resource host interface for full theme-aware lookup
+        if (((Avalonia.Controls.IResourceHost)app).TryFindResource(key, theme, out var value))
+            return value as T;
+
+        return null;
+    }
 }
