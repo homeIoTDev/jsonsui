@@ -62,6 +62,10 @@
           <SolidColorBrush x:Key="MutedBackgroundBrush" Color="#e8e8e8" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
+
+      <!-- Fonts -->
+      <FontFamily x:Key="FontJetBrainsMono">avares://ConfixJson.UI/Assets/Fonts/JetBrainsMono/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
+      <FontFamily x:Key="FontInter">avares://ConfixJson.UI/Assets/Fonts/Inter/Inter-Regular.otf#Inter</FontFamily>
     </ResourceDictionary>
   </Application.Resources>
   <Application.Styles>

@@ -121,7 +121,7 @@ public class TreeDataTemplate : IDataTemplate
         var label = new TextBlock
         {
             Text = node.Label,
-            FontFamily = "avares://ConfixJson.UI/Assets#JetBrains Mono, monospace",
+            FontFamily = Application.Current!.Resources["FontJetBrainsMono"] as FontFamily ?? FontFamily.Default,
             FontSize = 11,
             VerticalAlignment = VerticalAlignment.Center
         };
@@ -143,8 +143,8 @@ public class TreeDataTemplate : IDataTemplate
             row.Children.Add(new TextBlock
             {
                 Text = node.TypeTag,
-                FontFamily = "avares://ConfixJson.UI/Assets#JetBrains Mono, monospace",
-                FontSize = 10,
+                FontFamily = Application.Current!.Resources["FontJetBrainsMono"] as FontFamily ?? FontFamily.Default,
+                FontSize = 11,
                 Foreground = Application.Current!.Resources["TextTertiaryBrush"] as IBrush,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(4, 0, 0, 0)

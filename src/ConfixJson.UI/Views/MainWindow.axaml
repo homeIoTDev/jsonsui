@@ -49,20 +49,20 @@
             <TextBlock Text="JSON EDITOR" Classes="HeaderLabel" VerticalAlignment="Center" />
             <TextBlock Text="{Binding DocumentFilename}"
                        Foreground="{DynamicResource TextTertiaryBrush}"
-                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
-                       FontSize="10" VerticalAlignment="Center" />
+                       FontFamily="{StaticResource FontJetBrainsMono}"
+                       FontSize="11" VerticalAlignment="Center" />
           </StackPanel>
           <Border Classes="StatusError" IsVisible="{Binding HasErrors}"
                   DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
             <TextBlock Text="{Binding ErrorCount, StringFormat={}{0} errors}"
                        Foreground="{DynamicResource ErrorBrush}"
-                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                       FontFamily="{StaticResource FontJetBrainsMono}"
                        FontSize="9" FontWeight="Bold" />
           </Border>
           <Border Classes="StatusSuccess" IsVisible="{Binding ShowSaved}"
                   DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
             <TextBlock Text="saved" Foreground="{DynamicResource AccentBrush}"
-                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                       FontFamily="{StaticResource FontJetBrainsMono}"
                        FontSize="9" FontWeight="Bold" />
             </Border>
           </DockPanel>
@@ -203,7 +203,7 @@
                                       Opacity="0.5">
                             <TextBlock Text="{Binding NestedObjectSummary}"
                                        Foreground="{DynamicResource TextSecondaryBrush}"
-                                       FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="10" />
+                                       FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
                           </StackPanel>
                           <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
                                   Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
@@ -215,7 +215,7 @@
                               <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
                                         Stroke="{DynamicResource AccentBrush}" />
                               <TextBlock Text="{Binding ArrayItemCount}"
-                                         FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
+                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
                               <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
@@ -288,8 +288,8 @@
                           <StackPanel Grid.Column="0" Spacing="4">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                               <TextBlock Text="{Binding Index, StringFormat=[{0}]}"
-                                         FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
-                                         FontSize="10" FontWeight="Bold"
+                                         FontFamily="{StaticResource FontJetBrainsMono}"
+                                         FontSize="11" FontWeight="Bold"
                                          Foreground="{DynamicResource AccentBrush}" />
                               <Path Classes="Feather" Data="{StaticResource feather-alert-circle}" Width="10" Height="10"
                                         Stroke="{DynamicResource ErrorBrush}"
@@ -319,7 +319,7 @@
                     <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                     <TextBlock Text="Hinzufügen"
-                               FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="10" />
+                               FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
                   </StackPanel>
                 </Button>
               </Border>
@@ -339,7 +339,7 @@
               <Border IsVisible="{Binding HasObjectFields, Converter={x:Static conv:EditorConverters.InverseBool}}"
                       VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Kein Item ausgewählt"
-                           Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="13" />
+                           Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11" />
               </Border>
               <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasObjectFields}">
                 <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
@@ -355,7 +355,7 @@
                                         Opacity="0.5">
                               <TextBlock Text="{Binding NestedObjectSummary}"
                                          Foreground="{DynamicResource TextSecondaryBrush}"
-                                         FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="10" />
+                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
                             </StackPanel>
                             <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
                                     Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
@@ -367,7 +367,7 @@
                                 <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
                                           Stroke="{DynamicResource AccentBrush}" />
                                 <TextBlock Text="{Binding ArrayItemCount}"
-                                           FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
+                                           FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
                                 <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
                                           Stroke="{DynamicResource TextTertiaryBrush}" />
                               </StackPanel>
@@ -456,11 +456,11 @@
                     <StackPanel Orientation="Horizontal" Spacing="4">
                       <TextBlock Text="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarker}}"
                                  Width="12"
-                                 FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace"
+                                 FontFamily="{StaticResource FontJetBrainsMono}"
                                  FontSize="11" FontWeight="Bold"
                                  Foreground="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarkerColor}}" />
                       <TextBlock Text="{Binding Text}"
-                                 FontFamily="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" FontSize="11" />
+                                 FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
                     </StackPanel>
                   </Border>
                 </DataTemplate>

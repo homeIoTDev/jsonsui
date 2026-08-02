@@ -3,8 +3,8 @@
 
   <!-- Window base -->
   <Style Selector="Window">
-    <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter, sans-serif" />
-    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
   </Style>
 
   <!-- Feather Outline Icons -->
@@ -27,33 +27,33 @@
   </Style>
 
   <Style Selector="TextBlock.HeaderLabel">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
     <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
   </Style>
 
   <Style Selector="TextBlock.HeaderSubtitle">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
 
   <!-- Tree -->
   <Style Selector="TextBlock.TreeLabel">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
     <Setter Property="FontSize" Value="11" />
   </Style>
 
   <Style Selector="TextBlock.TreeTag">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
   </Style>
 
   <!-- Field Row -->
   <Style Selector="TextBlock.FieldLabel">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
     <Setter Property="FontSize" Value="11" />
   </Style>
 
@@ -72,15 +72,15 @@
   </Style>
 
   <Style Selector="TextBlock.CardPreview">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
   </Style>
 
   <!-- Scalar Input -->
   <Style Selector="TextBox.EditorInput">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
-    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
     <Setter Property="Padding" Value="5,8" />
     <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
@@ -105,12 +105,14 @@
   </Style>
 
   <Style Selector="TextBlock.HelpDescription">
+    <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
     <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
     <Setter Property="FontStyle" Value="Italic" />
   </Style>
 
   <Style Selector="TextBlock.HelpComment">
+    <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
     <Setter Property="FontSize" Value="10" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
     <Setter Property="FontStyle" Value="Italic" />
@@ -135,7 +137,7 @@
   </Style>
 
   <Style Selector="TextBlock.BadgeText">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
     <Setter Property="FontSize" Value="9" />
     <Setter Property="FontWeight" Value="Bold" />
   </Style>
@@ -151,13 +153,13 @@
   <Style Selector="TextBlock.ErrorText">
     <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
   </Style>
 
   <!-- Text Editor -->
   <Style Selector="TextBox.MonoEditor">
-    <Setter Property="FontFamily" Value="avares://ConfixJson.UI/Assets#JetBrains Mono, monospace" />
-    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
     <Setter Property="AcceptsReturn" Value="True" />
     <Setter Property="TextWrapping" Value="NoWrap" />
     <Setter Property="Padding" Value="8" />
