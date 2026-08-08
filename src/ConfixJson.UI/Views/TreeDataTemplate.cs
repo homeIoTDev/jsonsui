@@ -49,7 +49,7 @@ public class TreeDataTemplate : IDataTemplate
             var topLevel = TopLevel.GetTopLevel(rootBorder);
             if (topLevel?.DataContext is MainWindowViewModel vm)
             {
-                if (node.IsExpandable && !node.IsExpanded)
+                if (node.IsExpandable)
                     vm.ToggleExpandCommand.Execute(node);
                 vm.SelectNodeCommand.Execute(node);
             }
@@ -166,7 +166,7 @@ public class TreeDataTemplate : IDataTemplate
             var wrapper = new StackPanel();
             var childrenControl = new ItemsControl
             {
-                ItemsSource = node.Children,
+                ItemsSource = node.NavigableChildren,
                 IsVisible = isExpanded
             };
             childrenControl.ItemTemplate = new TreeDataTemplate();

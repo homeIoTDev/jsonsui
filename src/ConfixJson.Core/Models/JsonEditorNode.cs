@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Nodes;
 
 namespace ConfixJson.Core.Models;
@@ -17,7 +18,14 @@ public class JsonEditorNode
     public int Depth { get; set; }
     public string NodeType { get; set; } = "scalar";
 
-    public bool IsExpandable => NodeType == "root" || NodeType == "object";
+    public IEnumerable<JsonEditorNode> NavigableChildren =>
+        NodeType switch
+        {
+            "array" => Children,
+            _ => Children.Where(c => c.NodeType == "array" || (c.NodeType == "object" && c.NavigableChildren.Any()))
+        };
+
+    public bool IsExpandable => NavigableChildren.Any();
 
     public string TypeTag =>
         NodeType switch

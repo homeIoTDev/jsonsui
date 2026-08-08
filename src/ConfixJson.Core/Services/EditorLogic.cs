@@ -26,6 +26,8 @@ public static class EditorLogic
         var root = BuildNode(state.Json, "root", [], 0, null, state.Expanded, nodeByPathKey);
         root.IsExpanded = true;
         root.IsSelected = state.SelectedPath.Length == 0;
+        if (state.SelectedPath.Length > 0 && nodeByPathKey.TryGetValue(string.Join("/", state.SelectedPath), out var sel))
+            sel.IsSelected = true;
         return root;
     }
 
@@ -61,8 +63,7 @@ public static class EditorLogic
             {
                 var childPath = path.Concat([i.ToString()]).ToArray();
                 var child = BuildNode(arr[i], $"[{i}]", childPath, depth + 1, node, expanded, nodeByPathKey);
-                if (arr[i] is JsonObject)
-                    child.IsExpanded = expanded.Contains(child.PathKey);
+                child.IsExpanded = expanded.Contains(child.PathKey);
                 node.Children.Add(child);
             }
         }
@@ -99,15 +100,6 @@ public static class EditorLogic
         state.NestedCtx = null;
         state.CardIndex = null;
 
-        if (node.NodeType == "object" || node.NodeType == "root")
-        {
-            if (!node.IsExpanded)
-            {
-                node.IsExpanded = true;
-                state.Expanded.Add(node.PathKey);
-            }
-        }
-
         if (node.Value is JsonArray arr && arr.Count > 0)
             state.CardIndex = 0;
     }
@@ -121,8 +113,6 @@ public static class EditorLogic
             state.Expanded.Add(node.PathKey);
         else
             state.Expanded.Remove(node.PathKey);
-
-        state.SelectedPath = node.Path;
     }
 
     public static void SelectCard(EditorState state, int? index)
