@@ -298,6 +298,18 @@
                     BorderBrush="{DynamicResource CardSplitBrush}"
                     Background="{DynamicResource PanelBackgroundBrush}">
               <DockPanel>
+                <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
+                        DockPanel.Dock="Bottom" Padding="8,12">
+                  <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
+                          HorizontalAlignment="Stretch" Height="32">
+                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                      <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
+                                Stroke="{DynamicResource TextSecondaryBrush}" />
+                      <TextBlock Text="Hinzufügen"
+                                 FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                    </StackPanel>
+                  </Button>
+                </Border>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                   <ItemsControl ItemsSource="{Binding CardItems}" Margin="10,12">
                     <ItemsControl.ItemTemplate>
@@ -331,18 +343,6 @@
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
                 </ScrollViewer>
-                <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
-                        DockPanel.Dock="Bottom" Padding="8,12">
-                  <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
-                          HorizontalAlignment="Stretch" Height="32">
-                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                      <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
-                                Stroke="{DynamicResource TextSecondaryBrush}" />
-                      <TextBlock Text="Hinzufügen"
-                                 FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                    </StackPanel>
-                  </Button>
-                </Border>
               </DockPanel>
             </Border>
             <!-- Detail Panel -->
