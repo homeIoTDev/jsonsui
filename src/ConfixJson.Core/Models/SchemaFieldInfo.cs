@@ -3,6 +3,10 @@ namespace ConfixJson.Core.Models;
 public class SchemaFieldInfo
 {
     public string? Description { get; set; }
+    public string? ContextDescription { get; set; }
+    public string? ContextMeta { get; set; }
+    public string? FieldDescription { get; set; }
+    public string? FieldMeta { get; set; }
     public string? DefaultValue { get; set; }
     public bool IsDeprecated { get; set; }
     public bool IsReadOnly { get; set; }

@@ -42,4 +42,24 @@ public partial class MainWindow : Window
             vm.CloseDiffCommand.Execute(null);
         }
     }
+
+    private void EnumComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ComboBox cb || cb.Parent == null) return;
+        if (e.RemovedItems.Count == 0) return;
+        if (cb.DataContext is FieldRow row && DataContext is MainWindowViewModel vm && e.AddedItems.Count > 0)
+        {
+            var value = e.AddedItems[0]?.ToString();
+            if (value != null)
+                vm.ChangeFieldCommand.Execute(new object[] { row.Path, value });
+        }
+    }
+
+    private void ScalarDetail_LostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb && DataContext is MainWindowViewModel vm)
+        {
+            vm.SaveScalarDetailCommand.Execute(tb.Text);
+        }
+    }
 }

@@ -99,6 +99,7 @@ public static class EditorLogic
         state.SelectedPath = node.Path;
         state.NestedCtx = null;
         state.CardIndex = null;
+        state.FocusFieldPath = null;
 
         if (node.Value is JsonArray arr && arr.Count > 0)
             state.CardIndex = 0;
@@ -124,11 +125,13 @@ public static class EditorLogic
             if (ctx.ArrayPath != null)
             {
                 ctx.CardIndex = index.Value;
+                state.FocusFieldPath = null;
                 return;
             }
             ctx = ctx.Previous;
         }
         state.CardIndex = index.Value;
+        state.FocusFieldPath = null;
     }
 
     public static void DrillInto(EditorState state, string[] path)
@@ -390,11 +393,16 @@ public static class EditorLogic
         foreach (var kvp in obj)
         {
             var fieldPath = objectPath.Concat([kvp.Key]).ToArray();
+
+            SchemaProperty? schemaProp = null;
+            if (state.ActiveSchema != null)
+                schemaProp = ResolveSchemaProperty(state.ActiveSchema, fieldPath);
+
             var fieldType = kvp.Value switch
             {
                 JsonObject => "object",
                 JsonArray => "array",
-                _ => "scalar"
+                _ => schemaProp?.EnumValues is { Count: > 0 } ? "enum" : "scalar"
             };
 
             var row = new FieldRow
@@ -402,16 +410,22 @@ public static class EditorLogic
                 Key = kvp.Key,
                 Path = fieldPath,
                 FieldType = fieldType,
-                IsRequired = false,
-                HasErrors = state.Errors.Any(e => e.PathString == string.Join(".", fieldPath))
+                IsRequired = schemaProp?.IsRequired ?? false,
+                HasErrors = state.Errors.Any(e => e.PathString == string.Join(".", fieldPath)),
+                EnumValues = schemaProp?.EnumValues
             };
 
             if (kvp.Value is JsonObject nestedObj)
                 row.NestedObjectSummary = $"{{{nestedObj.Count} fields}}";
             else if (kvp.Value is JsonArray nestedArr)
                 row.ArrayItemCount = $"{nestedArr.Count} items";
-            else if (kvp.Value is JsonValue)
-                row.ScalarValue = JsonDocumentService.GetScalarPreview(kvp.Value, 200);
+            else if (kvp.Value is JsonValue jv)
+            {
+                if (fieldType == "enum" && jv.TryGetValue<string>(out var sv))
+                    row.ScalarValue = sv;
+                else
+                    row.ScalarValue = JsonDocumentService.GetScalarPreview(jv, 200);
+            }
 
             rows.Add(row);
         }
@@ -504,7 +518,73 @@ public static class EditorLogic
     public static SchemaFieldInfo GetHelpInfo(EditorState state)
     {
         var focusPath = state.FocusFieldPath ?? GetEffectiveEditorPath(state);
-        return BuildHelpInfo(state, focusPath, skipArrayDesc: true);
+        var pathStr = string.Join(" / ", focusPath);
+        var errors = state.Errors.Where(e => string.Join(".", e.Path) == string.Join(".", focusPath)).ToArray();
+
+        var info = new SchemaFieldInfo
+        {
+            PathString = pathStr,
+            HasValidationErrors = errors.Length > 0,
+            ErrorMessages = errors.Length > 0 ? string.Join("; ", errors.Select(e => e.Message)) : null
+        };
+
+        if (state.ActiveSchema != null)
+        {
+            bool hasFieldFocus = state.FocusFieldPath != null;
+
+            if (hasFieldFocus && focusPath.Length > 0)
+            {
+                var contextPath = focusPath[..^1];
+                var contextProp = ResolveSchemaProperty(state.ActiveSchema, contextPath);
+                if (contextProp != null && contextProp.JsonType != "array")
+                {
+                    info.ContextDescription = contextProp.Description;
+                    info.ContextMeta = BuildMetaText(contextProp);
+                }
+
+                var fieldProp = ResolveSchemaProperty(state.ActiveSchema, focusPath);
+                if (fieldProp != null && fieldProp.JsonType != "array")
+                {
+                    info.FieldDescription = fieldProp.Description;
+                    info.FieldMeta = BuildMetaText(fieldProp);
+                }
+            }
+            else
+            {
+                var contextProp = ResolveSchemaProperty(state.ActiveSchema, focusPath);
+                if (contextProp != null && contextProp.JsonType != "array")
+                {
+                    info.ContextDescription = contextProp.Description;
+                    info.ContextMeta = BuildMetaText(contextProp);
+                }
+                else if (focusPath.Length == 0)
+                {
+                    info.ContextDescription = state.ActiveSchema.Description;
+                }
+            }
+        }
+
+        return info;
+    }
+
+    private static string? BuildMetaText(SchemaProperty prop)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrEmpty(prop.DefaultValue))
+            parts.Add($"Default: {prop.DefaultValue}");
+
+        if (prop.Minimum.HasValue && prop.Maximum.HasValue)
+            parts.Add($"Bereich: {prop.Minimum} – {prop.Maximum}");
+        else if (prop.Minimum.HasValue)
+            parts.Add($"Min: {prop.Minimum}");
+        else if (prop.Maximum.HasValue)
+            parts.Add($"Max: {prop.Maximum}");
+
+        if (prop.EnumValues is { Count: > 0 })
+            parts.Add($"Werte: {string.Join(", ", prop.EnumValues)}");
+
+        return parts.Count > 0 ? string.Join("  |  ", parts) : null;
     }
 
     public static SchemaFieldInfo GetArrayHelpInfo(EditorState state)
@@ -517,7 +597,7 @@ public static class EditorLogic
         return BuildHelpInfo(state, focusPath);
     }
 
-    private static SchemaFieldInfo BuildHelpInfo(EditorState state, string[] focusPath, bool skipArrayDesc = false)
+    private static SchemaFieldInfo BuildHelpInfo(EditorState state, string[] focusPath)
     {
         var pathStr = string.Join(" / ", focusPath);
         var errors = state.Errors.Where(e => string.Join(".", e.Path) == string.Join(".", focusPath)).ToArray();
@@ -534,18 +614,14 @@ public static class EditorLogic
             var schemaProp = ResolveSchemaProperty(state.ActiveSchema, focusPath);
             if (schemaProp != null)
             {
-                if (!skipArrayDesc || schemaProp.JsonType != "array")
-                {
-                    info.Description = schemaProp.Description;
-                    info.DefaultValue = schemaProp.DefaultValue;
-                    info.Minimum = schemaProp.Minimum;
-                    info.Maximum = schemaProp.Maximum;
-                }
+                info.Description = schemaProp.Description;
+                info.DefaultValue = schemaProp.DefaultValue;
+                info.Minimum = schemaProp.Minimum;
+                info.Maximum = schemaProp.Maximum;
 
                 System.Diagnostics.Debug.WriteLine(
                     $"[BuildHelpInfo] schemaProp.Name={schemaProp.Name} JsonType={schemaProp.JsonType} " +
-                    $"Description='{schemaProp.Description}' skipArrayDesc={skipArrayDesc} " +
-                    $"=> info.Description='{info.Description}'");
+                    $"Description='{schemaProp.Description}' => info.Description='{info.Description}'");
             }
             else if (focusPath.Length == 0)
             {

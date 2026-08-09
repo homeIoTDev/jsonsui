@@ -17,4 +17,5 @@ public class FieldRow
     public string? NestedObjectSummary { get; set; }
     public string ArrayItemCount { get; set; } = "0";
     public string? ScalarValue { get; set; }
+    public List<string>? EnumValues { get; set; }
 }

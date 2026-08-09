@@ -16,6 +16,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly UndoRedoService _undoRedo = new();
     private readonly EditorState _state = new();
+    private string _currentFilePath = "";
 
     // --- UI-only Observable Properties ---
 
@@ -117,6 +118,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     public partial SchemaFieldInfo ArrayHelpInfo { get; set; } = new();
 
+    public bool EditorHelpVisible =>
+        EditorHelpInfo.HasValidationErrors ||
+        !string.IsNullOrEmpty(EditorHelpInfo.ContextDescription) ||
+        !string.IsNullOrEmpty(EditorHelpInfo.FieldDescription);
+
+    public bool EditorHelpHasDescription =>
+        !string.IsNullOrEmpty(EditorHelpInfo.ContextDescription) ||
+        !string.IsNullOrEmpty(EditorHelpInfo.FieldDescription);
+
+    public bool ArrayHelpVisible =>
+        !string.IsNullOrEmpty(ArrayHelpInfo.Description);
+
     public ObservableCollection<JsonEditorNode> TreeRootNodes { get; } = [];
 
     public MainWindowViewModel()
@@ -128,6 +141,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public void RefreshUI()
     {
+        System.Diagnostics.Debug.WriteLine("[RefreshUI] START");
         // Sync state-derived observable properties
         SelectedPathString = EditorLogic.GetSelectedPathString(_state);
         EffectivePathString = EditorLogic.GetEffectivePathString(_state);
@@ -141,6 +155,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         NestedCtx = _state.NestedCtx;
         EditorHelpInfo = EditorLogic.GetHelpInfo(_state);
         ArrayHelpInfo = EditorLogic.GetArrayHelpInfo(_state);
+        System.Diagnostics.Debug.WriteLine($"[RefreshUI] mode={CurrentEditorMode}");
 
         // Rebuild tree
         var root = EditorLogic.BuildTree(_state);
@@ -185,13 +200,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         else if (mode == EditorMode.Object)
         {
             var effectivePath = EditorLogic.GetEffectiveEditorPath(_state);
+            System.Diagnostics.Debug.WriteLine("[RefreshUI] BuildObjectFields START");
             ObjectFields = new ObservableCollection<FieldRow>(EditorLogic.BuildObjectFields(_state, effectivePath));
+            System.Diagnostics.Debug.WriteLine("[RefreshUI] BuildObjectFields END");
         }
         else if (mode == EditorMode.Scalar)
         {
             var selected = EditorLogic.GetSelectedValue(_state);
             ScalarNode = EditorLogic.BuildScalarNode(_state, _state.SelectedPath, selected);
         }
+
+        System.Diagnostics.Debug.WriteLine("[RefreshUI] END");
+        OnPropertyChanged(nameof(EditorHelpVisible));
+        OnPropertyChanged(nameof(EditorHelpHasDescription));
+        OnPropertyChanged(nameof(ArrayHelpVisible));
     }
 
     // --- Commands ---
@@ -280,7 +302,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            EditorLogic.SaveDocument(DocumentFilename, _state.Json);
+            EditorLogic.SaveDocument(_currentFilePath, _state.Json);
             _state.OriginalJson = _state.Json.DeepClone();
             ShowSaved = true;
             Task.Delay(2000).ContinueWith(_ =>
@@ -293,6 +315,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             TextParseError = $"Save error: {ex.Message}";
             HasTextParseError = true;
         }
+    }
+
+    [RelayCommand]
+    private void SaveScalarDetail(string? value)
+    {
+        var detailPath = EditorLogic.GetDetailItemPath(_state);
+        if (detailPath == null || string.IsNullOrEmpty(value)) return;
+        var jsonNode = EditorLogic.ConvertToJsonNode(value);
+        if (jsonNode == null) return;
+        EditorLogic.SetValueAtPath(_state, detailPath, jsonNode, _undoRedo);
+        RefreshUI();
     }
 
     [RelayCommand]
@@ -330,6 +363,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         EditorLogic.FocusField(_state, path);
         EditorHelpInfo = EditorLogic.GetHelpInfo(_state);
+        OnPropertyChanged(nameof(EditorHelpVisible));
+        OnPropertyChanged(nameof(EditorHelpHasDescription));
     }
 
     [RelayCommand]
@@ -392,6 +427,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             var node = await JsonFileService.LoadFromStreamAsync(stream);
             EditorLogic.InitDocument(_state, node, file.Name);
             DocumentFilename = file.Name;
+            _currentFilePath = file.Path.LocalPath;
             _undoRedo.Clear();
             TryAutoLoadSchema(node, file.Path.LocalPath);
             RefreshUI();
@@ -403,6 +439,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         var node = EditorLogic.LoadDocument(filePath);
         EditorLogic.InitDocument(_state, node, System.IO.Path.GetFileName(filePath));
         DocumentFilename = System.IO.Path.GetFileName(filePath);
+        _currentFilePath = filePath;
         _undoRedo.Clear();
         TryAutoLoadSchema(node, filePath);
         RefreshUI();
