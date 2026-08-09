@@ -10,6 +10,7 @@ public class EditorState
     public HashSet<string> Expanded { get; set; } = [];
     public int? CardIndex { get; set; }
     public NestedContext? NestedCtx { get; set; }
+    public SchemaModel? ActiveSchema { get; set; }
     public ValidationError[] Errors { get; set; } = [];
     public string[]? FocusFieldPath { get; set; }
 }

@@ -465,20 +465,106 @@ public static class EditorLogic
         };
     }
 
+    // --- Schema Resolution ---
+
+    public static SchemaProperty? ResolveSchemaProperty(SchemaModel schema, string[] jsonPath)
+    {
+        var currentModel = schema;
+        SchemaProperty? result = null;
+
+        for (int i = 0; i < jsonPath.Length; i++)
+        {
+            var segment = jsonPath[i];
+
+            if (int.TryParse(segment, out _))
+            {
+                if (result?.ArrayItemSchema?.ObjectSchema != null)
+                    currentModel = result.ArrayItemSchema.ObjectSchema;
+                continue;
+            }
+
+            var prop = currentModel.Properties.FirstOrDefault(p => p.Name == segment);
+            if (prop == null) break;
+            result = prop;
+
+            if (prop.ObjectSchema != null)
+                currentModel = prop.ObjectSchema;
+            else if (prop.ArrayItemSchema?.ObjectSchema != null)
+                currentModel = prop.ArrayItemSchema.ObjectSchema;
+        }
+
+        if (result != null && jsonPath.Length > 0 && int.TryParse(jsonPath[^1], out _))
+            result = result.ArrayItemSchema ?? result;
+
+        return result;
+    }
+
     // --- Help Info ---
 
     public static SchemaFieldInfo GetHelpInfo(EditorState state)
     {
         var focusPath = state.FocusFieldPath ?? GetEffectiveEditorPath(state);
+        return BuildHelpInfo(state, focusPath, skipArrayDesc: true);
+    }
+
+    public static SchemaFieldInfo GetArrayHelpInfo(EditorState state)
+    {
+        var (cardArrayPath, _) = GetCardArrayContext(state);
+        var focusPath = cardArrayPath.Length > 0 ? cardArrayPath : GetEffectiveEditorPath(state);
+
+        System.Diagnostics.Debug.WriteLine($"[ArrayHelpInfo] ActiveSchema={(state.ActiveSchema != null ? "present" : "NULL")} path={string.Join("/", focusPath)}");
+
+        return BuildHelpInfo(state, focusPath);
+    }
+
+    private static SchemaFieldInfo BuildHelpInfo(EditorState state, string[] focusPath, bool skipArrayDesc = false)
+    {
         var pathStr = string.Join(" / ", focusPath);
         var errors = state.Errors.Where(e => string.Join(".", e.Path) == string.Join(".", focusPath)).ToArray();
 
-        return new SchemaFieldInfo
+        var info = new SchemaFieldInfo
         {
             PathString = pathStr,
             HasValidationErrors = errors.Length > 0,
             ErrorMessages = errors.Length > 0 ? string.Join("; ", errors.Select(e => e.Message)) : null
         };
+
+        if (state.ActiveSchema != null)
+        {
+            var schemaProp = ResolveSchemaProperty(state.ActiveSchema, focusPath);
+            if (schemaProp != null)
+            {
+                if (!skipArrayDesc || schemaProp.JsonType != "array")
+                {
+                    info.Description = schemaProp.Description;
+                    info.DefaultValue = schemaProp.DefaultValue;
+                    info.Minimum = schemaProp.Minimum;
+                    info.Maximum = schemaProp.Maximum;
+                }
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[BuildHelpInfo] schemaProp.Name={schemaProp.Name} JsonType={schemaProp.JsonType} " +
+                    $"Description='{schemaProp.Description}' skipArrayDesc={skipArrayDesc} " +
+                    $"=> info.Description='{info.Description}'");
+            }
+            else if (focusPath.Length == 0)
+            {
+                info.Description = state.ActiveSchema.Description;
+                System.Diagnostics.Debug.WriteLine(
+                    $"[BuildHelpInfo] root path => info.Description='{info.Description}'");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[BuildHelpInfo] no schemaProp found for path={string.Join("/", focusPath)}");
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("[BuildHelpInfo] ActiveSchema is NULL");
+        }
+
+        return info;
     }
 
     // --- Save / Load ---

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -83,6 +84,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasObjectFields))]
+    [NotifyPropertyChangedFor(nameof(ShowEmptyDetailState))]
     public partial ObservableCollection<FieldRow> ObjectFields { get; set; } = [];
 
     public bool HasObjectFields => ObjectFields.Count > 0;
@@ -94,13 +96,26 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public partial ObservableCollection<CardItem> CardItems { get; set; } = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasScalarDetail))]
     public partial JsonEditorNode? ScalarNode { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasScalarDetail))]
+    [NotifyPropertyChangedFor(nameof(ShowEmptyDetailState))]
+    public partial string DetailScalarText { get; set; } = "";
+
+    public bool HasScalarDetail => !string.IsNullOrEmpty(DetailScalarText);
+
+    public bool ShowEmptyDetailState => !HasObjectFields && !HasScalarDetail;
 
     [ObservableProperty]
     public partial ObservableCollection<JsonDiffLine> DiffLines { get; set; } = [];
 
     [ObservableProperty]
-    public partial SchemaFieldInfo HelpInfo { get; set; } = new();
+    public partial SchemaFieldInfo EditorHelpInfo { get; set; } = new();
+
+    [ObservableProperty]
+    public partial SchemaFieldInfo ArrayHelpInfo { get; set; } = new();
 
     public ObservableCollection<JsonEditorNode> TreeRootNodes { get; } = [];
 
@@ -124,7 +139,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         CanUndo = _undoRedo.CanUndo;
         CanRedo = _undoRedo.CanRedo;
         NestedCtx = _state.NestedCtx;
-        HelpInfo = EditorLogic.GetHelpInfo(_state);
+        EditorHelpInfo = EditorLogic.GetHelpInfo(_state);
+        ArrayHelpInfo = EditorLogic.GetArrayHelpInfo(_state);
 
         // Rebuild tree
         var root = EditorLogic.BuildTree(_state);
@@ -136,6 +152,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ObjectFields.Clear();
         CardItems.Clear();
         ScalarNode = new ConfixJson.Core.Models.JsonEditorNode { Label = "", Path = [], NodeType = "scalar" };
+        DetailScalarText = "";
         TextContent = "";
         TextEditorPathString = "";
 
@@ -158,8 +175,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 var detailValue = EditorLogic.GetDetailItemValue(_state);
                 if (detailValue is JsonObject)
                     ObjectFields = new ObservableCollection<FieldRow>(EditorLogic.BuildObjectFields(_state, detailPath));
-                else if (detailValue is JsonValue)
+                else if (detailValue is JsonValue jv)
+                {
+                    DetailScalarText = JsonDocumentService.GetScalarPreview(jv, 200);
                     ScalarNode = EditorLogic.BuildScalarNode(_state, detailPath, detailValue);
+                }
             }
         }
         else if (mode == EditorMode.Object)
@@ -309,7 +329,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void FocusField(string[]? path)
     {
         EditorLogic.FocusField(_state, path);
-        HelpInfo = EditorLogic.GetHelpInfo(_state);
+        EditorHelpInfo = EditorLogic.GetHelpInfo(_state);
     }
 
     [RelayCommand]
@@ -373,6 +393,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             EditorLogic.InitDocument(_state, node, file.Name);
             DocumentFilename = file.Name;
             _undoRedo.Clear();
+            TryAutoLoadSchema(node, file.Path.LocalPath);
             RefreshUI();
         }
     }
@@ -383,7 +404,59 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         EditorLogic.InitDocument(_state, node, System.IO.Path.GetFileName(filePath));
         DocumentFilename = System.IO.Path.GetFileName(filePath);
         _undoRedo.Clear();
+        TryAutoLoadSchema(node, filePath);
         RefreshUI();
+    }
+
+    private void TryAutoLoadSchema(JsonNode root, string jsonFilePath)
+    {
+        System.Diagnostics.Debug.WriteLine($"[SchemaTrace] JSON loaded: {jsonFilePath}");
+
+        string? schemaRef = null;
+        if (root is JsonObject obj && obj["$schema"] is JsonValue sv)
+            schemaRef = sv.GetValue<string>();
+
+        System.Diagnostics.Debug.WriteLine($"[SchemaTrace] top-level $schema: {schemaRef ?? "NULL"}");
+
+        if (string.IsNullOrEmpty(schemaRef))
+        {
+            _state.ActiveSchema = null;
+            System.Diagnostics.Debug.WriteLine("[SchemaTrace] ActiveSchema cleared — no $schema in this document");
+            return;
+        }
+
+        string resolvedPath;
+        if (Path.IsPathRooted(schemaRef))
+            resolvedPath = schemaRef;
+        else
+            resolvedPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(jsonFilePath) ?? "", schemaRef));
+
+        System.Diagnostics.Debug.WriteLine($"[SchemaTrace] resolved schema path: {resolvedPath}");
+
+        if (!File.Exists(resolvedPath))
+        {
+            System.Diagnostics.Debug.WriteLine("[SchemaTrace] schema file exists: False — skipping auto-load");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine("[SchemaTrace] schema file exists: True");
+
+        try
+        {
+            var loader = new SchemaLoader();
+            var schemaDoc = loader.LoadFromString(File.ReadAllText(resolvedPath));
+            var parser = new SchemaParser();
+            var model = parser.Parse(schemaDoc);
+            _state.ActiveSchema = model;
+
+            System.Diagnostics.Debug.WriteLine("[SchemaTrace] schema parser invoked: true");
+            System.Diagnostics.Debug.WriteLine($"[SchemaTrace] parsed schema properties: {model.Properties.Count}");
+            System.Diagnostics.Debug.WriteLine("[SchemaTrace] ActiveSchema assigned: true");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SchemaTrace] schema load failed: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -408,7 +481,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             var schema = await loader.LoadFromFileAsync(file.Path.LocalPath);
             var parser = new SchemaParser();
             var model = parser.Parse(schema);
-            HelpInfo = new SchemaFieldInfo { Description = model.Description ?? $"Schema loaded: {file.Name}" };
+            _state.ActiveSchema = model;
+            RefreshUI();
         }
     }
 }

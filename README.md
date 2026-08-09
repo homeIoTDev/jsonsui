@@ -1,14 +1,25 @@
 # 🚀 Confix.json
 
-> **No more raw text. Just clean config UIs based on JSON Schema**  
+> **No more raw text. Navigate and edit JSON configurations through a schema-driven UI**  
 > A blazing-fast, cross-platform config editor powered by Avalonia UI.
 
 [![GitHub license](https://shields.io)](LICENSE)
 [![Build Status](https://shields.io)](actions)
 [![AvaloniaUI](https://shields.io)](https://avaloniaui.net)
 
-**Confix.json** bridges the gap between raw text editing and complex enterprise configurations. It reads any standard JSON Schema and instantly generates a type-safe, human-friendly user interface on Windows, Linux, and the Web. No more syntax errors, no more broken deployments.
+**Confix.json** turns standard JSON Schema into a focused, human-friendly configuration experience for complex JSON files.
 
+Instead of exposing the entire JSON document as a form or forcing users to edit raw JSON, Confix separates navigation from editing:
+
+* The tree is for navigation
+* The editor is for the selected JSON context
+* Arrays become card-based editors
+* Nested structures can be drilled into without cluttering the main tree
+* JSON Schema provides validation, field descriptions, defaults, constraints and UI metadata
+
+The result is a configuration editor designed for large and deeply nested configuration files — without making users understand the underlying JSON structure.
+
+Built with Avalonia UI for Windows and Linux, with a shared core architecture prepared for a web-based configuration experience.
 [Key Features](#-key-features) • [Installation](#-installation) • [CLI Usage](#-cli-usage) • [Architecture](#-architecture)
 
 ---
