@@ -21,8 +21,8 @@ public class JsonEditorNode
     public IEnumerable<JsonEditorNode> NavigableChildren =>
         NodeType switch
         {
-            "array" => Children,
-            _ => Children.Where(c => c.NodeType == "array" || (c.NodeType == "object" && c.NavigableChildren.Any()))
+            "array" => Enumerable.Empty<JsonEditorNode>(),
+            _ => Children.Where(c => c.NodeType is "object" or "array")
         };
 
     public bool IsExpandable => NavigableChildren.Any();

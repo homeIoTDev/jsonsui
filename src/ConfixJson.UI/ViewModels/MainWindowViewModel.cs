@@ -37,6 +37,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public partial string SelectedPathString { get; set; } = "";
 
     [ObservableProperty]
+    public partial string EffectivePathString { get; set; } = "";
+
+    [ObservableProperty]
     public partial string CardArrayPathString { get; set; } = "";
 
     [ObservableProperty]
@@ -112,6 +115,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         // Sync state-derived observable properties
         SelectedPathString = EditorLogic.GetSelectedPathString(_state);
+        EffectivePathString = EditorLogic.GetEffectivePathString(_state);
         CardArrayPathString = EditorLogic.GetCardArrayPathString(_state);
         DetailPathString = EditorLogic.GetDetailPathString(_state);
         CurrentEditorMode = EditorLogic.GetEditorMode(_state, TextMode);
@@ -160,7 +164,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
         else if (mode == EditorMode.Object)
         {
-            ObjectFields = new ObservableCollection<FieldRow>(EditorLogic.BuildObjectFields(_state, _state.SelectedPath));
+            var effectivePath = EditorLogic.GetEffectiveEditorPath(_state);
+            ObjectFields = new ObservableCollection<FieldRow>(EditorLogic.BuildObjectFields(_state, effectivePath));
         }
         else if (mode == EditorMode.Scalar)
         {
@@ -188,6 +193,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void DrillInto(string[]? path)
+    {
+        if (path == null) return;
+        EditorLogic.DrillInto(_state, path);
+        RefreshUI();
+    }
+
+    [RelayCommand]
     private void ChangeField(object? parameter)
     {
         if (parameter is not object[] args || args.Length < 2) return;
@@ -204,7 +217,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void AddCard()
     {
-        var arrayPath = _state.NestedCtx?.ArrayPath ?? _state.SelectedPath;
+        var (arrayPath, _) = EditorLogic.GetCardArrayContext(_state);
+        if (arrayPath.Length == 0) return;
         EditorLogic.AddArrayItem(_state, arrayPath, _undoRedo);
         RefreshUI();
     }
@@ -213,7 +227,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void DeleteCard(int? index)
     {
         if (index == null) return;
-        var arrayPath = _state.NestedCtx?.ArrayPath ?? _state.SelectedPath;
+        var (arrayPath, _) = EditorLogic.GetCardArrayContext(_state);
+        if (arrayPath.Length == 0) return;
         EditorLogic.RemoveArrayItem(_state, arrayPath, index.Value, _undoRedo);
         RefreshUI();
     }

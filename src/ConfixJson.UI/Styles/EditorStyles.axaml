@@ -23,7 +23,7 @@
     <Setter Property="Height" Value="34" />
     <Setter Property="Padding" Value="7,0,12,0" />
     <Setter Property="BorderThickness" Value="0,0,0,1" />
-    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
 
   <Style Selector="TextBlock.HeaderLabel">
@@ -176,14 +176,14 @@
   <Style Selector="Border.TopHeader">
     <Setter Property="Height" Value="38" />
     <Setter Property="BorderThickness" Value="0,0,0,1" />
-    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
     <Setter Property="Background" Value="{DynamicResource ToolbarBackgroundBrush}" />
   </Style>
 
   <Style Selector="Border.TreeToolbar">
     <Setter Property="Height" Value="36" />
     <Setter Property="BorderThickness" Value="0,1,0,0" />
-    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
     <Setter Property="Background" Value="{DynamicResource ToolbarBackgroundBrush}" />
   </Style>
 

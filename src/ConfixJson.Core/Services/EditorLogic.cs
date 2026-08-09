@@ -118,21 +118,38 @@ public static class EditorLogic
     public static void SelectCard(EditorState state, int? index)
     {
         if (index == null) return;
-        if (state.NestedCtx != null)
-            state.NestedCtx.CardIndex = index.Value;
+        var ctx = state.NestedCtx;
+        while (ctx != null)
+        {
+            if (ctx.ArrayPath != null)
+            {
+                ctx.CardIndex = index.Value;
+                return;
+            }
+            ctx = ctx.Previous;
+        }
+        state.CardIndex = index.Value;
+    }
+
+    public static void DrillInto(EditorState state, string[] path)
+    {
+        var value = JsonDocumentService.GetByPath(state.Json, path);
+        state.FocusFieldPath = null;
+        if (value is JsonArray)
+            state.NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0, Previous = state.NestedCtx };
         else
-            state.CardIndex = index.Value;
+            state.NestedCtx = new NestedContext { ObjectPath = path, Previous = state.NestedCtx };
     }
 
     public static void DrillIntoArray(EditorState state, string[] path)
     {
-        state.NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0 };
+        state.NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0, Previous = state.NestedCtx };
         state.FocusFieldPath = null;
     }
 
     public static void ExitNestedArray(EditorState state)
     {
-        state.NestedCtx = null;
+        state.NestedCtx = state.NestedCtx?.Previous;
         state.FocusFieldPath = null;
     }
 
@@ -280,14 +297,46 @@ public static class EditorLogic
     public static string GetSelectedPathString(EditorState state)
         => string.Join(" / ", state.SelectedPath);
 
+    public static string[] GetEffectiveEditorPath(EditorState state)
+    {
+        if (state.NestedCtx?.ObjectPath != null)
+            return state.NestedCtx.ObjectPath;
+        var detailPath = GetDetailItemPath(state);
+        if (detailPath != null)
+            return detailPath;
+        return state.SelectedPath;
+    }
+
+    public static string GetEffectivePathString(EditorState state)
+        => string.Join(" / ", GetEffectiveEditorPath(state));
+
+    private static (string[]?, int?) FindArrayInStack(EditorState state)
+    {
+        var ctx = state.NestedCtx;
+        while (ctx != null)
+        {
+            if (ctx.ArrayPath != null)
+                return (ctx.ArrayPath, ctx.CardIndex);
+            ctx = ctx.Previous;
+        }
+        return (null, null);
+    }
+
     public static (string[] CardArrayPath, int? ActiveCardIndex) GetCardArrayContext(EditorState state)
     {
+        var (arrayPath, cardIndex) = FindArrayInStack(state);
+        if (arrayPath != null)
+            return (arrayPath, cardIndex);
         var selected = GetSelectedValue(state);
-        if (state.NestedCtx != null)
-            return (state.NestedCtx.ArrayPath, state.NestedCtx.CardIndex);
         if (selected is JsonArray)
             return (state.SelectedPath, state.CardIndex);
         return ([], null);
+    }
+
+    public static string? GetActiveArrayPath(EditorState state)
+    {
+        var (arrayPath, _) = FindArrayInStack(state);
+        return arrayPath != null ? string.Join("/", arrayPath) : null;
     }
 
     public static string GetCardArrayPathString(EditorState state)
@@ -316,6 +365,9 @@ public static class EditorLogic
     {
         if (textMode)
             return EditorMode.Text;
+
+        if (state.NestedCtx?.ObjectPath != null)
+            return EditorMode.Object;
 
         var selected = GetSelectedValue(state);
         if ((selected is JsonArray arr && arr.Count > 0) || state.NestedCtx != null)
@@ -357,7 +409,7 @@ public static class EditorLogic
             if (kvp.Value is JsonObject nestedObj)
                 row.NestedObjectSummary = $"{{{nestedObj.Count} fields}}";
             else if (kvp.Value is JsonArray nestedArr)
-                row.ArrayItemCount = $"[{nestedArr.Count}]";
+                row.ArrayItemCount = $"{nestedArr.Count} items";
             else if (kvp.Value is JsonValue)
                 row.ScalarValue = JsonDocumentService.GetScalarPreview(kvp.Value, 200);
 
@@ -372,7 +424,8 @@ public static class EditorLogic
         var arr = JsonDocumentService.GetByPath(state.Json, arrayPath) as JsonArray;
         if (arr == null) return cards;
 
-        int activeIndex = state.NestedCtx?.CardIndex ?? state.CardIndex ?? -1;
+        var (_, stackCardIndex) = FindArrayInStack(state);
+        int activeIndex = (stackCardIndex ?? state.CardIndex) ?? -1;
 
         for (int i = 0; i < arr.Count; i++)
         {
@@ -416,7 +469,7 @@ public static class EditorLogic
 
     public static SchemaFieldInfo GetHelpInfo(EditorState state)
     {
-        var focusPath = state.FocusFieldPath ?? state.SelectedPath;
+        var focusPath = state.FocusFieldPath ?? GetEffectiveEditorPath(state);
         var pathStr = string.Join(" / ", focusPath);
         var errors = state.Errors.Where(e => string.Join(".", e.Path) == string.Join(".", focusPath)).ToArray();
 

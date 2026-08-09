@@ -6,12 +6,8 @@ namespace ConfixJson.UI.Converters;
 
 public static class EditorConverters
 {
-    public static readonly IValueConverter EditorModeToBool = new FuncValueConverter<EditorMode, string, bool>((mode, target) =>
-        (mode == EditorMode.Object && target == "Object") ||
-        (mode == EditorMode.ArraySplit && target == "ArraySplit") ||
-        (mode == EditorMode.Scalar && target == "Scalar") ||
-        (mode == EditorMode.Text && target == "Text") ||
-        (mode == EditorMode.Empty && target == "Empty")
+    public static readonly IValueConverter EditorModeToBool = new FuncValueConverter<string, string, bool>((fieldType, target) =>
+        fieldType == target
     );
 
     public static readonly IValueConverter BoolToVisibility = new FuncValueConverter<bool, bool>(b => b);

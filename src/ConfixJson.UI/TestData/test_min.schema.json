@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/confixjson-test.schema.json",
+  "title": "ConfixJson Test Configuration",
+  "description": "Test schema for the ConfixJson editor including objects, arrays, enums, defaults, validation constraints and read-only/deprecated metadata.",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "object",
+      "description": "Top-level project metadata and runtime settings.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable project identifier."
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version string (e.g. 2.4.1).",
+          "default": "1.0.0"
+        },
+        "environment": {
+          "type": "string",
+          "description": "Deployment environment.",
+          "enum": [
+            "development",
+            "staging",
+            "production"
+          ],
+          "default": "development"
+        },
+        "debug": {
+          "type": "boolean",
+          "description": "Enable verbose debug output.",
+          "default": false,
+          "$comment": "Never enable in production — may expose sensitive data."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Arbitrary string labels for filtering and observability.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "server": {
+      "type": "object",
+      "description": "HTTP server binding and connection configuration.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "IP address or hostname to bind the server.",
+          "default": "127.0.0.1"
+        },
+        "port": {
+          "type": "integer",
+          "description": "TCP port number.",
+          "default": 3000,
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Request timeout in seconds.",
+          "default": 30,
+          "minimum": 1
+        },
+        "maxConnections": {
+          "type": "integer",
+          "description": "Maximum concurrent TCP connections.",
+          "default": 100,
+          "deprecated": true,
+          "$comment": "Use load balancer limits instead."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Enable TLS/HTTPS mode.",
+          "default": false
+        }
+      },
+      "required": [
+        "port"
+      ]
+    },
+    "database": {
+      "type": "object",
+      "description": "Primary database connection parameters.",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "Database server hostname or IP."
+        },
+        "port": {
+          "type": "integer",
+          "description": "Database server port.",
+          "default": 5432
+        },
+        "name": {
+          "type": "string",
+          "description": "Database schema/catalog name."
+        },
+        "ssl": {
+          "type": "boolean",
+          "description": "Require SSL for database connections.",
+          "default": true
+        },
+        "poolSize": {
+          "type": "integer",
+          "description": "Connection pool size.",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "queryTimeout": {
+          "type": "integer",
+          "description": "Query timeout in milliseconds.",
+          "default": 3000
+        }
+      },
+      "required": [
+        "host",
+        "name"
+      ]
+    },
+    "auth": {
+      "type": "object",
+      "description": "Authentication provider configuration.",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "description": "OAuth2 / OIDC provider identifier.",
+          "enum": [
+            "oauth2",
+            "oidc",
+            "saml",
+            "local"
+          ]
+        },
+        "clientId": {
+          "type": "string",
+          "description": "OAuth2 client application ID.",
+          "readOnly": true
+        },
+        "tokenExpiry": {
+          "type": "integer",
+          "description": "Access token TTL in seconds.",
+          "default": 3600
+        },
+        "refreshEnabled": {
+          "type": "boolean",
+          "description": "Allow refresh token issuance.",
+          "default": true
+        }
+      },
+      "required": [
+        "provider"
+      ]
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Ordered list of middleware plugins applied to every request.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Plugin identifier — must match a registered module."
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Toggle plugin without removing it from config.",
+            "default": true
+          },
+          "requests": {
+            "type": "integer",
+            "description": "Request threshold for rate-limiting.",
+            "default": 100,
+            "minimum": 0
+          },
+          "window": {
+            "type": "integer",
+            "description": "Time window in seconds for the threshold.",
+            "default": 60,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "logging": {
+      "type": "object",
+      "description": "Structured logging configuration.",
+      "properties": {
+        "level": {
+          "type": "string",
+          "description": "Minimum log level to emit.",
+          "enum": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal"
+          ],
+          "default": "info"
+        },
+        "format": {
+          "type": "string",
+          "description": "Log output format.",
+          "enum": [
+            "json",
+            "text",
+            "pretty"
+          ],
+          "default": "json"
+        },
+        "prettyPrint": {
+          "type": "boolean",
+          "description": "Pretty-print JSON logs (dev only).",
+          "default": false,
+          "deprecated": true
+        },
+        "maxFiles": {
+          "type": "integer",
+          "description": "Maximum rotated log files to retain.",
+          "default": 7
+        },
+        "outputs": {
+          "type": "array",
+          "description": "List of output targets for log entries.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

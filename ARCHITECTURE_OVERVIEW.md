@@ -41,13 +41,15 @@ Das Tool soll sowohl **lokal** als native App laufen (Avalonia UI) als auch spä
 - Zeigt die JSON‑Struktur.
 - Hinter jedem Element wird die Anzahl der Unterelemente angezeigt, z. B. `{6}` oder `[9]`.
 - Einzelelemente werden nicht aufgeklappt, da sie im Editorbereich sichtbar sind.
-- Array‑Objekte werden als `[0]`, `[1]` usw. dargestellt – aber nur, wenn darunter Objekte liegen.
+- Array‑Objekte werden als `[0]`, `[1]` usw. dargestellt – aber nur, wenn das jeweilige Array-Element selbst weitere navigierbare JSON-Strukturen (Objekte oder Arrays) enthält. Enthält ein Array-Element ausschließlich Scalar-Eigenschaften, wird es nicht als eigener Baumknoten dargestellt, da seine Inhalte vollständig im Editorbereich des Arrays bearbeitet werden.
 - Pfeile zeigen den Aufklappstatus:
   - `▶` für zugeklappt
   - `▼` für aufgeklappt
   - `[]` für Arrays
 - Über der Baumansicht befindet sich ein Suchfeld.
-- Im Baum kann man nur zu einem JSON-Objekt oder einem Array springen. Einzelelemente sollen nicht mit einzel klick aufgeklappt werden können, da man diese bereits im Editorbereich sieht. Ein Aufklappen mit einfach klick ist nur möglich, wenn sich unter einem JSON-Objekt weitere  JSON-Objekte befinden oder unter einem Array-Objekt weitere JSON-Objekte existieren. 
+- Im Baum kann man nur zu einem JSON-Objekt oder einem tatsächlich navigierbaren Array-Kontext springen. Einzelelemente sollen nicht mit Einzelklick aufgeklappt werden können, da man diese bereits im Editorbereich sieht. Ein Aufklappen mit Einfachklick ist nur möglich, wenn sich unter einem JSON-Objekt weitere navigierbare JSON-Objekte/Arrays befinden oder unter einem Array-Element weitere navigierbare JSON-Objekte/Arrays existieren. 
+- Ein Array, dessen Elemente ausschließlich Scalar-Eigenschaften oder einfache Objekte ohne weitere verschachtelte Objekte/Arrays enthalten, bleibt als Array-Knoten im Baum sichtbar; seine einzelnen Elemente werden jedoch nicht als [0], [1] usw. im Baum dargestellt.
+- Beispiel: matrixData → [[{x,y,value}, {x,y,value}], ...]: Die erste Array-Ebene matrixData ist navigierbar; die Array-Elemente [0], [1] der inneren Arrays werden nicht als Baumknoten benötigt, wenn deren Inhalte vollständig über die Array-Card-/Editor-Darstellung erreichbar sind.
 
 #### Editorbereich (rechts)
 - Zeigt die Inhalte des selektierten JSON‑Objekts.
@@ -61,12 +63,23 @@ Das Tool soll sowohl **lokal** als native App laufen (Avalonia UI) als auch spä
 
 #### Arrays im Editorbereich
 - Arrays werden im Editorbereich als Array‑Item‑Cards angezeigt. Die Anzeige teilt den Editorbereich vertikal und links sind die Array‑Item‑Cards, rechts weiter der Editorbereich.
-  - Diese Darstellung wird auch für tief verschachtelte JSON‑Objekte genutzt, die Arrays enthalten. In diesem Fall wird die Baumstruktur bis zu diesem Objekt visualisiert, und der Editorbereich zeigt ab dieser Ebene den Inhalt an. Wenn dort ein Array vorhanden ist, wird der Editorbereich nicht erneut  geteilt und die Ansicht wird nicht enger.Bei verschachtelten Arrays bleibt die Baumselektion stabil; der Editorbereich zeigt die tiefere Ebene.
+  - Diese Darstellung wird auch für tief verschachtelte JSON‑Objekte genutzt, die Arrays enthalten. In diesem Fall wird die Baumstruktur bis zu diesem Objekt visualisiert, und der Editorbereich zeigt ab dieser Ebene den Inhalt an. Wenn dort ein Array vorhanden ist, wird der Editorbereich nicht erneut  geteilt und die Ansicht wird nicht enger. Enthält ein Array einfache Objekt-Elemente ohne weitere navigierbare Unterstrukturen, werden diese Elemente ausschließlich als Cards dargestellt und nicht zusätzlich als [0], [1] usw. in der Baumansicht.
+  - Bei verschachtelten Arrays bleibt die Baumselektion stabil; der Editorbereich zeigt die tiefere Ebene.
   - Jedes Card‑Item besitzt einen „Bearbeiten“‑Button zum Öffnen des Detail‑Editors und einen „Löschen“‑Button zum Entfernen des Items.
   - Unter der Liste befindet sich ein „Hinzufügen“‑Button, um neue Array‑Items anzulegen.
   - Wenn eine Liste selektiert ist, wird über der Liste die Hilfestellung aus dem JSON-Schema kompakt angezeigt.
   - Befindet sich im rechten Editorbereich wiederum eine Liste, erscheint auch hier ein Button, und alle drei Fensterbereiche fokusiere sich entsprechend auf diesen diesen Hierarchie-Abschnitt. Die Selektion im Baum bleibt dabei auf dem JSON-Objekt und wird nicht verändert.
- 
+
+### Temporäre Drilldown-Navigation innerhalb von Array-Items
+- Array-Elemente wie [0], [1], [2] werden grundsätzlich nicht als dauerhafte Knoten in der Baumansicht dargestellt, da sie bereits durch die Array-Item-Cards im Editor repräsentiert werden.
+- Enthält ein Array-Item ein verschachteltes JSON-Objekt oder Array, kann dieses aus dem Editorbereich heraus per Navigation/Drilldown geöffnet werden.
+- Der Drilldown ist ein temporärer Editor-Kontext und erweitert nicht die dauerhafte Baumstruktur.
+Beispiel: Bei root / plugins / [0] / settings bleibt die Baumselektion auf plugins. Der Breadcrumb zeigt dagegen den vollständigen Pfad inklusive [0] und settings.
+- Wird innerhalb des Drilldowns ein weiteres Array geöffnet, ersetzt dessen Card-Liste die vorherige Array-Darstellung im Editorbereich. Der Editor wird dadurch nicht zusätzlich verschachtelt.
+- Der Breadcrumb bildet bei jedem Drilldown den vollständigen effektiven JSON-Pfad ab, einschließlich der verwendeten Array-Indizes.
+- Beim Verlassen des Drilldowns wird der vorherige Editor-/Array-Kontext wiederhergestellt.
+- SelectedPath beschreibt weiterhin ausschließlich die fachliche Tree Selection. Der temporäre Drilldown-Kontext darf SelectedPath nicht verändern.
+- Damit bleiben Tree Selection, Array-Card-Auswahl und temporärer Editor-Drilldown drei getrennte Zustände.
 
 #### Hilfestellung
 - Wird immer unten im Editorbereich angezeigt.

@@ -71,8 +71,8 @@
       <!-- ===== BODY ===== -->
       <Grid ColumnDefinitions="240,*">
         <!-- ===== TREE PANEL ===== -->
-        <Border Grid.Column="0" BorderThickness="0,0,1,0"
-                BorderBrush="{DynamicResource PanelBorderBrush}"
+         <Border Grid.Column="0" BorderThickness="0,0,1,0"
+                 BorderBrush="{DynamicResource AccentBrush}"
                 Background="{DynamicResource TreeBackgroundBrush}">
           <Grid RowDefinitions="Auto,*,Auto">
             <!-- Tree Search -->
@@ -167,11 +167,12 @@
         <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}"
                 IsVisible="{Binding IsObjectMode}">
           <DockPanel>
-            <Border Classes="PanelHeader" DockPanel.Dock="Top">
+            <Border Classes="PanelHeader" DockPanel.Dock="Top"
+                    BorderBrush="{DynamicResource PanelBorderBrush}">
               <DockPanel VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                   <TextBlock Text="OBJECT" Classes="HeaderLabel" />
-                  <TextBlock Text="{Binding SelectedPathString}" Classes="HeaderSubtitle" />
+                  <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4" DockPanel.Dock="Right">
                   <Button Command="{Binding UndoCommand}" Classes="IconBtn"
@@ -207,12 +208,20 @@
                         </StackPanel>
                         <Grid Grid.Column="1" />
                         <Grid Grid.Column="2" VerticalAlignment="Center">
-                          <StackPanel IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
-                                      Opacity="0.5">
-                            <TextBlock Text="{Binding NestedObjectSummary}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                          </StackPanel>
+                          <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
+                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoCommand}"
+                                  CommandParameter="{Binding Path}"
+                                  Background="{DynamicResource CardBackgroundBrush}"
+                                  BorderBrush="{DynamicResource PanelBorderBrush}"
+                                  BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <TextBlock Text="{Binding NestedObjectSummary}"
+                                         Foreground="{DynamicResource TextSecondaryBrush}"
+                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                              <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                                        Stroke="{DynamicResource TextTertiaryBrush}" />
+                            </StackPanel>
+                          </Button>
                           <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
                                   Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
                                   CommandParameter="{Binding Path}"
@@ -229,6 +238,7 @@
                             </StackPanel>
                           </Button>
                           <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
+                                   IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
                                    Width="250" HorizontalAlignment="Left" />
                         </Grid>
                       </Grid>
@@ -265,146 +275,150 @@
         </Border>
 
         <!-- ===== CONTENT AREA: ARRAY SPLIT MODE ===== -->
-        <Grid Grid.Column="1" ColumnDefinitions="240,*" IsVisible="{Binding IsArrayMode}">
-          <!-- Card List -->
-          <Border Grid.Column="0" BorderThickness="0,0,1,0"
-                  BorderBrush="{DynamicResource PanelBorderBrush}"
-                  Background="{DynamicResource PanelBackgroundBrush}">
-            <DockPanel>
-              <Border Classes="PanelHeader" DockPanel.Dock="Top">
-                <DockPanel VerticalAlignment="Center">
-                  <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="ARRAY" Classes="HeaderLabel" />
-                    <TextBlock Text="{Binding CardArrayPathString}" Classes="HeaderSubtitle" />
-                  </StackPanel>
-                  <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
-                          DockPanel.Dock="Right" Classes="IconBtn"
-                          Command="{Binding ExitNestedArrayCommand}"
-                          Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
-                    <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
-                              Stroke="{DynamicResource TextSecondaryBrush}" />
-                  </Button>
-                </DockPanel>
-              </Border>
-              <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding CardItems}" Margin="10,12">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="models:CardItem">
-                      <Border Classes="CardItem" Margin="0,0,0,6"
-                              Tapped="CardItem_Tapped">
-                        <Grid ColumnDefinitions="*,Auto">
-                          <StackPanel Grid.Column="0" Spacing="4">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                              <TextBlock Text="{Binding Index, StringFormat=[{0}]}"
-                                         FontFamily="{StaticResource FontJetBrainsMono}"
-                                         FontSize="11" FontWeight="Bold"
-                                         Foreground="{DynamicResource AccentBrush}" />
-                              <Path Classes="Feather" Data="{StaticResource feather-alert-circle}" Width="10" Height="10"
-                                        Stroke="{DynamicResource ErrorBrush}"
-                                        IsVisible="{Binding HasErrors}" />
-                            </StackPanel>
-                            <TextBlock Text="{Binding Preview}" Classes="CardPreview" TextTrimming="CharacterEllipsis" />
-                          </StackPanel>
-                          <Button Grid.Column="1" VerticalAlignment="Top"
-                                  Classes="IconBtn" Width="20" Height="20" Padding="2"
-                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
-                                  CommandParameter="{Binding Index}"
-                                  Tapped="CardDelete_Tapped" ToolTip.Tip="Delete">
-                            <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
-                                      Stroke="{DynamicResource TextTertiaryBrush}" />
-                          </Button>
-                        </Grid>
-                      </Border>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </ScrollViewer>
-              <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
-                      DockPanel.Dock="Bottom" Padding="8,12">
-                <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
-                        HorizontalAlignment="Stretch" Height="32">
-                  <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                    <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
-                              Stroke="{DynamicResource TextSecondaryBrush}" />
-                    <TextBlock Text="Hinzufügen"
-                               FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                  </StackPanel>
-                </Button>
-              </Border>
+        <Grid Grid.Column="1" RowDefinitions="Auto,*" IsVisible="{Binding IsArrayMode}">
+          <!-- Shared Breadcrumb Header -->
+           <Border Grid.Row="0" Classes="PanelHeader" Background="{DynamicResource PanelBackgroundBrush}"
+                    BorderBrush="{DynamicResource PanelBorderBrush}" Padding="14,0">
+            <DockPanel VerticalAlignment="Center">
+              <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle"
+                         VerticalAlignment="Center" />
+              <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
+                      DockPanel.Dock="Right" Classes="IconBtn"
+                      Command="{Binding ExitNestedArrayCommand}"
+                      Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
+                <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                          Stroke="{DynamicResource TextSecondaryBrush}" />
+              </Button>
             </DockPanel>
           </Border>
-          <!-- Detail Panel -->
-          <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}">
-            <DockPanel>
-              <Border Classes="PanelHeader" DockPanel.Dock="Top">
-                <DockPanel VerticalAlignment="Center">
-                  <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="DETAIL" Classes="HeaderLabel" />
-                    <TextBlock Text="{Binding DetailPathString}" Classes="HeaderSubtitle" />
-                  </StackPanel>
-                </DockPanel>
-              </Border>
-              <Border IsVisible="{Binding HasObjectFields, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Kein Item ausgewählt"
-                           Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11" />
-              </Border>
-              <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasObjectFields}">
-                <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="models:FieldRow">
-                      <Border Margin="0,0,0,8" Tapped="FieldRow_Tapped" Tag="{Binding Path}">
-                        <Grid ColumnDefinitions="130,10,*">
-                          <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
-                                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                          <Grid Grid.Column="1" />
-                          <Grid Grid.Column="2" VerticalAlignment="Center">
-                            <StackPanel IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
-                                        Opacity="0.5">
-                              <TextBlock Text="{Binding NestedObjectSummary}"
-                                         Foreground="{DynamicResource TextSecondaryBrush}"
-                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                            </StackPanel>
-                            <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
-                                    Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
-                                    CommandParameter="{Binding Path}"
-                                    Background="{DynamicResource CardBackgroundBrush}"
-                                    BorderBrush="{DynamicResource PanelBorderBrush}"
-                                    BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+          <!-- Split Content: Cards | Detail -->
+          <Grid Grid.Row="1" ColumnDefinitions="240,*">
+            <!-- Card List -->
+            <Border Grid.Column="0" BorderThickness="0,0,1,0"
+                    BorderBrush="{DynamicResource CardSplitBrush}"
+                    Background="{DynamicResource PanelBackgroundBrush}">
+              <DockPanel>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                  <ItemsControl ItemsSource="{Binding CardItems}" Margin="10,12">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="models:CardItem">
+                        <Border Classes="CardItem" Margin="0,0,0,6"
+                                Tapped="CardItem_Tapped">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
                               <StackPanel Orientation="Horizontal" Spacing="6">
-                                <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
-                                          Stroke="{DynamicResource AccentBrush}" />
-                                <TextBlock Text="{Binding ArrayItemCount}"
-                                           FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                                <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
-                                          Stroke="{DynamicResource TextTertiaryBrush}" />
+                                <TextBlock Text="{Binding Index, StringFormat=[{0}]}"
+                                           FontFamily="{StaticResource FontJetBrainsMono}"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}" />
+                                <Path Classes="Feather" Data="{StaticResource feather-alert-circle}" Width="10" Height="10"
+                                          Stroke="{DynamicResource ErrorBrush}"
+                                          IsVisible="{Binding HasErrors}" />
                               </StackPanel>
+                              <TextBlock Text="{Binding Preview}" Classes="CardPreview" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                            <Button Grid.Column="1" VerticalAlignment="Top"
+                                    Classes="IconBtn" Width="20" Height="20" Padding="2"
+                                    Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
+                                    CommandParameter="{Binding Index}"
+                                    Tapped="CardDelete_Tapped" ToolTip.Tip="Delete">
+                              <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
+                                        Stroke="{DynamicResource TextTertiaryBrush}" />
                             </Button>
-                            <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
-                                     Width="250" HorizontalAlignment="Left" />
                           </Grid>
-                        </Grid>
-                      </Border>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </ScrollViewer>
-              <Border Classes="HelpStrip HelpStripCompact" DockPanel.Dock="Bottom">
-                <StackPanel Spacing="3">
-                  <Border IsVisible="{Binding HelpInfo.HasValidationErrors}">
-                    <TextBlock Text="{Binding HelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
-                  </Border>
-                  <WrapPanel>
-                    <TextBlock Text="{Binding HelpInfo.PathString}"
-                               Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
-                               Margin="0,0,12,0" />
-                    <TextBlock Text="{Binding HelpInfo.Description}" Classes="HelpDescription"
-                               IsVisible="{Binding HelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
-                  </WrapPanel>
-                </StackPanel>
-              </Border>
-            </DockPanel>
-          </Border>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+                <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
+                        DockPanel.Dock="Bottom" Padding="8,12">
+                  <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
+                          HorizontalAlignment="Stretch" Height="32">
+                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                      <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
+                                Stroke="{DynamicResource TextSecondaryBrush}" />
+                      <TextBlock Text="Hinzufügen"
+                                 FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                    </StackPanel>
+                  </Button>
+                </Border>
+              </DockPanel>
+            </Border>
+            <!-- Detail Panel -->
+            <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}">
+              <DockPanel>
+                <Border IsVisible="{Binding HasObjectFields, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                  <TextBlock Text="Kein Item ausgewählt"
+                             Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11" />
+                </Border>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasObjectFields}">
+                  <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="models:FieldRow">
+                        <Border Margin="0,0,0,8" Tapped="FieldRow_Tapped" Tag="{Binding Path}">
+                          <Grid ColumnDefinitions="130,10,*">
+                            <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
+                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            <Grid Grid.Column="1" />
+                            <Grid Grid.Column="2" VerticalAlignment="Center">
+                              <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
+                                      Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoCommand}"
+                                      CommandParameter="{Binding Path}"
+                                      Background="{DynamicResource CardBackgroundBrush}"
+                                      BorderBrush="{DynamicResource PanelBorderBrush}"
+                                      BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                  <TextBlock Text="{Binding NestedObjectSummary}"
+                                             Foreground="{DynamicResource TextSecondaryBrush}"
+                                             FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                  <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                                            Stroke="{DynamicResource TextTertiaryBrush}" />
+                                </StackPanel>
+                              </Button>
+                              <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
+                                      Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
+                                      CommandParameter="{Binding Path}"
+                                      Background="{DynamicResource CardBackgroundBrush}"
+                                      BorderBrush="{DynamicResource PanelBorderBrush}"
+                                      BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                  <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
+                                            Stroke="{DynamicResource AccentBrush}" />
+                                  <TextBlock Text="{Binding ArrayItemCount}"
+                                             FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                  <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                                            Stroke="{DynamicResource TextTertiaryBrush}" />
+                                </StackPanel>
+                              </Button>
+                              <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
+                                       IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
+                                       Width="250" HorizontalAlignment="Left" />
+                            </Grid>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+                <Border Classes="HelpStrip HelpStripCompact" DockPanel.Dock="Bottom">
+                  <StackPanel Spacing="3">
+                    <Border IsVisible="{Binding HelpInfo.HasValidationErrors}">
+                      <TextBlock Text="{Binding HelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
+                    </Border>
+                    <WrapPanel>
+                      <TextBlock Text="{Binding HelpInfo.PathString}"
+                                 Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
+                                 Margin="0,0,12,0" />
+                      <TextBlock Text="{Binding HelpInfo.Description}" Classes="HelpDescription"
+                                 IsVisible="{Binding HelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                    </WrapPanel>
+                  </StackPanel>
+                </Border>
+              </DockPanel>
+            </Border>
+          </Grid>
         </Grid>
 
         <!-- ===== CONTENT AREA: SCALAR MODE ===== -->
