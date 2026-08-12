@@ -18,4 +18,9 @@ public class FieldRow
     public string ArrayItemCount { get; set; } = "0";
     public string? ScalarValue { get; set; }
     public List<string>? EnumValues { get; set; }
+    public bool BoolValue { get; set; }
+    public decimal? NumericValue { get; set; }
+    public decimal? OriginalNumericValue { get; set; }
+    public decimal MinValue { get; set; } = decimal.MinValue;
+    public decimal MaxValue { get; set; } = decimal.MaxValue;
 }

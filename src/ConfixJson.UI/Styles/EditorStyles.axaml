@@ -108,7 +108,6 @@
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
     <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
-    <Setter Property="FontStyle" Value="Italic" />
     <Setter Property="TextWrapping" Value="Wrap" />
   </Style>
 
@@ -116,7 +115,6 @@
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
     <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
-    <Setter Property="FontStyle" Value="Italic" />
     <Setter Property="TextWrapping" Value="Wrap" />
     <Setter Property="Margin" Value="16,2,0,0" />
   </Style>
@@ -272,6 +270,10 @@
   <Style Selector="ScrollBar /template/ Border#thumb">
     <Setter Property="Background" Value="{DynamicResource ScrollbarBrush}" />
     <Setter Property="CornerRadius" Value="3" />
+  </Style>
+
+  <Style Selector="NumericUpDown.EditorNum">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
   </Style>
 
 </Styles>

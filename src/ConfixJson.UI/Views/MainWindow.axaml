@@ -152,10 +152,6 @@
                      Background="{DynamicResource InputBackgroundBrush}" BorderThickness="0" />
             <Border Classes="HelpStrip" DockPanel.Dock="Bottom" IsVisible="{Binding EditorHelpVisible}">
               <StackPanel Spacing="3">
-                <TextBlock Text="Schema-Hilfe"
-                           Foreground="{DynamicResource TextTertiaryBrush}"
-                           FontStyle="Italic" FontSize="11"
-                           IsVisible="{Binding EditorHelpHasDescription}" />
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                 <TextBlock Text="{Binding EditorHelpInfo.FieldDescription}" Classes="HelpFieldDescription"
@@ -239,14 +235,34 @@
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
                            </Button>
+                           <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
+                                          Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                          Classes="EditorNum"
+                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}"
+                                          ValueChanged="NumericUpDown_ValueChanged"
+                                          LostFocus="NumericUpDown_LostFocus"
+                                          GotFocus="NumericUpDown_GotFocus"
+                                          FormatString="N0" />
+                           <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
+                                          Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                          Classes="EditorNum"
+                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}"
+                                          ValueChanged="NumericUpDown_ValueChanged"
+                                          LostFocus="NumericUpDown_LostFocus"
+                                          GotFocus="NumericUpDown_GotFocus"
+                                          FormatString="N2" />
+                           <CheckBox IsChecked="{Binding BoolValue}"
+                                     IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=boolean}"
+                                     HorizontalAlignment="Left"
+                                     IsCheckedChanged="BooleanCheckBox_IsCheckedChanged" />
                            <ComboBox ItemsSource="{Binding EnumValues}"
                                      SelectedItem="{Binding ScalarValue}"
                                      IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}"
-                                     Width="250" HorizontalAlignment="Left"
+                                     HorizontalAlignment="Stretch"
                                      SelectionChanged="EnumComboBox_SelectionChanged" />
                            <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
                                     IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
-                                    Width="250" HorizontalAlignment="Left" />
+                                    HorizontalAlignment="Stretch" />
                          </Grid>
                        </Grid>
                      </Border>
@@ -259,9 +275,6 @@
                 <Border IsVisible="{Binding EditorHelpInfo.HasValidationErrors}">
                   <TextBlock Text="{Binding EditorHelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
                 </Border>
-                <TextBlock Text="Schema-Hilfe"
-                           Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
-                           IsVisible="{Binding EditorHelpHasDescription}" />
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                 <TextBlock Text="{Binding EditorHelpInfo.ContextMeta}" Classes="HelpMeta"
@@ -313,9 +326,6 @@
                         BorderThickness="0,0,0,1" BorderBrush="{DynamicResource PanelBorderBrush}"
                         Padding="6,12" IsVisible="{Binding ArrayHelpVisible}">
                   <StackPanel Spacing="3">
-                    <TextBlock Text="Schema-Hilfe"
-                               Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
-                               IsVisible="{Binding ArrayHelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                     <TextBlock Text="{Binding ArrayHelpInfo.Description}" Classes="HelpDescription"
                                IsVisible="{Binding ArrayHelpInfo.Description, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                   </StackPanel>
@@ -414,14 +424,34 @@
                                              Stroke="{DynamicResource TextTertiaryBrush}" />
                                  </StackPanel>
                                </Button>
+                               <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
+                                               Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                               Classes="EditorNum"
+                                               IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}"
+                                               ValueChanged="NumericUpDown_ValueChanged"
+                                               LostFocus="NumericUpDown_LostFocus"
+                                               GotFocus="NumericUpDown_GotFocus"
+                                               FormatString="N0" />
+                                <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
+                                               Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                               Classes="EditorNum"
+                                               IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}"
+                                               ValueChanged="NumericUpDown_ValueChanged"
+                                               LostFocus="NumericUpDown_LostFocus"
+                                               GotFocus="NumericUpDown_GotFocus"
+                                               FormatString="N2" />
+                               <CheckBox IsChecked="{Binding BoolValue}"
+                                         IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=boolean}"
+                                         HorizontalAlignment="Left"
+                                         IsCheckedChanged="BooleanCheckBox_IsCheckedChanged" />
                                <ComboBox ItemsSource="{Binding EnumValues}"
                                          SelectedItem="{Binding ScalarValue}"
                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}"
-                                         Width="250" HorizontalAlignment="Left"
+                                         HorizontalAlignment="Stretch"
                                          SelectionChanged="EnumComboBox_SelectionChanged" />
                                <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
                                         IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
-                                        Width="250" HorizontalAlignment="Left" />
+                                        HorizontalAlignment="Stretch" />
                             </Grid>
                           </Grid>
                         </Border>
@@ -438,7 +468,7 @@
                     </Border>
                     <StackPanel Spacing="8" Margin="12,14" VerticalAlignment="Top">
                       <TextBlock Text="Value" Classes="FieldLabel" />
-                      <TextBox Text="{Binding DetailScalarText}" Classes="EditorInput" Width="300" HorizontalAlignment="Left"
+                      <TextBox Text="{Binding DetailScalarText}" Classes="EditorInput" HorizontalAlignment="Stretch"
                                LostFocus="ScalarDetail_LostFocus" />
                     </StackPanel>
                   </DockPanel>
@@ -448,10 +478,7 @@
                     <Border IsVisible="{Binding EditorHelpInfo.HasValidationErrors}">
                       <TextBlock Text="{Binding EditorHelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
                     </Border>
-                    <TextBlock Text="Schema-Hilfe"
-                               Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
-                               IsVisible="{Binding EditorHelpHasDescription}" />
-                <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
+                    <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                 <TextBlock Text="{Binding EditorHelpInfo.ContextMeta}" Classes="HelpMeta"
                            IsVisible="{Binding EditorHelpInfo.ContextMeta, Converter={x:Static conv:EditorConverters.NullToBool}}" />
@@ -486,9 +513,6 @@
             </ScrollViewer>
             <Border Classes="HelpStrip" DockPanel.Dock="Bottom" IsVisible="{Binding EditorHelpVisible}">
               <StackPanel Spacing="3">
-                <TextBlock Text="Schema-Hilfe"
-                           Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11"
-                           IsVisible="{Binding EditorHelpHasDescription}" />
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                 <TextBlock Text="{Binding EditorHelpInfo.ContextMeta}" Classes="HelpMeta"

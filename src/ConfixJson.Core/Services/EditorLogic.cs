@@ -402,7 +402,10 @@ public static class EditorLogic
             {
                 JsonObject => "object",
                 JsonArray => "array",
-                _ => schemaProp?.EnumValues is { Count: > 0 } ? "enum" : "scalar"
+                _ => schemaProp?.EnumValues is { Count: > 0 } ? "enum"
+                     : schemaProp?.JsonType == "boolean" ? "boolean"
+                     : schemaProp?.JsonType is "integer" or "number" ? schemaProp.JsonType
+                     : "scalar"
             };
 
             var row = new FieldRow
@@ -412,7 +415,9 @@ public static class EditorLogic
                 FieldType = fieldType,
                 IsRequired = schemaProp?.IsRequired ?? false,
                 HasErrors = state.Errors.Any(e => e.PathString == string.Join(".", fieldPath)),
-                EnumValues = schemaProp?.EnumValues
+                EnumValues = schemaProp?.EnumValues,
+                MinValue = schemaProp?.Minimum != null ? (decimal)schemaProp.Minimum.Value : decimal.MinValue,
+                MaxValue = schemaProp?.Maximum != null ? (decimal)schemaProp.Maximum.Value : decimal.MaxValue
             };
 
             if (kvp.Value is JsonObject nestedObj)
@@ -423,6 +428,15 @@ public static class EditorLogic
             {
                 if (fieldType == "enum" && jv.TryGetValue<string>(out var sv))
                     row.ScalarValue = sv;
+                else if (fieldType == "boolean" && jv.TryGetValue<bool>(out var bv))
+                    row.BoolValue = bv;
+                else if (fieldType is "integer" or "number")
+                {
+                    var extracted = ExtractNumericValue(jv);
+                    row.NumericValue = extracted;
+                    row.OriginalNumericValue = extracted;
+                    System.Diagnostics.Debug.WriteLine($"[BuildNumeric] Field={kvp.Key} extracted={extracted} jv.ToJsonString()={jv.ToJsonString()}");
+                }
                 else
                     row.ScalarValue = JsonDocumentService.GetScalarPreview(jv, 200);
             }
@@ -585,6 +599,15 @@ public static class EditorLogic
             parts.Add($"Werte: {string.Join(", ", prop.EnumValues)}");
 
         return parts.Count > 0 ? string.Join("  |  ", parts) : null;
+    }
+
+    private static decimal ExtractNumericValue(JsonValue jv)
+    {
+        if (jv.TryGetValue<int>(out var iv)) return iv;
+        if (jv.TryGetValue<long>(out var lv)) return lv;
+        if (jv.TryGetValue<double>(out var dv)) return (decimal)dv;
+        if (jv.TryGetValue<decimal>(out var mv)) return mv;
+        return 0;
     }
 
     public static SchemaFieldInfo GetArrayHelpInfo(EditorState state)

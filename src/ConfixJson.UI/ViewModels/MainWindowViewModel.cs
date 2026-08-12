@@ -17,6 +17,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly UndoRedoService _undoRedo = new();
     private readonly EditorState _state = new();
     private string _currentFilePath = "";
+    private int _refreshDepth;
+
+    public bool IsRefreshing => _refreshDepth > 0;
 
     // --- UI-only Observable Properties ---
 
@@ -141,7 +144,28 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public void RefreshUI()
     {
-        System.Diagnostics.Debug.WriteLine("[RefreshUI] START");
+        _refreshDepth++;
+        try
+        {
+            RefreshUIImpl();
+        }
+        finally
+        {
+            _refreshDepth--;
+            OnPropertyChanged(nameof(EditorHelpVisible));
+            OnPropertyChanged(nameof(EditorHelpHasDescription));
+            OnPropertyChanged(nameof(ArrayHelpVisible));
+        }
+    }
+
+    private void RefreshUIImpl()
+    {
+        var stack = new System.Diagnostics.StackTrace(1, false);
+        var frame = stack.GetFrame(0);
+        var caller = frame?.GetMethod()?.Name ?? "unknown";
+        System.Diagnostics.Debug.WriteLine(
+            $"[RefreshUI] START caller={caller} SelectedPath={string.Join("/", _state.SelectedPath)}");
+
         // Sync state-derived observable properties
         SelectedPathString = EditorLogic.GetSelectedPathString(_state);
         EffectivePathString = EditorLogic.GetEffectivePathString(_state);
@@ -211,9 +235,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
 
         System.Diagnostics.Debug.WriteLine("[RefreshUI] END");
-        OnPropertyChanged(nameof(EditorHelpVisible));
-        OnPropertyChanged(nameof(EditorHelpHasDescription));
-        OnPropertyChanged(nameof(ArrayHelpVisible));
     }
 
     // --- Commands ---
@@ -361,10 +382,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void FocusField(string[]? path)
     {
+        System.Diagnostics.Debug.WriteLine($"[FocusTrace] FocusField path={string.Join("/", path ?? [])}");
         EditorLogic.FocusField(_state, path);
         EditorHelpInfo = EditorLogic.GetHelpInfo(_state);
         OnPropertyChanged(nameof(EditorHelpVisible));
         OnPropertyChanged(nameof(EditorHelpHasDescription));
+        System.Diagnostics.Debug.WriteLine(
+            $"[FocusTrace] FocusField done ContextDescription='{EditorHelpInfo.ContextDescription}' " +
+            $"FieldDescription='{EditorHelpInfo.FieldDescription}'");
     }
 
     [RelayCommand]
