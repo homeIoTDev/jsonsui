@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ConfixJson.Core.Models;
@@ -144,6 +145,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public void RefreshUI()
     {
+        string[]? focusedPath = null;
+        if (_refreshDepth == 0)
+            focusedPath = CaptureFocusedFieldPath();
+
         _refreshDepth++;
         try
         {
@@ -156,6 +161,61 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             OnPropertyChanged(nameof(EditorHelpHasDescription));
             OnPropertyChanged(nameof(ArrayHelpVisible));
         }
+
+        if (_refreshDepth == 0 && focusedPath != null)
+            RestoreFocus(focusedPath);
+    }
+
+    private Avalonia.Controls.Window? GetWindow()
+    {
+        return (Avalonia.Application.Current?.ApplicationLifetime
+            as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+    }
+
+    private string[]? CaptureFocusedFieldPath()
+    {
+        var window = GetWindow();
+        if (window == null) return null;
+        var focused = window.FocusManager?.GetFocusedElement();
+        if (focused is Avalonia.Controls.Control c && c.DataContext is FieldRow row)
+            return (string[])row.Path.Clone();
+        return null;
+    }
+
+    private void RestoreFocus(string[] path)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            var window = GetWindow();
+            if (window == null) return;
+            var control = FindDeepestFocusable(window, path);
+            control?.Focus();
+        }, Avalonia.Threading.DispatcherPriority.Loaded);
+    }
+
+    private static Avalonia.Controls.Control? FindDeepestFocusable(Avalonia.Visual node, string[] path)
+    {
+        Avalonia.Controls.Control? best = null;
+        int bestDepth = -1;
+        FindDeepestFocusableCore(node, path, 0, ref bestDepth, ref best);
+        return best;
+    }
+
+    private static void FindDeepestFocusableCore(Avalonia.Visual node, string[] path, int depth,
+        ref int bestDepth, ref Avalonia.Controls.Control? best)
+    {
+        if (node is Avalonia.Controls.Control c &&
+            c.DataContext is FieldRow row &&
+            row.Path.SequenceEqual(path) &&
+            c.Focusable &&
+            depth > bestDepth)
+        {
+            bestDepth = depth;
+            best = c;
+        }
+
+        foreach (var child in node.GetVisualChildren())
+            FindDeepestFocusableCore(child, path, depth + 1, ref bestDepth, ref best);
     }
 
     private void RefreshUIImpl()
