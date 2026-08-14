@@ -74,14 +74,21 @@ public static class JsonDocumentService
 
     public static string GetScalarPreview(JsonNode? node, int maxLen = 40)
     {
-        if (node is JsonValue val)
+        if (node is not JsonValue val)
+            return "";
+
+        var s = val.GetValueKind() switch
         {
-            var s = val.ToJsonString();
-            if (s.Length > maxLen)
-                return s[..(maxLen - 3)] + "...";
-            return s;
-        }
-        return "";
+            JsonValueKind.String => val.GetValue<string>() ?? "",
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            JsonValueKind.Null => "null",
+            _ => val.ToJsonString()
+        };
+
+        if (s.Length > maxLen)
+            return s[..(maxLen - 3)] + "...";
+        return s;
     }
 
     public static JsonNode? CreateTemplate(JsonNode? sample)

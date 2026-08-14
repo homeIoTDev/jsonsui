@@ -285,6 +285,10 @@
                            <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
                                     IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
                                     HorizontalAlignment="Stretch" />
+                           <TextBlock Text="null"
+                                      IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
+                                      Foreground="{DynamicResource TextTertiaryBrush}"
+                                      FontStyle="Italic" VerticalAlignment="Center" />
                          </Grid>
                        </Grid>
                      </Border>
@@ -474,6 +478,10 @@
                                <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
                                         IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
                                         HorizontalAlignment="Stretch" />
+                               <TextBlock Text="null"
+                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
+                                          Foreground="{DynamicResource TextTertiaryBrush}"
+                                          FontStyle="Italic" VerticalAlignment="Center" />
                             </Grid>
                           </Grid>
                         </Border>

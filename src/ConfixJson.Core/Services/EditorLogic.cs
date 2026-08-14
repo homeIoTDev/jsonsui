@@ -398,15 +398,7 @@ public static class EditorLogic
             if (state.ActiveSchema != null)
                 schemaProp = ResolveSchemaProperty(state.ActiveSchema, fieldPath);
 
-            var fieldType = kvp.Value switch
-            {
-                JsonObject => "object",
-                JsonArray => "array",
-                _ => schemaProp?.EnumValues is { Count: > 0 } ? "enum"
-                     : schemaProp?.JsonType == "boolean" ? "boolean"
-                     : schemaProp?.JsonType is "integer" or "number" ? schemaProp.JsonType
-                     : "scalar"
-            };
+            var fieldType = DetermineFieldType(kvp.Value, schemaProp);
 
             var row = new FieldRow
             {
@@ -437,7 +429,7 @@ public static class EditorLogic
                     row.OriginalNumericValue = extracted;
                     System.Diagnostics.Debug.WriteLine($"[BuildNumeric] Field={kvp.Key} extracted={extracted} jv.ToJsonString()={jv.ToJsonString()}");
                 }
-                else
+                else if (fieldType != "null")
                     row.ScalarValue = JsonDocumentService.GetScalarPreview(jv, 200);
             }
 
@@ -609,6 +601,39 @@ public static class EditorLogic
         if (jv.TryGetValue<decimal>(out var mv)) return mv;
         return 0;
     }
+
+    private static string DetermineFieldType(JsonNode? value, SchemaProperty? schemaProp)
+    {
+        if (value is JsonObject) return "object";
+        if (value is JsonArray) return "array";
+
+        if (schemaProp != null)
+        {
+            if (schemaProp.EnumValues is { Count: > 0 }) return "enum";
+            return schemaProp.JsonType switch
+            {
+                "boolean" => "boolean",
+                "integer" or "number" => schemaProp.JsonType,
+                _ => "scalar"
+            };
+        }
+
+        if (value is JsonValue jv)
+        {
+            return jv.GetValueKind() switch
+            {
+                JsonValueKind.True or JsonValueKind.False => "boolean",
+                JsonValueKind.Number => IsIntegralNumber(jv) ? "integer" : "number",
+                JsonValueKind.Null => "null",
+                _ => "scalar"
+            };
+        }
+
+        return "scalar";
+    }
+
+    private static bool IsIntegralNumber(JsonValue jv)
+        => jv.TryGetValue<int>(out _) || jv.TryGetValue<long>(out _);
 
     public static SchemaFieldInfo GetArrayHelpInfo(EditorState state)
     {
