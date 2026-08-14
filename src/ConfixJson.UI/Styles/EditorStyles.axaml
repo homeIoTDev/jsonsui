@@ -324,6 +324,19 @@
     <Setter Property="CornerRadius" Value="3" />
   </Style>
 
+  <!-- Schema status button in header -->
+  <Style Selector="Button.SchemaStatus">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="Button.SchemaStatus:pointerover">
+    <Setter Property="Background" Value="{DynamicResource TreeHoverBrush}" />
+  </Style>
+
   <!-- Dashed Add Button -->
   <Style Selector="Button.DashedBtn">
     <Setter Property="Background" Value="Transparent" />

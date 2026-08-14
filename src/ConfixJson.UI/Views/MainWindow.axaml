@@ -52,6 +52,28 @@
                        FontFamily="{StaticResource FontJetBrainsMono}"
                        FontSize="11" VerticalAlignment="Center" />
           </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="6" DockPanel.Dock="Right"
+                      Margin="0,0,8,0" VerticalAlignment="Center"
+                      IsVisible="{Binding IsSchemaStatusVisible}">
+            <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
+                    ToolTip.Tip="{Binding SchemaTooltip}"
+                    IsVisible="{Binding IsSchemaLoaded}">
+              <TextBlock Text="✓ Schema" Foreground="{DynamicResource AccentBrush}"
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10" FontWeight="Bold" />
+            </Button>
+            <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
+                    ToolTip.Tip="{Binding SchemaTooltip}"
+                    IsVisible="{Binding IsSchemaNone}">
+              <TextBlock Text="⚠ Kein Schema" Foreground="{DynamicResource WarnBrush}"
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10" FontWeight="Bold" />
+            </Button>
+            <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
+                    ToolTip.Tip="{Binding SchemaTooltip}"
+                    IsVisible="{Binding IsSchemaFailed}">
+              <TextBlock Text="⚠ Schemafehler" Foreground="{DynamicResource ErrorBrush}"
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10" FontWeight="Bold" />
+            </Button>
+          </StackPanel>
           <Border Classes="StatusError" IsVisible="{Binding HasErrors}"
                   DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
             <TextBlock Text="{Binding ErrorCount, StringFormat={}{0} errors}"

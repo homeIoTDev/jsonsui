@@ -134,6 +134,35 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public bool ArrayHelpVisible =>
         !string.IsNullOrEmpty(ArrayHelpInfo.Description);
 
+    public bool IsSchemaStatusVisible => !string.IsNullOrEmpty(DocumentFilename);
+
+    public bool IsSchemaLoaded => _state.SchemaStatus == SchemaLoadStatus.Loaded;
+
+    public bool IsSchemaNone => _state.SchemaStatus == SchemaLoadStatus.None;
+
+    public bool IsSchemaFailed => _state.SchemaStatus == SchemaLoadStatus.Failed;
+
+    public string SchemaTooltip
+    {
+        get
+        {
+            var fileName = string.IsNullOrEmpty(_state.SchemaFilePath)
+                ? ""
+                : System.IO.Path.GetFileName(_state.SchemaFilePath);
+
+            return _state.SchemaStatus switch
+            {
+                SchemaLoadStatus.Loaded when _state.SchemaAutoDetected =>
+                    $"Schema: {fileName}\nQuelle: automatisch über $schema erkannt",
+                SchemaLoadStatus.Loaded =>
+                    $"Schema: {fileName}\nQuelle: manuell ausgewählt",
+                SchemaLoadStatus.Failed =>
+                    "Das angegebene JSON-Schema konnte nicht geladen werden.\nKlicken, um ein anderes Schema auszuwählen.",
+                _ => "Kein JSON-Schema geladen.\nKlicken, um ein Schema auszuwählen."
+            };
+        }
+    }
+
     public ObservableCollection<JsonEditorNode> TreeRootNodes { get; } = [];
 
     public MainWindowViewModel()
@@ -160,6 +189,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             OnPropertyChanged(nameof(EditorHelpVisible));
             OnPropertyChanged(nameof(EditorHelpHasDescription));
             OnPropertyChanged(nameof(ArrayHelpVisible));
+            OnPropertyChanged(nameof(IsSchemaStatusVisible));
+            OnPropertyChanged(nameof(IsSchemaLoaded));
+            OnPropertyChanged(nameof(IsSchemaNone));
+            OnPropertyChanged(nameof(IsSchemaFailed));
+            OnPropertyChanged(nameof(SchemaTooltip));
         }
 
         if (_refreshDepth == 0 && focusedPath != null)
@@ -543,6 +577,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (string.IsNullOrEmpty(schemaRef))
         {
             _state.ActiveSchema = null;
+            _state.SchemaStatus = SchemaLoadStatus.None;
+            _state.SchemaFilePath = null;
+            _state.SchemaAutoDetected = false;
             System.Diagnostics.Debug.WriteLine("[SchemaTrace] ActiveSchema cleared — no $schema in this document");
             return;
         }
@@ -557,6 +594,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         if (!File.Exists(resolvedPath))
         {
+            _state.ActiveSchema = null;
+            _state.SchemaStatus = SchemaLoadStatus.Failed;
+            _state.SchemaFilePath = resolvedPath;
+            _state.SchemaAutoDetected = true;
             System.Diagnostics.Debug.WriteLine("[SchemaTrace] schema file exists: False — skipping auto-load");
             return;
         }
@@ -570,6 +611,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             var parser = new SchemaParser();
             var model = parser.Parse(schemaDoc);
             _state.ActiveSchema = model;
+            _state.SchemaStatus = SchemaLoadStatus.Loaded;
+            _state.SchemaFilePath = resolvedPath;
+            _state.SchemaAutoDetected = true;
 
             System.Diagnostics.Debug.WriteLine("[SchemaTrace] schema parser invoked: true");
             System.Diagnostics.Debug.WriteLine($"[SchemaTrace] parsed schema properties: {model.Properties.Count}");
@@ -577,6 +621,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            _state.ActiveSchema = null;
+            _state.SchemaStatus = SchemaLoadStatus.Failed;
+            _state.SchemaFilePath = resolvedPath;
+            _state.SchemaAutoDetected = true;
             System.Diagnostics.Debug.WriteLine($"[SchemaTrace] schema load failed: {ex.Message}");
         }
     }
@@ -599,11 +647,25 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (files.Count > 0)
         {
             var file = files[0];
-            var loader = new SchemaLoader();
-            var schema = await loader.LoadFromFileAsync(file.Path.LocalPath);
-            var parser = new SchemaParser();
-            var model = parser.Parse(schema);
-            _state.ActiveSchema = model;
+            try
+            {
+                var loader = new SchemaLoader();
+                var schema = await loader.LoadFromFileAsync(file.Path.LocalPath);
+                var parser = new SchemaParser();
+                var model = parser.Parse(schema);
+                _state.ActiveSchema = model;
+                _state.SchemaStatus = SchemaLoadStatus.Loaded;
+                _state.SchemaFilePath = file.Path.LocalPath;
+                _state.SchemaAutoDetected = false;
+            }
+            catch (Exception ex)
+            {
+                _state.ActiveSchema = null;
+                _state.SchemaStatus = SchemaLoadStatus.Failed;
+                _state.SchemaFilePath = file.Path.LocalPath;
+                _state.SchemaAutoDetected = false;
+                System.Diagnostics.Debug.WriteLine($"[SchemaTrace] manual schema load failed: {ex.Message}");
+            }
             RefreshUI();
         }
     }

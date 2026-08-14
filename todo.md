@@ -6,12 +6,13 @@ We plan to raise the overall pricing for DeepSeek API services in the near futur
 
 
 [ ] Komische Navigations-Buttons im Breadcrumbs, zum zurück navigieren
-[ ] warum habe ich am knoten auth jetzt immer ein roten *
+[ ] warum habe ich am knoten auth jetzt immer ein roten * = required
 [ ] selektierung beim erste knoten von einer array ansicht fehlt, auch die markeriung selbst ist nicht da. Die hilfe wird auch erst angezeigt, wenn man alles druchklickt
 [ ] Bug: Loading wrong json file => exception
 [ ] Schema: Fallback: Wenn kein $schema vorhanden ist, dezenter Hinweis im Editor, z. B. „Kein Schema erkannt · Schema auswählen“
            CLI-Parameter --schema, Drag & Drop oder eine Einstellung für ein Standard-Schema
 [ ] Umschaltung der Drak/Light mode malt nicht die baumansicht neu, farbe bleiben alt
+[ ] wie werden neue oder unbekante elemente hinzugefügt oder gelöscht im json!
 
 
 

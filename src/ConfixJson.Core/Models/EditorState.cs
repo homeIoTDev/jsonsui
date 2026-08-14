@@ -11,6 +11,9 @@ public class EditorState
     public int? CardIndex { get; set; }
     public NestedContext? NestedCtx { get; set; }
     public SchemaModel? ActiveSchema { get; set; }
+    public SchemaLoadStatus SchemaStatus { get; set; } = SchemaLoadStatus.None;
+    public string? SchemaFilePath { get; set; }
+    public bool SchemaAutoDetected { get; set; }
     public ValidationError[] Errors { get; set; } = [];
     public string[]? FocusFieldPath { get; set; }
 }
