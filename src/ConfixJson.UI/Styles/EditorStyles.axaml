@@ -1,6 +1,113 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+  <Styles.Resources>
+    <StreamGeometry x:Key="EditorSpinIncreaseIcon">M1,8 L5,2 9,8 Z</StreamGeometry>
+    <StreamGeometry x:Key="EditorSpinDecreaseIcon">M1,2 L5,8 9,2 Z</StreamGeometry>
+
+    <ControlTheme x:Key="EditorSpinnerRepeatButton" TargetType="RepeatButton">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPointerOver}" />
+      </Style>
+      <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundPressed}" />
+      </Style>
+      <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource RepeatButtonBackgroundDisabled}" />
+        <Setter Property="Foreground" Value="{DynamicResource RepeatButtonForegroundDisabled}" />
+      </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="EditorButtonSpinnerTheme" TargetType="ButtonSpinner">
+      <Setter Property="Foreground" Value="{DynamicResource TextControlForeground}" />
+      <Setter Property="Padding" Value="10, 0" />
+      <Setter Property="Background" Value="{DynamicResource TextControlBackground}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrush}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThickness}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+      <Setter Property="MinHeight" Value="{DynamicResource TextControlThemeMinHeight}" />
+      <Setter Property="MinWidth" Value="{DynamicResource TextControlThemeMinWidth}" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Focusable" Value="True" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <DataValidationErrors>
+            <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    MinHeight="{TemplateBinding MinHeight}">
+              <DockPanel>
+                <StackPanel Name="PART_SpinnerPanel"
+                            TabIndex="2"
+                            DockPanel.Dock="Right"
+                            Orientation="Vertical"
+                            VerticalAlignment="Center"
+                            Width="22"
+                            Opacity="0"
+                            IsVisible="{TemplateBinding ShowButtonSpinner}">
+                  <RepeatButton Name="PART_IncreaseButton"
+                                IsTabStop="{TemplateBinding IsTabStop}"
+                                Theme="{StaticResource EditorSpinnerRepeatButton}"
+                                Width="22"
+                                Height="14"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Foreground="{TemplateBinding Foreground}">
+                    <PathIcon Width="10" Height="10" Data="{StaticResource EditorSpinIncreaseIcon}" />
+                  </RepeatButton>
+
+                  <RepeatButton Name="PART_DecreaseButton"
+                                IsTabStop="{TemplateBinding IsTabStop}"
+                                Theme="{StaticResource EditorSpinnerRepeatButton}"
+                                Width="22"
+                                Height="14"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Foreground="{TemplateBinding Foreground}">
+                    <PathIcon Width="10" Height="10" Data="{StaticResource EditorSpinDecreaseIcon}" />
+                  </RepeatButton>
+                </StackPanel>
+
+                <ContentPresenter Name="PART_ContentPresenter"
+                                  TabIndex="1"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  Padding="{TemplateBinding Padding}" />
+              </DockPanel>
+            </Border>
+          </DataValidationErrors>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:pointerover /template/ StackPanel#PART_SpinnerPanel">
+        <Setter Property="Opacity" Value="1" />
+      </Style>
+    </ControlTheme>
+  </Styles.Resources>
+
   <!-- Window base -->
   <Style Selector="Window">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
@@ -274,6 +381,25 @@
 
   <Style Selector="NumericUpDown.EditorNum">
     <Setter Property="HorizontalAlignment" Value="Stretch" />
+  </Style>
+
+  <Style Selector="NumericUpDown.EditorNum:focus-within">
+    <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushFocused}" />
+  </Style>
+
+  <Style Selector="NumericUpDown.EditorNum:focus-within /template/ TextBox#PART_TextBox:focus /template/ Border#PART_BorderElement">
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="NumericUpDown.EditorNum:pointerover /template/ TextBox#PART_TextBox:pointerover /template/ Border#PART_BorderElement">
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="NumericUpDown.EditorNum /template/ ButtonSpinner#PART_Spinner">
+    <Setter Property="Theme" Value="{StaticResource EditorButtonSpinnerTheme}" />
   </Style>
 
 </Styles>
