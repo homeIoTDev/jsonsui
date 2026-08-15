@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "ConfixJson-Min": {
+      "commandName": "Project",
+      "type": "dotnet",
+      "commandLineArgs": "./test_min.json"
+    },
+    "ConfixJson-ExampleSchema": {
+      "commandName": "Project",
+      "type": "dotnet",
+      "commandLineArgs": "./test_example.json --schema ./test_example.schema.json"
+    }
+  }
+}
