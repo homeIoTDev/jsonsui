@@ -23,7 +23,8 @@
     <StreamGeometry x:Key="feather-moon">M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z</StreamGeometry>
     <StreamGeometry x:Key="feather-sun">M12 1v2m0 18v2M4.22 4.22l1.42 1.42m11.3 11.3 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z</StreamGeometry>
     <StreamGeometry x:Key="feather-code">M16 18l6-6-6-6M8 6l-6 6 6 6</StreamGeometry>
-    <StreamGeometry x:Key="feather-save">M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3</StreamGeometry>
+    <StreamGeometry x:Key="feather-save">M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8</StreamGeometry>
+    <StreamGeometry x:Key="feather-shuffle">M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5</StreamGeometry>
     <StreamGeometry x:Key="feather-menu">M3 12h18M3 6h18M3 18h18</StreamGeometry>
     <StreamGeometry x:Key="feather-chevron-right">M9 18l6-6-6-6</StreamGeometry>
     <StreamGeometry x:Key="feather-chevron-down">M6 9l6 6 6-6</StreamGeometry>
@@ -115,40 +116,45 @@
             </ScrollViewer>
             <!-- Tree Toolbar -->
             <Border Grid.Row="2" Classes="Toolbar TreeToolbar" Padding="6,0">
-              <StackPanel Orientation="Horizontal" Spacing="6"
-                          HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
-                        ToolTip.Tip="Open file" Width="28" Height="28" Padding="4">
-                  <Path Classes="Feather" Data="{StaticResource feather-folder}" Width="14" Height="14"
-                            Stroke="{DynamicResource TextSecondaryBrush}" />
-                </Button>
-                <Button Command="{Binding ToggleThemeCommand}" Classes="IconBtn"
-                        ToolTip.Tip="Toggle theme" Width="28" Height="28" Padding="4">
-                  <Panel>
-                    <Path Classes="Feather" Data="{StaticResource feather-moon}" Width="14" Height="14"
-                              Stroke="{DynamicResource TextSecondaryBrush}"
-                              IsVisible="{Binding Dark}" />
-                    <Path Classes="Feather" Data="{StaticResource feather-sun}" Width="14" Height="14"
-                              Stroke="{DynamicResource TextSecondaryBrush}"
-                              IsVisible="{Binding Dark, Converter={x:Static conv:EditorConverters.InverseBool}}" />
-                  </Panel>
-                </Button>
-                <Button Command="{Binding ToggleTextModeCommand}" Classes="IconBtn"
-                        ToolTip.Tip="Toggle text mode" Width="28" Height="28" Padding="4">
-                  <Path Classes="Feather" Data="{StaticResource feather-code}" Width="14" Height="14"
-                            Stroke="{DynamicResource TextSecondaryBrush}" />
-                </Button>
-                <Button Command="{Binding SaveCommand}" Classes="IconBtn"
-                        ToolTip.Tip="Save" Width="28" Height="28" Padding="4">
-                  <Path Classes="Feather" Data="{StaticResource feather-save}" Width="14" Height="14"
-                            Stroke="{DynamicResource TextSecondaryBrush}" />
-                </Button>
-                <Button Command="{Binding OpenDiffCommand}" Classes="IconBtn"
-                        ToolTip.Tip="Show diff" Width="28" Height="28" Padding="4">
-                  <Path Classes="Feather" Data="{StaticResource feather-menu}" Width="14" Height="14"
-                            Stroke="{DynamicResource TextSecondaryBrush}" />
-                </Button>
-              </StackPanel>
+              <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="6"
+                            VerticalAlignment="Center" >
+                  <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
+                          ToolTip.Tip="Open file" Width="28" Height="28" Padding="4">
+                    <Path Classes="Feather" Data="{StaticResource feather-folder}" Width="14" Height="14"
+                              Stroke="{DynamicResource TextSecondaryBrush}" />
+                  </Button>
+                  <Button Command="{Binding SaveCommand}" Classes="IconBtn"
+                          ToolTip.Tip="Save" Width="28" Height="28" Padding="4">
+                    <Path Classes="Feather" Data="{StaticResource feather-save}" Width="14" Height="14"
+                              Stroke="{DynamicResource TextSecondaryBrush}" />
+                  </Button>
+                  <Button Command="{Binding OpenDiffCommand}" Classes="IconBtn"
+                          ToolTip.Tip="Show diff" Width="28" Height="28" Padding="4">
+                    <Path Classes="Feather" Data="{StaticResource feather-shuffle}" Width="14" Height="14"
+                              Stroke="{DynamicResource TextSecondaryBrush}" />
+                  </Button>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6"
+                            HorizontalAlignment="Right" VerticalAlignment="Center">
+                  <Button Command="{Binding ToggleTextModeCommand}" Classes="IconBtn"
+                          ToolTip.Tip="Toggle text mode" Width="28" Height="28" Padding="4">
+                    <Path Classes="Feather" Data="{StaticResource feather-code}" Width="14" Height="14"
+                              Stroke="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" />
+                  </Button>
+                  <Button Command="{Binding ToggleThemeCommand}" Classes="IconBtn"
+                          ToolTip.Tip="Toggle theme" Width="28" Height="28" Padding="4">
+                    <Panel>
+                      <Path Classes="Feather" Data="{StaticResource feather-moon}" Width="14" Height="14"
+                                Stroke="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"
+                                IsVisible="{Binding Dark}" />
+                      <Path Classes="Feather" Data="{StaticResource feather-sun}" Width="14" Height="14"
+                                Stroke="{DynamicResource TextSecondaryBrush}"
+                                IsVisible="{Binding Dark, Converter={x:Static conv:EditorConverters.InverseBool}}" />
+                    </Panel>
+                  </Button>
+                </StackPanel>
+              </DockPanel>
             </Border>
           </Grid>
         </Border>
