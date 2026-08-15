@@ -66,8 +66,8 @@
       </ResourceDictionary.ThemeDictionaries>
 
       <!-- Fonts -->
-      <FontFamily x:Key="FontJetBrainsMono">avares://ConfixJson.UI/Assets/Fonts/JetBrainsMono/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
-      <FontFamily x:Key="FontInter">avares://ConfixJson.UI/Assets/Fonts/Inter/Inter-Regular.otf#Inter</FontFamily>
+      <FontFamily x:Key="FontJetBrainsMono">avares://confix/Assets/Fonts/JetBrainsMono/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
+      <FontFamily x:Key="FontInter">avares://confix/Assets/Fonts/Inter/Inter-Regular.otf#Inter</FontFamily>
 
       <!-- Tree icons (needed by TreeDataTemplate at Application level) -->
       <StreamGeometry x:Key="feather-chevron-right">M9 18l6-6-6-6</StreamGeometry>
@@ -78,6 +78,6 @@
   </Application.Resources>
   <Application.Styles>
     <FluentTheme />
-    <StyleInclude Source="avares://ConfixJson.UI/Styles/EditorStyles.axaml" />
+    <StyleInclude Source="avares://confix/Styles/EditorStyles.axaml" />
   </Application.Styles>
 </Application>

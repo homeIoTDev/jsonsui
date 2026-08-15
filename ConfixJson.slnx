@@ -2,5 +2,6 @@
   <Folder Name="/src/">
     <Project Path="src/ConfixJson.Core/ConfixJson.Core.csproj" />
     <Project Path="src/ConfixJson.UI/ConfixJson.UI.csproj" />
+    <Project Path="src/ConfixJson.Tui/ConfixJson.Tui.csproj" />
   </Folder>
 </Solution>

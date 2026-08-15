@@ -2,7 +2,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ConfixJson.UI.ViewModels"
         xmlns:models="using:ConfixJson.Core.Models"
-        xmlns:services="using:ConfixJson.Core.Services"
         xmlns:conv="clr-namespace:ConfixJson.UI.Converters"
         xmlns:views="using:ConfixJson.UI.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -584,26 +583,7 @@
               </Button>
             </DockPanel>
           </Border>
-          <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding DiffLines}" Margin="0,4">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="services:JsonDiffLine">
-                  <Border Background="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToBackground}}"
-                          Padding="8,1">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                      <TextBlock Text="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarker}}"
-                                 Width="12"
-                                 FontFamily="{StaticResource FontJetBrainsMono}"
-                                 FontSize="11" FontWeight="Bold"
-                                 Foreground="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarkerColor}}" />
-                      <TextBlock Text="{Binding Text}"
-                                 FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                    </StackPanel>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </ScrollViewer>
+          <views:DiffView DataContext="{Binding Diff}" />
         </DockPanel>
       </Border>
     </Border>

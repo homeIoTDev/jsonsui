@@ -120,7 +120,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public bool ShowEmptyDetailState => !HasObjectFields && !HasScalarDetail;
 
     [ObservableProperty]
-    public partial ObservableCollection<JsonDiffLine> DiffLines { get; set; } = [];
+    public partial DiffViewModel Diff { get; set; } = new();
 
     [ObservableProperty]
     public partial SchemaFieldInfo EditorHelpInfo { get; set; } = new();
@@ -469,8 +469,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void OpenDiff()
     {
+        Diff.Load(_state.OriginalJson, _state.Json);
         ShowDiff = true;
-        DiffLines = new ObservableCollection<JsonDiffLine>(EditorLogic.GetDiffLines(_state));
     }
 
     [RelayCommand]
@@ -571,7 +571,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public void LoadJsonFromFile(string filePath)
+    public void LoadJsonFromFile(string filePath, string? schemaPath = null)
     {
         LoadError = "";
         try
@@ -581,7 +581,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             DocumentFilename = System.IO.Path.GetFileName(filePath);
             _currentFilePath = filePath;
             _undoRedo.Clear();
-            TryAutoLoadSchema(node, filePath);
+
+            if (schemaPath != null)
+                LoadSchemaFromPath(schemaPath);
+            else
+                TryAutoLoadSchema(node, filePath);
+
             RefreshUI();
         }
         catch (JsonException ex)
@@ -591,6 +596,29 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         catch (Exception ex)
         {
             LoadError = $"Datei konnte nicht geladen werden: {ex.Message}";
+        }
+    }
+
+    private void LoadSchemaFromPath(string schemaPath)
+    {
+        try
+        {
+            var loader = new SchemaLoader();
+            var schemaDoc = loader.LoadFromString(File.ReadAllText(schemaPath));
+            var parser = new SchemaParser();
+            var model = parser.Parse(schemaDoc);
+            _state.ActiveSchema = model;
+            _state.SchemaStatus = SchemaLoadStatus.Loaded;
+            _state.SchemaFilePath = schemaPath;
+            _state.SchemaAutoDetected = false;
+        }
+        catch (Exception ex)
+        {
+            _state.ActiveSchema = null;
+            _state.SchemaStatus = SchemaLoadStatus.Failed;
+            _state.SchemaFilePath = schemaPath;
+            _state.SchemaAutoDetected = false;
+            System.Diagnostics.Debug.WriteLine($"[SchemaTrace] manual schema load failed: {ex.Message}");
         }
     }
 

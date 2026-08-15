@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using ConfixJson.Core;
 
 namespace ConfixJson.UI;
 
@@ -9,10 +10,12 @@ sealed class Program
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) 
-    {  
+    public static void Main(string[] args)
+    {
+        StartupArguments.Cli = CliParser.Parse(args);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
+
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()

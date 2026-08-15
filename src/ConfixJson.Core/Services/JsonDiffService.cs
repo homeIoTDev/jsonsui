@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace ConfixJson.Core.Services;
 
@@ -12,6 +13,11 @@ public class JsonDiffLine
 
 public static class JsonDiffService
 {
+    public static List<JsonDiffLine> ComputeDiff(JsonNode original, JsonNode current)
+        => ComputeDiff(
+            JsonDocumentService.ToFormattedJson(original),
+            JsonDocumentService.ToFormattedJson(current));
+
     public static List<JsonDiffLine> ComputeDiff(string original, string current)
     {
         var lines = new List<JsonDiffLine>();
