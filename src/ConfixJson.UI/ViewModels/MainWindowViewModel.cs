@@ -64,6 +64,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public partial bool HasTextParseError { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasLoadError))]
+    public partial string LoadError { get; set; } = "";
+
+    public bool HasLoadError => !string.IsNullOrEmpty(LoadError);
+
+    [ObservableProperty]
     public partial int ErrorCount { get; set; }
 
     [ObservableProperty]
@@ -541,27 +547,51 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         if (files.Count > 0)
         {
+            LoadError = "";
             var file = files[0];
-            await using var stream = await file.OpenReadAsync();
-            var node = await JsonFileService.LoadFromStreamAsync(stream);
-            EditorLogic.InitDocument(_state, node, file.Name);
-            DocumentFilename = file.Name;
-            _currentFilePath = file.Path.LocalPath;
-            _undoRedo.Clear();
-            TryAutoLoadSchema(node, file.Path.LocalPath);
-            RefreshUI();
+            try
+            {
+                await using var stream = await file.OpenReadAsync();
+                var node = await JsonFileService.LoadFromStreamAsync(stream);
+                EditorLogic.InitDocument(_state, node, file.Name);
+                DocumentFilename = file.Name;
+                _currentFilePath = file.Path.LocalPath;
+                _undoRedo.Clear();
+                TryAutoLoadSchema(node, file.Path.LocalPath);
+                RefreshUI();
+            }
+            catch (JsonException ex)
+            {
+                LoadError = $"Ungültiges JSON – Datei konnte nicht geladen werden:\n{ex.Message}";
+            }
+            catch (Exception ex)
+            {
+                LoadError = $"Datei konnte nicht geladen werden: {ex.Message}";
+            }
         }
     }
 
     public void LoadJsonFromFile(string filePath)
     {
-        var node = EditorLogic.LoadDocument(filePath);
-        EditorLogic.InitDocument(_state, node, System.IO.Path.GetFileName(filePath));
-        DocumentFilename = System.IO.Path.GetFileName(filePath);
-        _currentFilePath = filePath;
-        _undoRedo.Clear();
-        TryAutoLoadSchema(node, filePath);
-        RefreshUI();
+        LoadError = "";
+        try
+        {
+            var node = EditorLogic.LoadDocument(filePath);
+            EditorLogic.InitDocument(_state, node, System.IO.Path.GetFileName(filePath));
+            DocumentFilename = System.IO.Path.GetFileName(filePath);
+            _currentFilePath = filePath;
+            _undoRedo.Clear();
+            TryAutoLoadSchema(node, filePath);
+            RefreshUI();
+        }
+        catch (JsonException ex)
+        {
+            LoadError = $"Ungültiges JSON – Datei konnte nicht geladen werden:\n{ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            LoadError = $"Datei konnte nicht geladen werden: {ex.Message}";
+        }
     }
 
     private void TryAutoLoadSchema(JsonNode root, string jsonFilePath)

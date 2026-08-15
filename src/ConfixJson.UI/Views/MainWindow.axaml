@@ -91,6 +91,10 @@
           </DockPanel>
         </Border>
 
+        <Border Classes="ErrorBanner" DockPanel.Dock="Top" IsVisible="{Binding HasLoadError}">
+          <TextBlock Text="{Binding LoadError}" Classes="ErrorText" TextWrapping="Wrap" />
+        </Border>
+
       <!-- ===== BODY ===== -->
       <Grid ColumnDefinitions="240,*">
         <!-- ===== TREE PANEL ===== -->
