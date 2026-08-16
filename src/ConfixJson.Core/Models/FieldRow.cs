@@ -1,7 +1,12 @@
 namespace ConfixJson.Core.Models;
 
-public class FieldRow
+public class FieldRow : System.ComponentModel.INotifyPropertyChanged
 {
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+
+    public void NotifyPropertyChanged(string propertyName)
+        => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+
     public string Key { get; set; } = "";
     public string[] Path { get; set; } = [];
     public string FieldType { get; set; } = "scalar";

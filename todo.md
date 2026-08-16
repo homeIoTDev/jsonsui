@@ -3,9 +3,15 @@ DeepSeek:
 08:00–12:00 Uhr mittags doppelte preisabreichung!
 We plan to raise the overall pricing for DeepSeek API services in the near future, with a significant increase expected. Please plan your usage accordingly. The specific pricing plan will be subject to official notice.
 
+[ ] Es ist nicht konsistent, dass der rote stern * requier anzeigt, aber die fehler nicht sichbar sind.
+wird deprecatet grund formuliert und angegeben im hilfetext
+[ ] Der Hilfetext sollte die schrift größer für prop größer sein tree-schrift und der rest ein kleiner. w
 [ ] constrains und ui controls
+[ ] Const wie enum behandeln?? und wie pattern behandeln??
+[ ] Codeview ist nicht bildschirm füllend und wird nicht übernommen aus änderungen der UI-Controls.
 [ ] Resizing split views
 [ ] wie werden neue oder unbekante elemente hinzugefügt oder gelöscht im json!
+[ ] Suchfeld geht nicht: Schrift geht nicht
 [ ] DIFF-View soll gegen speicher und gegen file parameter und grafisch aufbereit sein.
 [ ] Komische Navigations-Buttons im Breadcrumbs, zum zurück navigieren
 [ ] komischer roter stern * bei auth = required , deprecated und readOnly default const usw. solte cool dargestellt werden
@@ -14,10 +20,6 @@ We plan to raise the overall pricing for DeepSeek API services in the near futur
 
 [ ]UI-Controls:
 Schema-Formate
-
-date         → DatePicker
-date-time    → DateTimePicker
-time         → TimePicker
 
 Schema Constraints
 

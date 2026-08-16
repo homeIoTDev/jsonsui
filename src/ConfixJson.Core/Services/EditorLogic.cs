@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using ConfixJson.Core.Models;
 
 namespace ConfixJson.Core.Services;
@@ -266,14 +268,24 @@ public static class EditorLogic
     public static void Validate(EditorState state)
     {
         var errors = new List<ValidationError>();
-        ValidateNode(state.Json, [], errors);
+        ValidateNode(state.Json, [], errors, state.ActiveSchema);
         state.Errors = errors.ToArray();
     }
 
-    private static void ValidateNode(JsonNode? node, string[] path, List<ValidationError> errors)
+    private static void ValidateNode(JsonNode? node, string[] path, List<ValidationError> errors, SchemaModel? schema)
     {
         if (node is JsonObject obj)
         {
+            var objSchema = ResolveObjectSchema(schema, path);
+            if (objSchema != null)
+            {
+                foreach (var required in objSchema.Required)
+                {
+                    if (!obj.ContainsKey(required))
+                        errors.Add(new ValidationError { Path = path.Concat([required]).ToArray(), Message = $"{required} is required" });
+                }
+            }
+
             foreach (var kvp in obj)
             {
                 var childPath = path.Concat([kvp.Key]).ToArray();
@@ -281,15 +293,77 @@ public static class EditorLogic
                     errors.Add(new ValidationError { Path = childPath, Message = $"{kvp.Key} is null" });
                 else if (kvp.Value is JsonValue sv && sv.TryGetValue<string>(out var str) && string.IsNullOrEmpty(str))
                     errors.Add(new ValidationError { Path = childPath, Message = $"{kvp.Key} is empty" });
+                else if (kvp.Value is JsonObject or JsonArray)
+                    ValidateNode(kvp.Value, childPath, errors, schema);
                 else
-                    ValidateNode(kvp.Value, childPath, errors);
+                    ValidateLeaf(kvp.Value, childPath, errors, schema);
             }
         }
         else if (node is JsonArray arr)
         {
             for (int i = 0; i < arr.Count; i++)
-                ValidateNode(arr[i], path.Concat([i.ToString()]).ToArray(), errors);
+                ValidateNode(arr[i], path.Concat([i.ToString()]).ToArray(), errors, schema);
         }
+    }
+
+    private static void ValidateLeaf(JsonNode? node, string[] path, List<ValidationError> errors, SchemaModel? schema)
+    {
+        if (schema == null) return;
+        var prop = ResolveSchemaProperty(schema, path);
+        if (prop == null) return;
+
+        var name = path.Length > 0 ? path[^1] : "value";
+
+        if (prop.Const != null)
+        {
+            var preview = JsonDocumentService.GetScalarPreview(node, int.MaxValue);
+            if (preview != prop.Const)
+                errors.Add(new ValidationError { Path = path, Message = $"{name} must equal {prop.Const}" });
+        }
+
+        if (node is JsonValue jv)
+        {
+            if (jv.TryGetValue<string>(out var s))
+            {
+                if (prop.Pattern != null)
+                {
+                    var matches = false;
+                    try { matches = Regex.IsMatch(s, prop.Pattern); }
+                    catch (ArgumentException) { matches = true; }
+                    if (!matches)
+                        errors.Add(new ValidationError { Path = path, Message = $"{name} must match pattern {prop.Pattern}" });
+                }
+                if (prop.MinLength.HasValue && s.Length < prop.MinLength.Value)
+                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be at least {prop.MinLength.Value} characters" });
+                if (prop.MaxLength.HasValue && s.Length > prop.MaxLength.Value)
+                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be at most {prop.MaxLength.Value} characters" });
+            }
+            else if (TryGetNumber(jv, out var num))
+            {
+                if (prop.Minimum.HasValue && num < (decimal)prop.Minimum.Value)
+                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be >= {prop.Minimum.Value}" });
+                if (prop.Maximum.HasValue && num > (decimal)prop.Maximum.Value)
+                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be <= {prop.Maximum.Value}" });
+            }
+        }
+    }
+
+    private static SchemaModel? ResolveObjectSchema(SchemaModel? schema, string[] path)
+    {
+        if (schema == null) return null;
+        if (path.Length == 0) return schema;
+        var prop = ResolveSchemaProperty(schema, path);
+        return prop?.ObjectSchema ?? prop?.ArrayItemSchema?.ObjectSchema;
+    }
+
+    private static bool TryGetNumber(JsonValue jv, out decimal value)
+    {
+        if (jv.TryGetValue<int>(out var iv)) { value = iv; return true; }
+        if (jv.TryGetValue<long>(out var lv)) { value = lv; return true; }
+        if (jv.TryGetValue<double>(out var dv)) { value = (decimal)dv; return true; }
+        if (jv.TryGetValue<decimal>(out var mv)) { value = mv; return true; }
+        value = 0;
+        return false;
     }
 
     // --- Derived Values ---
@@ -406,6 +480,10 @@ public static class EditorLogic
                 Path = fieldPath,
                 FieldType = fieldType,
                 IsRequired = schemaProp?.IsRequired ?? false,
+                IsReadOnly = schemaProp?.IsReadOnly ?? false,
+                IsDeprecated = schemaProp?.IsDeprecated ?? false,
+                DefaultValue = schemaProp?.DefaultValue,
+                Comment = schemaProp?.Comment,
                 HasErrors = state.Errors.Any(e => e.PathString == string.Join(".", fieldPath)),
                 EnumValues = schemaProp?.EnumValues,
                 MinValue = schemaProp?.Minimum != null ? (decimal)schemaProp.Minimum.Value : decimal.MinValue,
@@ -545,19 +623,24 @@ public static class EditorLogic
 
             if (hasFieldFocus && focusPath.Length > 0)
             {
-                var contextPath = focusPath[..^1];
+                var contextPath = GetContextPath(focusPath);
                 var contextProp = ResolveSchemaProperty(state.ActiveSchema, contextPath);
-                if (contextProp != null && contextProp.JsonType != "array")
+                if (contextProp != null)
                 {
                     info.ContextDescription = contextProp.Description;
-                    info.ContextMeta = BuildMetaText(contextProp);
+                    info.ContextMetaItems.AddRange(BuildMetaItems(contextProp));
                 }
 
                 var fieldProp = ResolveSchemaProperty(state.ActiveSchema, focusPath);
                 if (fieldProp != null && fieldProp.JsonType != "array")
                 {
                     info.FieldDescription = fieldProp.Description;
-                    info.FieldMeta = BuildMetaText(fieldProp);
+                    info.FieldMetaItems.AddRange(BuildMetaItems(fieldProp));
+                    info.IsRequired = fieldProp.IsRequired;
+                    info.IsDeprecated = fieldProp.IsDeprecated;
+                    info.IsReadOnly = fieldProp.IsReadOnly;
+                    info.Comment = fieldProp.Comment;
+                    info.DefaultValue = fieldProp.DefaultValue;
                 }
             }
             else
@@ -566,7 +649,12 @@ public static class EditorLogic
                 if (contextProp != null && contextProp.JsonType != "array")
                 {
                     info.ContextDescription = contextProp.Description;
-                    info.ContextMeta = BuildMetaText(contextProp);
+                    info.ContextMetaItems.AddRange(BuildMetaItems(contextProp));
+                    info.IsRequired = contextProp.IsRequired;
+                    info.IsDeprecated = contextProp.IsDeprecated;
+                    info.IsReadOnly = contextProp.IsReadOnly;
+                    info.Comment = contextProp.Comment;
+                    info.DefaultValue = contextProp.DefaultValue;
                 }
                 else if (focusPath.Length == 0)
                 {
@@ -578,24 +666,43 @@ public static class EditorLogic
         return info;
     }
 
-    private static string? BuildMetaText(SchemaProperty prop)
+    private static string[] GetContextPath(string[] focusPath)
     {
-        var parts = new List<string>();
+        var context = focusPath[..^1];
+        while (context.Length > 0 && int.TryParse(context[^1], out _))
+            context = context[..^1];
+        return context;
+    }
+
+    private static List<MetaItem> BuildMetaItems(SchemaProperty prop)
+    {
+        var items = new List<MetaItem>();
 
         if (!string.IsNullOrEmpty(prop.DefaultValue))
-            parts.Add($"Default: {prop.DefaultValue}");
+            items.Add(new MetaItem { Label = "default", Value = prop.DefaultValue });
 
-        if (prop.Minimum.HasValue && prop.Maximum.HasValue)
-            parts.Add($"Bereich: {prop.Minimum} – {prop.Maximum}");
-        else if (prop.Minimum.HasValue)
-            parts.Add($"Min: {prop.Minimum}");
-        else if (prop.Maximum.HasValue)
-            parts.Add($"Max: {prop.Maximum}");
+        if (prop.Minimum.HasValue)
+            items.Add(new MetaItem { Label = "minimum", Value = prop.Minimum.Value.ToString(CultureInfo.InvariantCulture) });
+
+        if (prop.Maximum.HasValue)
+            items.Add(new MetaItem { Label = "maximum", Value = prop.Maximum.Value.ToString(CultureInfo.InvariantCulture) });
+
+        if (prop.MinLength.HasValue)
+            items.Add(new MetaItem { Label = "minLength", Value = prop.MinLength.Value.ToString() });
+
+        if (prop.MaxLength.HasValue)
+            items.Add(new MetaItem { Label = "maxLength", Value = prop.MaxLength.Value.ToString() });
+
+        if (!string.IsNullOrEmpty(prop.Pattern))
+            items.Add(new MetaItem { Label = "pattern", Value = prop.Pattern });
+
+        if (prop.Const != null)
+            items.Add(new MetaItem { Label = "const", Value = prop.Const });
 
         if (prop.EnumValues is { Count: > 0 })
-            parts.Add($"Werte: {string.Join(", ", prop.EnumValues)}");
+            items.Add(new MetaItem { Label = "enum", Value = string.Join(", ", prop.EnumValues) });
 
-        return parts.Count > 0 ? string.Join("  |  ", parts) : null;
+        return items;
     }
 
     private static decimal ExtractNumericValue(JsonValue jv)
@@ -677,6 +784,15 @@ public static class EditorLogic
                 info.DefaultValue = schemaProp.DefaultValue;
                 info.Minimum = schemaProp.Minimum;
                 info.Maximum = schemaProp.Maximum;
+                info.MinLength = schemaProp.MinLength;
+                info.MaxLength = schemaProp.MaxLength;
+                info.Pattern = schemaProp.Pattern;
+                info.Const = schemaProp.Const;
+                info.IsRequired = schemaProp.IsRequired;
+                info.IsDeprecated = schemaProp.IsDeprecated;
+                info.IsReadOnly = schemaProp.IsReadOnly;
+                info.Comment = schemaProp.Comment;
+                info.FieldMetaItems.AddRange(BuildMetaItems(schemaProp));
 
                 System.Diagnostics.Debug.WriteLine(
                     $"[BuildHelpInfo] schemaProp.Name={schemaProp.Name} JsonType={schemaProp.JsonType} " +

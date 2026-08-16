@@ -221,6 +221,17 @@
     <Setter Property="VerticalAlignment" Value="Stretch" />
   </Style>
 
+  <Style Selector="TextBox.EditorInputInner:focus /template/ Border#PART_BorderElement">
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="TextBox.EditorInputInner:pointerover /template/ Border#PART_BorderElement">
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
   <!-- Help Strip -->
   <Style Selector="Border.HelpStrip">
     <Setter Property="Padding" Value="8,14" />
@@ -245,7 +256,7 @@
     <Setter Property="FontSize" Value="11" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
     <Setter Property="TextWrapping" Value="Wrap" />
-    <Setter Property="Margin" Value="16,2,0,0" />
+    <Setter Property="Margin" Value="0,2,0,0" />
   </Style>
 
   <Style Selector="TextBlock.HelpMeta">
@@ -254,6 +265,18 @@
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
     <Setter Property="TextWrapping" Value="Wrap" />
     <Setter Property="Margin" Value="0,1,0,0" />
+  </Style>
+
+  <Style Selector="TextBlock.HelpMetaLabel">
+    <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.HelpMetaValue">
+    <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
 
   <Style Selector="TextBlock.HelpComment">
@@ -272,6 +295,12 @@
   <Style Selector="Border.BadgeWarn">
     <Setter Property="Background" Value="{DynamicResource WarnSoftBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource WarnBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style Selector="Border.BadgeRequired">
+    <Setter Property="Background" Value="{DynamicResource ErrorDimBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
     <Setter Property="BorderThickness" Value="1" />
   </Style>
 
@@ -414,7 +443,7 @@
     <Setter Property="CornerRadius" Value="3" />
   </Style>
 
-  <Style Selector="NumericUpDown.EditorNum">
+  <Style Selector=":is(NumericUpDown).EditorNum">
     <Setter Property="HorizontalAlignment" Value="Stretch" />
   </Style>
 
@@ -439,22 +468,26 @@
     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
 
-  <Style Selector="NumericUpDown.EditorNum:focus-within">
+  <Style Selector=":is(NumericUpDown).EditorNum:focus-within">
     <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushFocused}" />
   </Style>
 
-  <Style Selector="NumericUpDown.EditorNum:focus-within /template/ TextBox#PART_TextBox:focus /template/ Border#PART_BorderElement">
+  <Style Selector=":is(NumericUpDown).EditorNum /template/ TextBox#PART_TextBox">
+    <Setter Property="FocusAdorner" Value="{x:Null}" />
+  </Style>
+
+  <Style Selector=":is(NumericUpDown).EditorNum:focus-within /template/ TextBox#PART_TextBox:focus /template/ Border#PART_BorderElement">
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Background" Value="Transparent" />
   </Style>
 
-  <Style Selector="NumericUpDown.EditorNum:pointerover /template/ TextBox#PART_TextBox:pointerover /template/ Border#PART_BorderElement">
+  <Style Selector=":is(NumericUpDown).EditorNum:pointerover /template/ TextBox#PART_TextBox:pointerover /template/ Border#PART_BorderElement">
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="Background" Value="Transparent" />
   </Style>
 
-  <Style Selector="NumericUpDown.EditorNum /template/ ButtonSpinner#PART_Spinner">
+  <Style Selector=":is(NumericUpDown).EditorNum /template/ ButtonSpinner#PART_Spinner">
     <Setter Property="Theme" Value="{StaticResource EditorButtonSpinnerTheme}" />
   </Style>
 

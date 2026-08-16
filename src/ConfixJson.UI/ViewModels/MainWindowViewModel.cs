@@ -381,7 +381,45 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         var node = JsonValue.Create(value ?? "");
         EditorLogic.SetValueAtPath(_state, path, node, _undoRedo);
+        RefreshErrorState();
+    }
 
+    public void ApplyTextChange(FieldRow row, string? value)
+    {
+        var path = (string[])row.Path.Clone();
+        var node = JsonValue.Create(value ?? "");
+        EditorLogic.SetValueAtPath(_state, path, node, _undoRedo);
+
+        row.ScalarValue = value ?? "";
+        row.HasErrors = _state.Errors.Any(e => e.PathString == string.Join(".", path));
+        row.NotifyPropertyChanged(nameof(FieldRow.HasErrors));
+        RefreshErrorState();
+    }
+
+    public void ApplyNumericChange(FieldRow row, decimal value, bool isInteger)
+    {
+        var path = (string[])row.Path.Clone();
+        var jsonNode = isInteger
+            ? JsonValue.Create((int)value)
+            : JsonValue.Create((double)value);
+        EditorLogic.SetValueAtPath(_state, path, jsonNode, _undoRedo);
+
+        row.NumericValue = value;
+        row.OriginalNumericValue = value;
+        row.HasErrors = _state.Errors.Any(e => e.PathString == string.Join(".", path));
+        row.NotifyPropertyChanged(nameof(FieldRow.HasErrors));
+        RefreshErrorState();
+    }
+
+    public string? GetFieldRawValue(string[] path)
+    {
+        var node = JsonDocumentService.GetByPath(_state.Json, path);
+        if (node is JsonValue v && v.TryGetValue<string>(out var s)) return s;
+        return null;
+    }
+
+    private void RefreshErrorState()
+    {
         ErrorCount = _state.Errors.Length;
         HasErrors = ErrorCount > 0;
         CanUndo = _undoRedo.CanUndo;
@@ -391,13 +429,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(EditorHelpVisible));
         OnPropertyChanged(nameof(EditorHelpHasDescription));
         OnPropertyChanged(nameof(ArrayHelpVisible));
-    }
-
-    public string? GetFieldRawValue(string[] path)
-    {
-        var node = JsonDocumentService.GetByPath(_state.Json, path);
-        if (node is JsonValue v && v.TryGetValue<string>(out var s)) return s;
-        return null;
     }
 
     [RelayCommand]
@@ -446,6 +477,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
+            EditorLogic.Validate(_state);
+            RefreshErrorState();
             EditorLogic.SaveDocument(_currentFilePath, _state.Json);
             _state.OriginalJson = _state.Json.DeepClone();
             ShowSaved = true;
@@ -582,6 +615,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 _currentFilePath = file.Path.LocalPath;
                 _undoRedo.Clear();
                 TryAutoLoadSchema(node, file.Path.LocalPath);
+                EditorLogic.Validate(_state);
                 RefreshUI();
             }
             catch (JsonException ex)
@@ -611,6 +645,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             else
                 TryAutoLoadSchema(node, filePath);
 
+            EditorLogic.Validate(_state);
             RefreshUI();
         }
         catch (JsonException ex)

@@ -57,6 +57,26 @@ public class SchemaParser
         if (element.TryGetProperty("default", out var defaultVal))
             prop.DefaultValue = defaultVal.ValueKind != JsonValueKind.Null ? defaultVal.ToString() : null;
 
+        if (element.TryGetProperty("const", out var constVal) && constVal.ValueKind != JsonValueKind.Null)
+        {
+            prop.Const = constVal.ValueKind switch
+            {
+                JsonValueKind.String => constVal.GetString(),
+                JsonValueKind.True => "true",
+                JsonValueKind.False => "false",
+                _ => constVal.ToString()
+            };
+        }
+
+        if (element.TryGetProperty("readOnly", out var readOnly))
+            prop.IsReadOnly = readOnly.ValueKind == JsonValueKind.True;
+
+        if (element.TryGetProperty("deprecated", out var deprecated))
+            prop.IsDeprecated = deprecated.ValueKind == JsonValueKind.True;
+
+        if (element.TryGetProperty("$comment", out var comment))
+            prop.Comment = comment.GetString();
+
         if (element.TryGetProperty("format", out var format))
             prop.Format = format.GetString();
 

@@ -6,8 +6,12 @@ public class SchemaProperty
     public string? Description { get; set; }
     public string? DefaultValue { get; set; }
     public bool IsRequired { get; set; }
+    public bool IsReadOnly { get; set; }
+    public bool IsDeprecated { get; set; }
+    public string? Comment { get; set; }
     public UiElementType UiType { get; set; }
     public string? Format { get; set; }
+    public string? Const { get; set; }
 
     public double? Minimum { get; set; }
     public double? Maximum { get; set; }

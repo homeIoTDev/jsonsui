@@ -1,3 +1,4 @@
+using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -75,12 +76,17 @@ public partial class MainWindow : Window
 
     private void NumericUpDown_GotFocus(object? sender, RoutedEventArgs e)
     {
-        if (sender is NumericUpDown nud && nud.DataContext is FieldRow row)
+        if (sender is NumericUpDown nud && nud.DataContext is FieldRow row && DataContext is MainWindowViewModel vm)
         {
             var focused = Avalonia.Controls.TopLevel.GetTopLevel(nud)?.FocusManager?.GetFocusedElement();
             System.Diagnostics.Debug.WriteLine(
                 $"[FocusTrace] NUD GotFocus Field={row.Key} IsKeyboardFocusWithin={nud.IsKeyboardFocusWithin} " +
                 $"FocusedNow={focused?.GetType().Name} e.Source={e.Source?.GetType().Name}");
+            vm.FocusFieldCommand.Execute(row.Path);
+
+            // Enter is marked handled by NumericUpDown.OnKeyDown, so the XAML KeyDown
+            // handler never fires. Attach with handledEventsToo so Enter commits directly.
+            nud.AddHandler(InputElement.KeyDownEvent, NudKeyDownHandled, RoutingStrategies.Bubble, handledEventsToo: true);
         }
     }
 
@@ -90,25 +96,39 @@ public partial class MainWindow : Window
         if (nud.DataContext is not FieldRow row) return;
         if (DataContext is not MainWindowViewModel vm) return;
         if (vm.IsRefreshing) return;
-
-        var focused = Avalonia.Controls.TopLevel.GetTopLevel(nud)?.FocusManager?.GetFocusedElement();
-        System.Diagnostics.Debug.WriteLine(
-            $"[FocusTrace] NUD LostFocus Field={row.Key} IsKeyboardFocusWithin={nud.IsKeyboardFocusWithin} " +
-            $"Value={nud.Value} e.Source={e.Source?.GetType().Name} FocusedNow={focused?.GetType().Name}");
-
+        nud.RemoveHandler(InputElement.KeyDownEvent, NudKeyDownHandled);
         if (nud.IsKeyboardFocusWithin) return;
-        if (!nud.Value.HasValue) return;
-        if (nud.Value == row.OriginalNumericValue) return;
+        CommitNumeric(nud, row, vm);
+    }
 
-        var value = nud.Value.Value;
-        var fieldType = row.FieldType;
-        var path = (string[])row.Path.Clone();
+    private void NudKeyDownHandled(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        if (sender is not NumericUpDown nud || nud.DataContext is not FieldRow row) return;
+        if (TopLevel.GetTopLevel(nud)?.DataContext is not MainWindowViewModel vm) return;
+        CommitNumeric(nud, row, vm);
+    }
 
-        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+    private void CommitNumeric(NumericUpDown nud, FieldRow row, MainWindowViewModel vm)
+    {
+        // Commit from the raw text rather than Value: this guarantees the exact typed
+        // number (e.g. 0 or 65536) reaches JSON/Validate(), independent of the control's
+        // internal parsing/formatting.
+        var text = nud.Text?.Trim();
+        decimal value;
+        if (string.IsNullOrEmpty(text))
         {
-            object v = fieldType == "integer" ? (object)(int)value : (double)value;
-            vm.ChangeFieldCommand.Execute(new object[] { path, v });
-        });
+            if (!nud.Value.HasValue) return;
+            value = nud.Value.Value;
+        }
+        else if (!decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out value))
+        {
+            if (!nud.Value.HasValue) return;
+            value = nud.Value.Value;
+        }
+
+        if (value == row.OriginalNumericValue) return;
+        vm.ApplyNumericChange(row, value, row.FieldType == "integer");
     }
 
     private void ScalarDetail_LostFocus(object? sender, RoutedEventArgs e)
@@ -117,5 +137,30 @@ public partial class MainWindow : Window
         {
             vm.SaveScalarDetailCommand.Execute(tb.Text);
         }
+    }
+
+    private void EditorField_GotFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control c && c.DataContext is FieldRow row && DataContext is MainWindowViewModel vm)
+            vm.FocusFieldCommand.Execute(row.Path);
+    }
+
+    private void EditorScalar_LostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb && tb.DataContext is FieldRow row && DataContext is MainWindowViewModel vm)
+            CommitScalarText(tb, row, vm);
+    }
+
+    private void EditorScalar_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        if (sender is TextBox tb && tb.DataContext is FieldRow row && DataContext is MainWindowViewModel vm)
+            CommitScalarText(tb, row, vm);
+    }
+
+    private void CommitScalarText(TextBox tb, FieldRow row, MainWindowViewModel vm)
+    {
+        if (tb.Text == vm.GetFieldRawValue(row.Path)) return;
+        vm.ApplyTextChange(row, tb.Text);
     }
 }

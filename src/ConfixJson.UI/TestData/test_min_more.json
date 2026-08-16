@@ -2,7 +2,7 @@
   "$schema": "./test_min_more.schema.json",
 
   "project": {
-    "name": "ConfixJson Test Project",
+    "name1": "ConfixJson Test Project",
     "version": "2.4.1",
     "environment": "development",
     "debug": false,

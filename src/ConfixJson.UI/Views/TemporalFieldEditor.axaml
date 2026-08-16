@@ -19,6 +19,7 @@
 
         <Button Classes="IconAssist"
                 ToolTip.Tip="Datum auswählen"
+                IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                 IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeAny}, ConverterParameter=date;date-time}">
           <Button.Flyout>
             <Flyout Placement="BottomEdgeAlignedRight"
@@ -34,6 +35,7 @@
 
         <Button Classes="IconAssist"
                 ToolTip.Tip="Zeit auswählen"
+                IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                 IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeAny}, ConverterParameter=time;date-time}">
           <Button.Flyout>
             <Flyout Placement="BottomEdgeAlignedRight"
@@ -51,6 +53,7 @@
 
       <TextBox x:Name="TemporalTextBox" Classes="EditorInputInner"
                Text="{Binding ScalarValue}"
+               IsReadOnly="{Binding IsReadOnly}"
                GotFocus="TemporalText_GotFocus"
                LostFocus="TemporalText_LostFocus"
                KeyDown="TemporalText_KeyDown" />

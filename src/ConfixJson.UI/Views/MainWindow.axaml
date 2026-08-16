@@ -3,6 +3,7 @@
         xmlns:vm="using:ConfixJson.UI.ViewModels"
         xmlns:models="using:ConfixJson.Core.Models"
         xmlns:conv="clr-namespace:ConfixJson.UI.Converters"
+        xmlns:controls="using:ConfixJson.UI.Controls"
         xmlns:views="using:ConfixJson.UI.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -34,6 +35,18 @@
     <StreamGeometry x:Key="feather-arrow-right">M5 12h14m-7-7 7 7-7 7</StreamGeometry>
     <StreamGeometry x:Key="feather-arrow-left">M19 12H5m7 7-7-7 7-7</StreamGeometry>
     <StreamGeometry x:Key="feather-x">M18 6 6 18M6 6l12 12</StreamGeometry>
+
+    <!-- Help meta constraint items -->
+    <ItemsPanelTemplate x:Key="MetaItemsPanel">
+      <WrapPanel />
+    </ItemsPanelTemplate>
+
+    <DataTemplate x:Key="MetaItemTemplate" x:DataType="models:MetaItem">
+      <StackPanel Orientation="Horizontal" Spacing="3" Margin="0,0,14,0">
+        <TextBlock Text="{Binding Label, StringFormat={}{0}:}" Classes="HelpMetaLabel" />
+        <TextBlock Text="{Binding Value}" Classes="HelpMetaValue" />
+      </StackPanel>
+    </DataTemplate>
 
   </Window.Resources>
 
@@ -226,15 +239,8 @@
                     <Border Margin="0,0,0,8" Padding="0"
                             Tapped="FieldRow_Tapped" Tag="{Binding Path}">
                       <Grid ColumnDefinitions="130,10,*">
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                          <DockPanel>
-                            <TextBlock Text="*" Foreground="{DynamicResource ErrorBrush}"
-                                       FontWeight="Bold" Margin="0,0,2,0"
-                                       IsVisible="{Binding IsRequired}" DockPanel.Dock="Right" />
-                            <TextBlock Text="{Binding Key}" Classes="FieldLabel"
-                                       TextTrimming="CharacterEllipsis" />
-                          </DockPanel>
-                        </StackPanel>
+                        <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
+                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                         <Grid Grid.Column="1" />
                         <Grid Grid.Column="2" VerticalAlignment="Center">
                           <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
@@ -266,35 +272,59 @@
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
                            </Button>
-                           <views:TemporalFieldEditor />
-                           <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
-                                          Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                          Classes="EditorNum"
-                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}"
-                                          ValueChanged="NumericUpDown_ValueChanged"
-                                          LostFocus="NumericUpDown_LostFocus"
-                                          GotFocus="NumericUpDown_GotFocus"
-                                          FormatString="N0" />
-                           <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
-                                          Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                          Classes="EditorNum"
-                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}"
-                                          ValueChanged="NumericUpDown_ValueChanged"
-                                          LostFocus="NumericUpDown_LostFocus"
-                                          GotFocus="NumericUpDown_GotFocus"
-                                          FormatString="N2" />
+                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeIsTemporal}}">
+                             <views:TemporalFieldEditor />
+                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                           </Grid>
+                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}">
+                              <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                             Classes="EditorNum"
+                                             IsReadOnly="{Binding IsReadOnly}"
+                                             ValueChanged="NumericUpDown_ValueChanged"
+                                             LostFocus="NumericUpDown_LostFocus"
+                                             GotFocus="NumericUpDown_GotFocus"
+                                             FormatString="N0" />
+                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                           </Grid>
+                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}">
+                              <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                             Classes="EditorNum"
+                                             IsReadOnly="{Binding IsReadOnly}"
+                                             ValueChanged="NumericUpDown_ValueChanged"
+                                             LostFocus="NumericUpDown_LostFocus"
+                                             GotFocus="NumericUpDown_GotFocus"
+                                             FormatString="N2" />
+                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                           </Grid>
                            <CheckBox IsChecked="{Binding BoolValue}"
+                                     IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                      IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=boolean}"
                                      HorizontalAlignment="Left"
+                                     GotFocus="EditorField_GotFocus"
                                      IsCheckedChanged="BooleanCheckBox_IsCheckedChanged" />
-                           <ComboBox ItemsSource="{Binding EnumValues}"
-                                     SelectedItem="{Binding ScalarValue}"
-                                     IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}"
-                                     HorizontalAlignment="Stretch"
-                                     SelectionChanged="EnumComboBox_SelectionChanged" />
-                           <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
-                                    IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
-                                    HorizontalAlignment="Stretch" />
+                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}">
+                             <ComboBox ItemsSource="{Binding EnumValues}"
+                                       SelectedItem="{Binding ScalarValue}"
+                                       IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                       HorizontalAlignment="Stretch"
+                                       GotFocus="EditorField_GotFocus"
+                                       SelectionChanged="EnumComboBox_SelectionChanged" />
+                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                           </Grid>
+                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}">
+                             <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
+                                      IsReadOnly="{Binding IsReadOnly}"
+                                      HorizontalAlignment="Stretch"
+                                      GotFocus="EditorField_GotFocus"
+                                      LostFocus="EditorScalar_LostFocus"
+                                      KeyDown="EditorScalar_KeyDown" />
+                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                           </Grid>
                            <TextBlock Text="null"
                                       IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
                                       Foreground="{DynamicResource TextTertiaryBrush}"
@@ -313,22 +343,27 @@
                 </Border>
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
-                <TextBlock Text="{Binding EditorHelpInfo.ContextMeta}" Classes="HelpMeta"
-                           IsVisible="{Binding EditorHelpInfo.ContextMeta, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                <ItemsControl ItemsSource="{Binding EditorHelpInfo.ContextMetaItems}"
+                              ItemsPanel="{StaticResource MetaItemsPanel}"
+                              ItemTemplate="{StaticResource MetaItemTemplate}" />
                 <TextBlock Text="{Binding EditorHelpInfo.FieldDescription}" Classes="HelpFieldDescription"
                            IsVisible="{Binding EditorHelpInfo.FieldDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
-                <TextBlock Text="{Binding EditorHelpInfo.FieldMeta}" Classes="HelpMeta"
-                           IsVisible="{Binding EditorHelpInfo.FieldMeta, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                <ItemsControl ItemsSource="{Binding EditorHelpInfo.FieldMetaItems}"
+                              ItemsPanel="{StaticResource MetaItemsPanel}"
+                              ItemTemplate="{StaticResource MetaItemTemplate}" />
                 <WrapPanel>
+                  <Border Classes="Badge BadgeRequired" IsVisible="{Binding EditorHelpInfo.IsRequired}">
+                    <TextBlock Text="REQUIRED" Classes="BadgeText" Foreground="{DynamicResource ErrorBrush}" />
+                  </Border>
                   <Border Classes="Badge BadgeWarn" IsVisible="{Binding EditorHelpInfo.IsDeprecated}">
                     <TextBlock Text="DEPRECATED" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
                   </Border>
                   <Border Classes="Badge BadgeMuted" IsVisible="{Binding EditorHelpInfo.IsReadOnly}">
                     <TextBlock Text="READ-ONLY" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
                   </Border>
-                  <TextBlock Text="{Binding EditorHelpInfo.Comment}" Classes="HelpComment"
-                             IsVisible="{Binding EditorHelpInfo.Comment, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                 </WrapPanel>
+                <TextBlock Text="{Binding EditorHelpInfo.Comment}" Classes="HelpComment"
+                           IsVisible="{Binding EditorHelpInfo.Comment, Converter={x:Static conv:EditorConverters.NullToBool}}" />
               </StackPanel>
             </Border>
           </Grid>
@@ -369,6 +404,7 @@
                 <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
                         DockPanel.Dock="Bottom" Padding="8,12">
                   <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
+                          IsEnabled="{Binding ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                           HorizontalAlignment="Stretch" Height="32">
                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                       <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
@@ -399,6 +435,7 @@
                             </StackPanel>
                             <Button Grid.Column="1" VerticalAlignment="Top"
                                     Classes="IconBtn" Width="20" Height="20" Padding="2"
+                                    IsEnabled="{Binding ElementName=RootWindow, Path=DataContext.ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                     Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
                                     CommandParameter="{Binding Index}"
                                     Tapped="CardDelete_Tapped" ToolTip.Tip="Delete">
@@ -460,35 +497,59 @@
                                              Stroke="{DynamicResource TextTertiaryBrush}" />
                                  </StackPanel>
                                </Button>
-                               <views:TemporalFieldEditor />
-                               <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
-                                               Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                               Classes="EditorNum"
-                                               IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}"
-                                               ValueChanged="NumericUpDown_ValueChanged"
-                                               LostFocus="NumericUpDown_LostFocus"
-                                               GotFocus="NumericUpDown_GotFocus"
-                                               FormatString="N0" />
-                                <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
-                                               Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                               Classes="EditorNum"
-                                               IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}"
-                                               ValueChanged="NumericUpDown_ValueChanged"
-                                               LostFocus="NumericUpDown_LostFocus"
-                                               GotFocus="NumericUpDown_GotFocus"
-                                               FormatString="N2" />
+                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeIsTemporal}}">
+                                 <views:TemporalFieldEditor />
+                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                               </Grid>
+                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}">
+                                  <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                                 Classes="EditorNum"
+                                                 IsReadOnly="{Binding IsReadOnly}"
+                                                 ValueChanged="NumericUpDown_ValueChanged"
+                                                 LostFocus="NumericUpDown_LostFocus"
+                                                 GotFocus="NumericUpDown_GotFocus"
+                                                 FormatString="N0" />
+                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                               </Grid>
+                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}">
+                                  <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                                                 Classes="EditorNum"
+                                                 IsReadOnly="{Binding IsReadOnly}"
+                                                 ValueChanged="NumericUpDown_ValueChanged"
+                                                 LostFocus="NumericUpDown_LostFocus"
+                                                 GotFocus="NumericUpDown_GotFocus"
+                                                 FormatString="N2" />
+                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                               </Grid>
                                <CheckBox IsChecked="{Binding BoolValue}"
+                                         IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=boolean}"
                                          HorizontalAlignment="Left"
+                                         GotFocus="EditorField_GotFocus"
                                          IsCheckedChanged="BooleanCheckBox_IsCheckedChanged" />
-                               <ComboBox ItemsSource="{Binding EnumValues}"
-                                         SelectedItem="{Binding ScalarValue}"
-                                         IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}"
-                                         HorizontalAlignment="Stretch"
-                                         SelectionChanged="EnumComboBox_SelectionChanged" />
-                               <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
-                                        IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}"
-                                        HorizontalAlignment="Stretch" />
+                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}">
+                                 <ComboBox ItemsSource="{Binding EnumValues}"
+                                           SelectedItem="{Binding ScalarValue}"
+                                           IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                           HorizontalAlignment="Stretch"
+                                           GotFocus="EditorField_GotFocus"
+                                           SelectionChanged="EnumComboBox_SelectionChanged" />
+                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                               </Grid>
+                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}">
+                                 <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
+                                          IsReadOnly="{Binding IsReadOnly}"
+                                          HorizontalAlignment="Stretch"
+                                          GotFocus="EditorField_GotFocus"
+                                          LostFocus="EditorScalar_LostFocus"
+                                          KeyDown="EditorScalar_KeyDown" />
+                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+                               </Grid>
                                <TextBlock Text="null"
                                           IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
                                           Foreground="{DynamicResource TextTertiaryBrush}"
@@ -521,12 +582,27 @@
                     </Border>
                     <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
-                <TextBlock Text="{Binding EditorHelpInfo.ContextMeta}" Classes="HelpMeta"
-                           IsVisible="{Binding EditorHelpInfo.ContextMeta, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                <ItemsControl ItemsSource="{Binding EditorHelpInfo.ContextMetaItems}"
+                              ItemsPanel="{StaticResource MetaItemsPanel}"
+                              ItemTemplate="{StaticResource MetaItemTemplate}" />
                 <TextBlock Text="{Binding EditorHelpInfo.FieldDescription}" Classes="HelpFieldDescription"
                            IsVisible="{Binding EditorHelpInfo.FieldDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
-                <TextBlock Text="{Binding EditorHelpInfo.FieldMeta}" Classes="HelpMeta"
-                           IsVisible="{Binding EditorHelpInfo.FieldMeta, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                <ItemsControl ItemsSource="{Binding EditorHelpInfo.FieldMetaItems}"
+                              ItemsPanel="{StaticResource MetaItemsPanel}"
+                              ItemTemplate="{StaticResource MetaItemTemplate}" />
+                <WrapPanel>
+                  <Border Classes="Badge BadgeRequired" IsVisible="{Binding EditorHelpInfo.IsRequired}">
+                    <TextBlock Text="REQUIRED" Classes="BadgeText" Foreground="{DynamicResource ErrorBrush}" />
+                  </Border>
+                  <Border Classes="Badge BadgeWarn" IsVisible="{Binding EditorHelpInfo.IsDeprecated}">
+                    <TextBlock Text="DEPRECATED" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
+                  </Border>
+                  <Border Classes="Badge BadgeMuted" IsVisible="{Binding EditorHelpInfo.IsReadOnly}">
+                    <TextBlock Text="READ-ONLY" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
+                  </Border>
+                </WrapPanel>
+                <TextBlock Text="{Binding EditorHelpInfo.Comment}" Classes="HelpComment"
+                           IsVisible="{Binding EditorHelpInfo.Comment, Converter={x:Static conv:EditorConverters.NullToBool}}" />
                   </StackPanel>
                 </Border>
               </Grid>
@@ -556,12 +632,14 @@
               <StackPanel Spacing="3">
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
-                <TextBlock Text="{Binding EditorHelpInfo.ContextMeta}" Classes="HelpMeta"
-                           IsVisible="{Binding EditorHelpInfo.ContextMeta, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                <ItemsControl ItemsSource="{Binding EditorHelpInfo.ContextMetaItems}"
+                              ItemsPanel="{StaticResource MetaItemsPanel}"
+                              ItemTemplate="{StaticResource MetaItemTemplate}" />
                 <TextBlock Text="{Binding EditorHelpInfo.FieldDescription}" Classes="HelpFieldDescription"
                            IsVisible="{Binding EditorHelpInfo.FieldDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
-                <TextBlock Text="{Binding EditorHelpInfo.FieldMeta}" Classes="HelpMeta"
-                           IsVisible="{Binding EditorHelpInfo.FieldMeta, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+                <ItemsControl ItemsSource="{Binding EditorHelpInfo.FieldMetaItems}"
+                              ItemsPanel="{StaticResource MetaItemsPanel}"
+                              ItemTemplate="{StaticResource MetaItemTemplate}" />
               </StackPanel>
             </Border>
           </DockPanel>
