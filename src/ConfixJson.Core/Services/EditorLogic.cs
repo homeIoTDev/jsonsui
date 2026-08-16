@@ -429,6 +429,11 @@ public static class EditorLogic
                     row.OriginalNumericValue = extracted;
                     System.Diagnostics.Debug.WriteLine($"[BuildNumeric] Field={kvp.Key} extracted={extracted} jv.ToJsonString()={jv.ToJsonString()}");
                 }
+                else if (fieldType is "date" or "time" or "date-time")
+                {
+                    var str = jv.TryGetValue<string>(out var s) ? s : null;
+                    TemporalValue.Apply(row, fieldType, str);
+                }
                 else if (fieldType != "null")
                     row.ScalarValue = JsonDocumentService.GetScalarPreview(jv, 200);
             }
@@ -504,7 +509,7 @@ public static class EditorLogic
             }
 
             var prop = currentModel.Properties.FirstOrDefault(p => p.Name == segment);
-            if (prop == null) break;
+            if (prop == null) return null;
             result = prop;
 
             if (prop.ObjectSchema != null)
@@ -610,6 +615,12 @@ public static class EditorLogic
         if (schemaProp != null)
         {
             if (schemaProp.EnumValues is { Count: > 0 }) return "enum";
+            if (schemaProp.JsonType == "string")
+            {
+                if (schemaProp.Format == "date") return "date";
+                if (schemaProp.Format == "time") return "time";
+                if (schemaProp.Format == "date-time") return "date-time";
+            }
             return schemaProp.JsonType switch
             {
                 "boolean" => "boolean",

@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
 using ConfixJson.Core.Models;
@@ -8,6 +9,15 @@ public static class EditorConverters
 {
     public static readonly IValueConverter EditorModeToBool = new FuncValueConverter<string, string, bool>((fieldType, target) =>
         fieldType == target
+    );
+
+    public static readonly IValueConverter FieldTypeIsTemporal = new FuncValueConverter<string, bool>(fieldType =>
+        fieldType is "date" or "time" or "date-time"
+    );
+
+    public static readonly IValueConverter FieldTypeAny = new FuncValueConverter<string, string, bool>((fieldType, targets) =>
+        targets?.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Contains(fieldType) == true
     );
 
     public static readonly IValueConverter BoolToVisibility = new FuncValueConverter<bool, bool>(b => b);

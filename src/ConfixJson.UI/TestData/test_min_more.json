@@ -1,5 +1,5 @@
 {
-  "$schema": "./test_min.schema.json",
+  "$schema": "./test_min_more.schema.json",
 
   "project": {
     "name": "ConfixJson Test Project",

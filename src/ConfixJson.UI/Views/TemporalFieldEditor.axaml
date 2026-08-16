@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:ConfixJson.UI.Converters"
+             xmlns:models="using:ConfixJson.Core.Models"
+             x:Class="ConfixJson.UI.Views.TemporalFieldEditor"
+             x:DataType="models:FieldRow">
+
+  <UserControl.Resources>
+    <StreamGeometry x:Key="FeatherCalendar">M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z</StreamGeometry>
+    <StreamGeometry x:Key="FeatherClock">M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2</StreamGeometry>
+  </UserControl.Resources>
+
+  <Grid ColumnDefinitions="*,Auto,Auto"
+        IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeIsTemporal}}">
+
+    <TextBox x:Name="TemporalTextBox" Grid.Column="0"
+             Text="{Binding ScalarValue}"
+             Classes="EditorInput"
+             GotFocus="TemporalText_GotFocus"
+             LostFocus="TemporalText_LostFocus"
+             KeyDown="TemporalText_KeyDown" />
+
+    <Button Grid.Column="1" Classes="IconAssist"
+            ToolTip.Tip="Datum auswählen"
+            IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeAny}, ConverterParameter=date;date-time}">
+      <Button.Flyout>
+        <Flyout Placement="BottomEdgeAlignedRight"
+                Opened="CalendarFlyout_Opened">
+          <Calendar SelectionMode="SingleDate"
+                    IsTodayHighlighted="True"
+                    SelectedDatesChanged="Calendar_SelectedDatesChanged" />
+        </Flyout>
+      </Button.Flyout>
+      <Path Classes="Feather" Data="{StaticResource FeatherCalendar}" Width="12" Height="12"
+            Stroke="{DynamicResource TextSecondaryBrush}" />
+    </Button>
+
+    <Button Grid.Column="2" Classes="IconAssist"
+            ToolTip.Tip="Zeit auswählen"
+            IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeAny}, ConverterParameter=time;date-time}">
+      <Button.Flyout>
+        <Flyout Placement="BottomEdgeAlignedRight"
+                Opened="TimeFlyout_Opened">
+          <TimePicker ClockIdentifier="24HourClock"
+                      UseSeconds="True"
+                      SelectedTimeChanged="TimeFlyoutPicker_SelectedTimeChanged" />
+        </Flyout>
+      </Button.Flyout>
+      <Path Classes="Feather" Data="{StaticResource FeatherClock}" Width="12" Height="12"
+            Stroke="{DynamicResource TextSecondaryBrush}" />
+    </Button>
+
+  </Grid>
+</UserControl>

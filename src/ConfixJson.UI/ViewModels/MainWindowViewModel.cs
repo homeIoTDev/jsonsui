@@ -377,6 +377,29 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public void ApplyTemporalChange(string[] path, string? value)
+    {
+        var node = JsonValue.Create(value ?? "");
+        EditorLogic.SetValueAtPath(_state, path, node, _undoRedo);
+
+        ErrorCount = _state.Errors.Length;
+        HasErrors = ErrorCount > 0;
+        CanUndo = _undoRedo.CanUndo;
+        CanRedo = _undoRedo.CanRedo;
+        EditorHelpInfo = EditorLogic.GetHelpInfo(_state);
+        ArrayHelpInfo = EditorLogic.GetArrayHelpInfo(_state);
+        OnPropertyChanged(nameof(EditorHelpVisible));
+        OnPropertyChanged(nameof(EditorHelpHasDescription));
+        OnPropertyChanged(nameof(ArrayHelpVisible));
+    }
+
+    public string? GetFieldRawValue(string[] path)
+    {
+        var node = JsonDocumentService.GetByPath(_state.Json, path);
+        if (node is JsonValue v && v.TryGetValue<string>(out var s)) return s;
+        return null;
+    }
+
     [RelayCommand]
     private void AddCard()
     {
@@ -457,6 +480,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             app.RequestedThemeVariant = Dark
                 ? Avalonia.Styling.ThemeVariant.Dark
                 : Avalonia.Styling.ThemeVariant.Light;
+        RefreshUI();
     }
 
     [RelayCommand]

@@ -23,4 +23,10 @@ public class FieldRow
     public decimal? OriginalNumericValue { get; set; }
     public decimal MinValue { get; set; } = decimal.MinValue;
     public decimal MaxValue { get; set; } = decimal.MaxValue;
+    public DateTimeOffset? DateValue { get; set; }
+    public TimeSpan? TimeValue { get; set; }
+    public bool UseSeconds { get; set; }
+    public bool HasOffset { get; set; }
+    public TimeSpan Offset { get; set; }
+    public bool IsUtcSuffix { get; set; }
 }

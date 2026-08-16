@@ -266,6 +266,7 @@
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
                            </Button>
+                           <views:TemporalFieldEditor />
                            <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
                                           Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
                                           Classes="EditorNum"
@@ -459,6 +460,7 @@
                                              Stroke="{DynamicResource TextTertiaryBrush}" />
                                  </StackPanel>
                                </Button>
+                               <views:TemporalFieldEditor />
                                <NumericUpDown Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}"
                                                Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
                                                Classes="EditorNum"
