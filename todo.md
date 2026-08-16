@@ -3,7 +3,6 @@ DeepSeek:
 08:00–12:00 Uhr mittags doppelte preisabreichung!
 We plan to raise the overall pricing for DeepSeek API services in the near future, with a significant increase expected. Please plan your usage accordingly. The specific pricing plan will be subject to official notice.
 
-[ ] Umschaltung der Drak/Light mode malt nicht die baumansicht neu, farbe bleiben alt
 [ ] constrains und ui controls
 [ ] Resizing split views
 [ ] wie werden neue oder unbekante elemente hinzugefügt oder gelöscht im json!
