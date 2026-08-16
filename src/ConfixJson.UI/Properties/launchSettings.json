@@ -9,6 +9,11 @@
       "commandName": "Project",
       "type": "dotnet",
       "commandLineArgs": "./TestData/test_example.json --schema ./TestData/test_example.schema.json"
+    },
+    "ConfixJson-Min-More": {
+      "commandName": "Project",
+      "type": "dotnet",
+      "commandLineArgs": "./TestData/test_min_more.json"
     }
   }
 }
