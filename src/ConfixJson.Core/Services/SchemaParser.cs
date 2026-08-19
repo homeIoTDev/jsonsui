@@ -39,7 +39,27 @@ public class SchemaParser
             }
         }
 
+        ParseAdditionalProperties(model, root);
+
         return model;
+    }
+
+    private static void ParseAdditionalProperties(SchemaModel model, JsonElement element)
+    {
+        if (!element.TryGetProperty("additionalProperties", out var ap)) return;
+
+        switch (ap.ValueKind)
+        {
+            case JsonValueKind.False:
+                model.AdditionalPropertiesAllowed = false;
+                break;
+            case JsonValueKind.True:
+                model.AdditionalPropertiesAllowed = true;
+                break;
+            case JsonValueKind.Object:
+                model.AdditionalPropertiesSchema = ParseProperty("additionalProperties", ap);
+                break;
+        }
     }
 
     private static SchemaProperty ParseProperty(string name, JsonElement element)
