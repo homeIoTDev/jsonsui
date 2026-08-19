@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using ConfixJson.Core.Models;
 
 namespace ConfixJson.Core.Services;
 
@@ -62,6 +63,35 @@ public static class JsonDocumentService
         var arr = GetByPath(cloned, arrayPath) as JsonArray;
         if (arr != null)
             arr.Add(template.DeepClone());
+        return cloned;
+    }
+
+    public static AddPropertyResult AddProperty(JsonNode root, string[] objectPath, string name, JsonNode value)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return AddPropertyResult.Fail(PropertyAddFailure.InvalidPropertyName, root);
+        if (value == null)
+            return AddPropertyResult.Fail(PropertyAddFailure.InvalidOperation, root);
+
+        var parent = GetByPath(root, objectPath);
+        if (parent == null)
+            return AddPropertyResult.Fail(PropertyAddFailure.ParentNotFound, root);
+        if (parent is not JsonObject obj)
+            return AddPropertyResult.Fail(PropertyAddFailure.ParentNotObject, root);
+        if (obj.ContainsKey(name))
+            return AddPropertyResult.Fail(PropertyAddFailure.PropertyAlreadyExists, root);
+
+        var cloned = Clone(root);
+        var clonedParent = GetByPath(cloned, objectPath) as JsonObject;
+        clonedParent![name] = value.DeepClone();
+        return AddPropertyResult.Ok(cloned);
+    }
+
+    public static JsonNode RemoveProperty(JsonNode root, string[] objectPath, string name)
+    {
+        var cloned = Clone(root);
+        if (GetByPath(cloned, objectPath) is JsonObject obj)
+            obj.Remove(name);
         return cloned;
     }
 

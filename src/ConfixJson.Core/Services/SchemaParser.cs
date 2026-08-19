@@ -129,7 +129,9 @@ public class SchemaParser
             prop.ArrayItemSchema = ParseProperty(name + "_item", items);
         }
 
-        if (prop.JsonType == "object" && element.TryGetProperty("properties", out _))
+        if (prop.JsonType == "object" &&
+            (element.TryGetProperty("properties", out _) ||
+             element.TryGetProperty("additionalProperties", out _)))
         {
             using var doc = JsonDocument.Parse(element.GetRawText());
             prop.ObjectSchema = new SchemaParser().Parse(doc);

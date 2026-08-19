@@ -178,6 +178,32 @@ public static class EditorLogic
         Validate(state);
     }
 
+    public static AddPropertyResult AddProperty(EditorState state, string[] objectPath, string name,
+        UndoRedoService undoRedo, JsonNode? initialValue = null)
+    {
+        var objectSchema = ResolveObjectSchema(state.ActiveSchema, objectPath);
+        SchemaProperty? schemaProp = null;
+        if (objectSchema != null)
+            schemaProp = objectSchema.Properties.FirstOrDefault(p => p.Name == name);
+
+        var value = DetermineInitialValue(schemaProp, initialValue);
+
+        var result = JsonDocumentService.AddProperty(state.Json, objectPath, name, value);
+        if (!result.IsSuccess)
+            return result;
+
+        state.Json = result.Root;
+        undoRedo.PushUndo(new UndoCommand
+        {
+            Path = objectPath,
+            PropertyName = name,
+            NewValue = value.DeepClone(),
+            Action = "add_property"
+        });
+        Validate(state);
+        return result;
+    }
+
     public static void AddArrayItem(EditorState state, string[] arrayPath, UndoRedoService undoRedo)
     {
         var arr = JsonDocumentService.GetByPath(state.Json, arrayPath) as JsonArray;
@@ -355,6 +381,129 @@ public static class EditorLogic
         var prop = ResolveSchemaProperty(schema, path);
         return prop?.ObjectSchema ?? prop?.ArrayItemSchema?.ObjectSchema;
     }
+
+    // --- Property Catalog ---
+
+    public static PropertyCatalog BuildPropertyCatalog(EditorState state, string[] objectPath)
+    {
+        var catalog = new PropertyCatalog();
+        var obj = JsonDocumentService.GetByPath(state.Json, objectPath) as JsonObject;
+
+        var objectSchema = ResolveObjectSchema(state.ActiveSchema, objectPath);
+        catalog.SchemaAvailable = objectSchema != null;
+        catalog.AdditionalPropertiesAllowed = objectSchema?.AdditionalPropertiesAllowed;
+        catalog.AdditionalPropertiesSchema = objectSchema?.AdditionalPropertiesSchema;
+        catalog.CanAddCustomProperty = ComputeCanAddCustomProperty(catalog);
+
+        if (objectSchema == null)
+            return catalog;
+
+        foreach (var schemaProp in objectSchema.Properties)
+        {
+            if (obj?.ContainsKey(schemaProp.Name) == true)
+                continue;
+
+            catalog.Items.Add(new PropertyCatalogItem
+            {
+                Name = schemaProp.Name,
+                Type = schemaProp.JsonType,
+                IsRequired = schemaProp.IsRequired,
+                IsAlreadyPresent = false,
+                IsCustom = false,
+                DefaultValue = schemaProp.DefaultValue,
+                ConstValue = schemaProp.Const,
+                IsReadOnly = schemaProp.IsReadOnly,
+                IsDeprecated = schemaProp.IsDeprecated,
+                Description = schemaProp.Description,
+                Comment = schemaProp.Comment,
+                EnumValues = schemaProp.EnumValues,
+                CanAdd = true,
+                SchemaProperty = schemaProp
+            });
+        }
+
+        return catalog;
+    }
+
+    private static bool ComputeCanAddCustomProperty(PropertyCatalog catalog)
+    {
+        if (!catalog.SchemaAvailable)
+            return true;
+        if (catalog.AdditionalPropertiesSchema != null)
+            return true;
+        return catalog.AdditionalPropertiesAllowed != false;
+    }
+
+    // --- Property Initial Values ---
+
+    private static JsonNode DetermineInitialValue(SchemaProperty? schemaProp, JsonNode? explicitValue)
+    {
+        if (explicitValue != null)
+            return explicitValue.DeepClone();
+
+        if (schemaProp == null)
+            return JsonValue.Create<string>("")!;
+
+        if (schemaProp.Const != null)
+        {
+            var node = CreateNodeFromSchemaString(schemaProp.JsonType, schemaProp.Const);
+            if (node != null) return node;
+        }
+
+        if (schemaProp.DefaultValue != null)
+        {
+            var node = CreateNodeFromSchemaString(schemaProp.JsonType, schemaProp.DefaultValue);
+            if (node != null) return node;
+        }
+
+        if (schemaProp.EnumValues is { Count: > 0 })
+        {
+            var node = CreateNodeFromSchemaString(schemaProp.JsonType, schemaProp.EnumValues[0]);
+            if (node != null) return node;
+        }
+
+        return CreatePrimitiveForType(schemaProp.JsonType);
+    }
+
+    private static JsonNode? CreateNodeFromSchemaString(string jsonType, string text)
+    {
+        return jsonType switch
+        {
+            "string" => JsonValue.Create(text),
+            "integer" => long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l)
+                ? JsonValue.Create(l)
+                : JsonValue.Create(0L),
+            "number" => double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var d)
+                ? JsonValue.Create(d)
+                : JsonValue.Create(0.0),
+            "boolean" => bool.TryParse(text, out var b) ? JsonValue.Create(b) : JsonValue.Create(false),
+            "object" or "array" => TryParseJsonNode(text),
+            _ => TryParseJsonNode(text)
+        };
+    }
+
+    private static JsonNode? TryParseJsonNode(string text)
+    {
+        try
+        {
+            return JsonNode.Parse(text);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static JsonNode CreatePrimitiveForType(string jsonType) => jsonType switch
+    {
+        "string" => JsonValue.Create<string>("")!,
+        "integer" => JsonValue.Create(0)!,
+        "number" => JsonValue.Create(0.0)!,
+        "boolean" => JsonValue.Create(false)!,
+        "object" => new JsonObject(),
+        "array" => new JsonArray(),
+        _ => JsonValue.Create<string>("")!
+    };
 
     private static bool TryGetNumber(JsonValue jv, out decimal value)
     {
