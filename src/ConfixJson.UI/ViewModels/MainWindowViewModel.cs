@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -108,6 +109,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasScalarDetail))]
+    [NotifyPropertyChangedFor(nameof(ShowEmptyDetailState))]
     public partial JsonEditorNode? ScalarNode { get; set; }
 
     [ObservableProperty]
@@ -115,7 +117,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(ShowEmptyDetailState))]
     public partial string DetailScalarText { get; set; } = "";
 
-    public bool HasScalarDetail => !string.IsNullOrEmpty(DetailScalarText);
+    public bool HasScalarDetail => ScalarNode is { Path.Length: > 0 };
 
     public bool ShowEmptyDetailState => !HasObjectFields && !HasScalarDetail;
 
@@ -127,6 +129,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     public partial SchemaFieldInfo ArrayHelpInfo { get; set; } = new();
+
+    [ObservableProperty]
+    public partial bool CanAddProperty { get; set; }
+
+    [ObservableProperty]
+    public partial ObservableCollection<PropertyCatalogItem> AddPropertyItems { get; set; } = [];
+
+    [ObservableProperty]
+    public partial bool HasAddPropertySchemaItems { get; set; }
+
+    [ObservableProperty]
+    public partial bool CanAddCustomProperty { get; set; }
 
     public bool EditorHelpVisible =>
         EditorHelpInfo.HasValidationErrors ||
@@ -223,14 +237,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     private void RestoreFocus(string[] path)
+        => RestoreFocus(path, Avalonia.Threading.DispatcherPriority.Loaded);
+
+    private void RestoreFocus(string[] path, Avalonia.Threading.DispatcherPriority priority)
     {
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
             var window = GetWindow();
             if (window == null) return;
             var control = FindDeepestFocusable(window, path);
-            control?.Focus();
-        }, Avalonia.Threading.DispatcherPriority.Loaded);
+            if (control != null)
+                control.Focus();
+        }, priority);
     }
 
     private static Avalonia.Controls.Control? FindDeepestFocusable(Avalonia.Visual node, string[] path)
@@ -248,6 +266,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             c.DataContext is FieldRow row &&
             row.Path.SequenceEqual(path) &&
             c.Focusable &&
+            c.IsEffectivelyVisible &&
             depth > bestDepth)
         {
             bestDepth = depth;
@@ -272,6 +291,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         CardArrayPathString = EditorLogic.GetCardArrayPathString(_state);
         DetailPathString = EditorLogic.GetDetailPathString(_state);
         CurrentEditorMode = EditorLogic.GetEditorMode(_state, TextMode);
+        CanAddProperty = GetObjectContextPath(_state) != null;
         ErrorCount = _state.Errors.Length;
         HasErrors = ErrorCount > 0;
         CanUndo = _undoRedo.CanUndo;
@@ -418,6 +438,65 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return null;
     }
 
+    // --- Add Property (Flyout support) ---
+
+    private string[]? _addPropertyTargetPath;
+
+    private string[]? GetObjectContextPath(EditorState state)
+    {
+        var effective = EditorLogic.GetEffectiveEditorPath(state);
+        if (JsonDocumentService.GetByPath(state.Json, effective) is JsonObject)
+            return effective;
+        return null;
+    }
+
+    public bool PrepareAddPropertyFlyout()
+    {
+        _addPropertyTargetPath = GetObjectContextPath(_state);
+        if (_addPropertyTargetPath == null)
+        {
+            AddPropertyItems = [];
+            HasAddPropertySchemaItems = false;
+            CanAddCustomProperty = false;
+            return false;
+        }
+
+        var catalog = EditorLogic.BuildPropertyCatalog(_state, _addPropertyTargetPath);
+        AddPropertyItems = new ObservableCollection<PropertyCatalogItem>(catalog.Items);
+        HasAddPropertySchemaItems = AddPropertyItems.Count > 0;
+        CanAddCustomProperty = catalog.CanAddCustomProperty;
+        return true;
+    }
+
+    public void AddSchemaProperty(PropertyCatalogItem item)
+    {
+        if (item == null || _addPropertyTargetPath == null) return;
+        var result = EditorLogic.AddProperty(_state, _addPropertyTargetPath, item.Name, _undoRedo);
+        if (result.IsSuccess)
+        {
+            var newPath = _addPropertyTargetPath.Concat([item.Name]).ToArray();
+            _state.FocusFieldPath = newPath;
+            RefreshUI();
+            RestoreFocus(newPath);
+            RestoreFocus(newPath, Avalonia.Threading.DispatcherPriority.Background);
+        }
+    }
+
+    public void AddCustomProperty(string name, string? valueText)
+    {
+        if (_addPropertyTargetPath == null || string.IsNullOrWhiteSpace(name)) return;
+        var value = JsonDocumentService.ParseFlexibleJsonValue(valueText ?? "");
+        var result = EditorLogic.AddProperty(_state, _addPropertyTargetPath, name, _undoRedo, value);
+        if (result.IsSuccess)
+        {
+            var newPath = _addPropertyTargetPath.Concat([name]).ToArray();
+            _state.FocusFieldPath = newPath;
+            RefreshUI();
+            RestoreFocus(newPath);
+            RestoreFocus(newPath, Avalonia.Threading.DispatcherPriority.Background);
+        }
+    }
+
     private void RefreshErrorState()
     {
         ErrorCount = _state.Errors.Length;
@@ -438,6 +517,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (arrayPath.Length == 0) return;
         EditorLogic.AddArrayItem(_state, arrayPath, _undoRedo);
         RefreshUI();
+        if (EditorLogic.GetDetailItemValue(_state) is JsonValue)
+            FocusScalarDetailEditor();
+    }
+
+    private void FocusScalarDetailEditor()
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            GetWindow()?.FindControl<TextBox>("ScalarDetailTextBox")?.Focus();
+        }, Avalonia.Threading.DispatcherPriority.Loaded);
     }
 
     [RelayCommand]
@@ -494,14 +583,22 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    private string[]? _scalarEditingPath;
+
+    public void CaptureScalarEditingPath()
+    {
+        _scalarEditingPath = EditorLogic.GetDetailItemPath(_state);
+    }
+
     [RelayCommand]
     private void SaveScalarDetail(string? value)
     {
-        var detailPath = EditorLogic.GetDetailItemPath(_state);
+        var detailPath = _scalarEditingPath ?? EditorLogic.GetDetailItemPath(_state);
         if (detailPath == null || string.IsNullOrEmpty(value)) return;
         var jsonNode = EditorLogic.ConvertToJsonNode(value);
         if (jsonNode == null) return;
         EditorLogic.SetValueAtPath(_state, detailPath, jsonNode, _undoRedo);
+        _scalarEditingPath = null;
         RefreshUI();
     }
 

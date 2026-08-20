@@ -1,6 +1,8 @@
 using System;
 using System.Globalization;
+using Avalonia.Controls;
 using Avalonia.Data.Converters;
+using Avalonia.Media;
 using ConfixJson.Core.Models;
 
 namespace ConfixJson.UI.Converters;
@@ -65,6 +67,18 @@ public static class EditorConverters
 
     public static readonly IValueConverter CardSelectedToBorder = new FuncValueConverter<bool, string>(selected =>
         selected ? "SelectedBorder" : "BorderSubtle");
+
+    public static readonly IValueConverter CardSelectedToBorderBrush = new FuncValueConverter<bool, IBrush?>(selected =>
+    {
+        var app = Avalonia.Application.Current;
+        if (app == null) return null;
+
+        var key = selected ? "SelectedBorderBrush" : "PanelBorderBrush";
+        var theme = app.RequestedThemeVariant;
+        if (((IResourceHost)app).TryFindResource(key, theme, out var value) && value is IBrush brush)
+            return brush;
+        return null;
+    });
 
     public static readonly IValueConverter CardHasErrorToBorder = new FuncValueConverter<bool, string>(hasError =>
         hasError ? "ErrorBorder" : "BorderSubtle");

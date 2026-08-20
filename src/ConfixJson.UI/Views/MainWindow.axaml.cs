@@ -1,7 +1,10 @@
 using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using ConfixJson.Core.Models;
 using ConfixJson.UI.ViewModels;
 
@@ -139,6 +142,22 @@ public partial class MainWindow : Window
         }
     }
 
+    private void ScalarDetail_GotFocus(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel vm)
+            vm.CaptureScalarEditingPath();
+    }
+
+    private void ScalarDetail_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        if (sender is TextBox tb && DataContext is MainWindowViewModel vm)
+        {
+            e.Handled = true;
+            vm.SaveScalarDetailCommand.Execute(tb.Text);
+        }
+    }
+
     private void EditorField_GotFocus(object? sender, RoutedEventArgs e)
     {
         if (sender is Control c && c.DataContext is FieldRow row && DataContext is MainWindowViewModel vm)
@@ -162,5 +181,218 @@ public partial class MainWindow : Window
     {
         if (tb.Text == vm.GetFieldRawValue(row.Path)) return;
         vm.ApplyTextChange(row, tb.Text);
+    }
+
+    // --- Add Property Flyout ---
+
+    private Flyout? _addPropertyFlyout;
+    private Flyout? _customPropertyFlyout;
+    private Control? _addPropertyAnchor;
+
+    private void AddProperty_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn || DataContext is not MainWindowViewModel vm) return;
+        if (!vm.PrepareAddPropertyFlyout()) return;
+
+        _addPropertyAnchor = btn;
+        _addPropertyFlyout?.Hide();
+        _addPropertyFlyout = BuildAddPropertyFlyout(vm);
+        _addPropertyFlyout.ShowAt(btn);
+    }
+
+    private Flyout BuildAddPropertyFlyout(MainWindowViewModel vm)
+    {
+        var root = new StackPanel
+        {
+            Width = 280,
+            MaxHeight = 360,
+            Spacing = 4,
+            Margin = new Thickness(4)
+        };
+
+        root.Children.Add(new TextBlock
+        {
+            Text = "Add property",
+            Classes = { "FlyoutHeader" },
+            Margin = new Thickness(4, 2, 4, 6)
+        });
+
+        if (!vm.HasAddPropertySchemaItems)
+        {
+            root.Children.Add(new TextBlock
+            {
+                Text = "No schema properties available",
+                Classes = { "FlyoutEmpty" },
+                Margin = new Thickness(4, 2, 4, 2)
+            });
+        }
+        else
+        {
+            root.Children.Add(new TextBlock
+            {
+                Text = "Schema properties",
+                Classes = { "FlyoutItemType" },
+                Margin = new Thickness(4, 2, 4, 2)
+            });
+
+            var list = new StackPanel { Spacing = 2 };
+            foreach (var item in vm.AddPropertyItems)
+            {
+                var content = new StackPanel { Spacing = 2 };
+                var top = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
+
+                top.Children.Add(new TextBlock { Text = item.Name, Classes = { "FlyoutItemName" } });
+
+                if (!string.IsNullOrEmpty(item.Type) && item.Type != "string")
+                    top.Children.Add(new TextBlock
+                    {
+                        Text = item.Type,
+                        Classes = { "FlyoutItemType" },
+                        VerticalAlignment = VerticalAlignment.Center
+                    });
+
+                if (item.IsRequired)
+                    top.Children.Add(new Border
+                    {
+                        Classes = { "Badge", "BadgeRequired" },
+                        Padding = new Thickness(4, 1),
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Child = new TextBlock { Text = "REQUIRED", Classes = { "BadgeText", "FlyoutBadgeText" } }
+                    });
+
+                content.Children.Add(top);
+
+                if (!string.IsNullOrEmpty(item.DefaultValue))
+                    content.Children.Add(new TextBlock
+                    {
+                        Text = $"default {item.DefaultValue}",
+                        Classes = { "FlyoutItemType" }
+                    });
+
+                var btn = new Button
+                {
+                    Content = content,
+                    Classes = { "FlyoutItem" },
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                    Padding = new Thickness(6, 4)
+                };
+
+                var captured = item;
+                btn.Click += (_, _) =>
+                {
+                    _addPropertyFlyout?.Hide();
+                    vm.AddSchemaProperty(captured);
+                };
+
+                list.Children.Add(btn);
+            }
+
+            root.Children.Add(new ScrollViewer
+            {
+                MaxHeight = 300,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Content = list
+            });
+        }
+
+        if (vm.CanAddCustomProperty)
+        {
+            root.Children.Add(new Border
+            {
+                Classes = { "FlyoutSeparator" },
+                Margin = new Thickness(4, 4, 4, 2)
+            });
+
+            var customBtn = new Button
+            {
+                Classes = { "FlyoutItem" },
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                Padding = new Thickness(6, 4),
+                Content = new TextBlock { Text = "+ Custom property", Classes = { "FlyoutItemName" } }
+            };
+
+            customBtn.Click += (_, _) =>
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    _addPropertyFlyout?.Hide();
+                    ShowCustomPropertyFlyout(vm, _addPropertyAnchor ?? this);
+                }, Avalonia.Threading.DispatcherPriority.Background);
+            };
+
+            root.Children.Add(customBtn);
+        }
+
+        return new Flyout
+        {
+            Content = root,
+            Placement = PlacementMode.BottomEdgeAlignedRight
+        };
+    }
+
+    private void ShowCustomPropertyFlyout(MainWindowViewModel vm, Control anchor)
+    {
+        var root = new StackPanel { Width = 260, Spacing = 6, Margin = new Thickness(4) };
+
+        root.Children.Add(new TextBlock
+        {
+            Text = "Custom property",
+            Classes = { "FlyoutHeader" },
+            Margin = new Thickness(4, 2, 4, 4)
+        });
+
+        var nameBox = new TextBox { PlaceholderText = "Property name", Classes = { "EditorInput" } };
+        var valueBox = new TextBox { PlaceholderText = "Value", Classes = { "EditorInput" } };
+        var addBtn = new Button { Content = "Add", Classes = { "DashedBtn" } };
+
+        void Submit()
+        {
+            _customPropertyFlyout?.Hide();
+            vm.AddCustomProperty(nameBox.Text ?? "", valueBox.Text);
+        }
+
+        addBtn.Click += (_, _) => Submit();
+        nameBox.KeyDown += (_, e) =>
+        {
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true;
+                Submit();
+            }
+        };
+        valueBox.KeyDown += (_, e) =>
+        {
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true;
+                Submit();
+            }
+        };
+
+        root.Children.Add(new TextBlock
+        {
+            Text = "Name",
+            Classes = { "FlyoutItemType" },
+            Margin = new Thickness(4, 2, 4, 0)
+        });
+        root.Children.Add(nameBox);
+        root.Children.Add(new TextBlock
+        {
+            Text = "Value",
+            Classes = { "FlyoutItemType" },
+            Margin = new Thickness(4, 4, 4, 0)
+        });
+        root.Children.Add(valueBox);
+        root.Children.Add(addBtn);
+
+        _customPropertyFlyout?.Hide();
+        _customPropertyFlyout = new Flyout
+        {
+            Content = root,
+            Placement = PlacementMode.BottomEdgeAlignedRight
+        };
+        _customPropertyFlyout.ShowAt(anchor);
     }
 }

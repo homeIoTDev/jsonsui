@@ -468,6 +468,69 @@
     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
 
+  <!-- Add Property -->
+  <Style Selector="Button.AddPropertyBtn">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="8,4" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="Button.AddPropertyBtn:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Add Property Flyout -->
+  <Style Selector="TextBlock.FlyoutHeader">
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.FlyoutEmpty">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+    <Setter Property="FontStyle" Value="Italic" />
+  </Style>
+
+  <Style Selector="TextBlock.FlyoutItemName">
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+
+  <Style Selector="TextBlock.FlyoutItemType">
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.FlyoutBadgeText">
+    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+  </Style>
+
+  <Style Selector="Border.FlyoutSeparator">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}" />
+  </Style>
+
+  <Style Selector="Button.FlyoutItem">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="8,5" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="Button.FlyoutItem:pointerover">
+    <Setter Property="Background" Value="{DynamicResource TreeHoverBrush}" />
+    <Setter Property="CornerRadius" Value="3" />
+  </Style>
+
   <Style Selector=":is(NumericUpDown).EditorNum:focus-within">
     <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushFocused}" />
   </Style>

@@ -212,11 +212,21 @@
             <Border Grid.Row="0" Classes="PanelHeader"
                     BorderBrush="{DynamicResource PanelBorderBrush}">
               <DockPanel VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Spacing="8">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Spacing="8">
                   <TextBlock Text="OBJECT" Classes="HeaderLabel" />
                   <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4" DockPanel.Dock="Right">
+                  <Button Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
+                          Click="AddProperty_Click" ToolTip.Tip="Add property"
+                          VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                      <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="10" Height="10"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
+                      <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10"
+                                 Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </StackPanel>
+                  </Button>
                   <Button Command="{Binding UndoCommand}" Classes="IconBtn"
                           IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
                           Width="22" Height="22" Padding="2">
@@ -229,6 +239,8 @@
                     <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="11" Height="11"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
                 </StackPanel>
               </DockPanel>
             </Border>
@@ -375,15 +387,41 @@
            <Border Grid.Row="0" Classes="PanelHeader" Background="{DynamicResource PanelBackgroundBrush}"
                     BorderBrush="{DynamicResource PanelBorderBrush}" Padding="14,0">
             <DockPanel VerticalAlignment="Center">
-              <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle"
-                         VerticalAlignment="Center" />
-              <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
-                      DockPanel.Dock="Right" Classes="IconBtn"
-                      Command="{Binding ExitNestedArrayCommand}"
-                      Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
-                <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+               <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="4">  
+                  <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle" VerticalAlignment="Center" />
+              </StackPanel>
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
+                <Button Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
+                        Click="AddProperty_Click" ToolTip.Tip="Add property"
+                        VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="10" Height="10"
                           Stroke="{DynamicResource TextSecondaryBrush}" />
-              </Button>
+                    <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10"
+                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                  </StackPanel>
+                </Button>
+                <Button Command="{Binding UndoCommand}" Classes="IconBtn"
+                        IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
+                        Width="22" Height="22" Padding="2">
+                  <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
+                </Button>
+                <Button Command="{Binding RedoCommand}" Classes="IconBtn"
+                        IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
+                        Width="22" Height="22" Padding="2">
+                  <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="11" Height="11"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
+                </Button>
+                <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
+                        Classes="IconBtn"
+                        Command="{Binding ExitNestedArrayCommand}"
+                        Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
+                  <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
+                </Button>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" ></StackPanel>
             </DockPanel>
           </Border>
           <!-- Split Content: Cards | Detail -->
@@ -419,6 +457,7 @@
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="models:CardItem">
                         <Border Classes="CardItem" Margin="0,0,0,6"
+                                BorderBrush="{Binding IsSelected, Converter={x:Static conv:EditorConverters.CardSelectedToBorderBrush}}"
                                 Tapped="CardItem_Tapped">
                           <Grid ColumnDefinitions="*,Auto">
                             <StackPanel Grid.Column="0" Spacing="4">
@@ -570,7 +609,8 @@
                     </Border>
                     <StackPanel Spacing="8" Margin="12,14" VerticalAlignment="Top">
                       <TextBlock Text="Value" Classes="FieldLabel" />
-                      <TextBox Text="{Binding DetailScalarText}" Classes="EditorInput" HorizontalAlignment="Stretch"
+                      <TextBox x:Name="ScalarDetailTextBox" Text="{Binding DetailScalarText}" Classes="EditorInput" HorizontalAlignment="Stretch"
+                               GotFocus="ScalarDetail_GotFocus" KeyDown="ScalarDetail_KeyDown"
                                LostFocus="ScalarDetail_LostFocus" />
                     </StackPanel>
                   </DockPanel>

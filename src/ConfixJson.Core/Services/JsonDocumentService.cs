@@ -121,6 +121,26 @@ public static class JsonDocumentService
         return s;
     }
 
+    /// <summary>
+    /// Wandelt einen frei eingegebenen Text in einen JSON-Wert um:
+    /// gültiges JSON (Zahl, Boolean, Object, Array, quoted string, null) wird übernommen,
+    /// andernfalls wird der Text als JSON-String verwendet.
+    /// </summary>
+    public static JsonNode? ParseFlexibleJsonValue(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return JsonValue.Create("");
+
+        try
+        {
+            return JsonNode.Parse(text);
+        }
+        catch (JsonException)
+        {
+            return JsonValue.Create(text);
+        }
+    }
+
     public static JsonNode? CreateTemplate(JsonNode? sample)
     {
         return sample switch

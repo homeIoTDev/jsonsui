@@ -4,6 +4,8 @@ DeepSeek:
 
 
 [ ] wie werden neue oder unbekante elemente hinzugefügt oder gelöscht im json!
+[ ] undo/redo https://lucide.dev/icons/?search=redo nutzen. 
+[ ] Bug ein Spung von root auf plugin[] wechselt nicht die baumansicht
 [ ] Errors werden noch nicht angezeigt, wenn ein Feld fehlt, dann sieht man nur 1 Fehler.
 [ ] Es ist nicht konsistent, dass der rote stern * requier anzeigt, aber die fehler nicht sichbar sind.
 wird deprecatet grund formuliert und angegeben im hilfetext
