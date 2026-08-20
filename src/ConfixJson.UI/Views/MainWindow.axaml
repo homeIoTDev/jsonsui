@@ -18,24 +18,6 @@
 
   <Window.Resources>
 
-    <!-- Icons -->
-    <StreamGeometry x:Key="feather-folder">M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z</StreamGeometry>
-    <StreamGeometry x:Key="feather-moon">M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z</StreamGeometry>
-    <StreamGeometry x:Key="feather-sun">M12 1v2m0 18v2M4.22 4.22l1.42 1.42m11.3 11.3 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z</StreamGeometry>
-    <StreamGeometry x:Key="feather-code">M16 18l6-6-6-6M8 6l-6 6 6 6</StreamGeometry>
-    <StreamGeometry x:Key="feather-save">M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8</StreamGeometry>
-    <StreamGeometry x:Key="feather-shuffle">M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5</StreamGeometry>
-    <StreamGeometry x:Key="feather-menu">M3 12h18M3 6h18M3 18h18</StreamGeometry>
-    <StreamGeometry x:Key="feather-chevron-right">M9 18l6-6-6-6</StreamGeometry>
-    <StreamGeometry x:Key="feather-chevron-down">M6 9l6 6 6-6</StreamGeometry>
-    <StreamGeometry x:Key="feather-bracket">M3,3 L3,11 M3,3 L5,3 M3,11 L5,11 M11,3 L11,11 M9,3 L11,3 M9,11 L11,11</StreamGeometry>
-    <StreamGeometry x:Key="feather-alert-circle">M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 8v4M12 16h.01</StreamGeometry>
-    <StreamGeometry x:Key="feather-trash-2">M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</StreamGeometry>
-    <StreamGeometry x:Key="feather-plus">M12 5v14M5 12h14</StreamGeometry>
-    <StreamGeometry x:Key="feather-arrow-right">M5 12h14m-7-7 7 7-7 7</StreamGeometry>
-    <StreamGeometry x:Key="feather-arrow-left">M19 12H5m7 7-7-7 7-7</StreamGeometry>
-    <StreamGeometry x:Key="feather-x">M18 6 6 18M6 6l12 12</StreamGeometry>
-
     <!-- Help meta constraint items -->
     <ItemsPanelTemplate x:Key="MetaItemsPanel">
       <WrapPanel />
@@ -137,17 +119,17 @@
                             VerticalAlignment="Center" >
                   <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
                           ToolTip.Tip="Open file" Width="28" Height="28" Padding="4">
-                    <Path Classes="Feather" Data="{StaticResource feather-folder}" Width="14" Height="14"
+                    <Path Classes="Lucide" Data="{StaticResource lucide-folder}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                   <Button Command="{Binding SaveCommand}" Classes="IconBtn"
                           ToolTip.Tip="Save" Width="28" Height="28" Padding="4">
-                    <Path Classes="Feather" Data="{StaticResource feather-save}" Width="14" Height="14"
+                    <Path Classes="Lucide" Data="{StaticResource lucide-save}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                   <Button Command="{Binding OpenDiffCommand}" Classes="IconBtn"
                           ToolTip.Tip="Show diff" Width="28" Height="28" Padding="4">
-                    <Path Classes="Feather" Data="{StaticResource feather-shuffle}" Width="14" Height="14"
+                    <Path Classes="Lucide" Data="{StaticResource lucide-shuffle}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                 </StackPanel>
@@ -155,16 +137,16 @@
                             HorizontalAlignment="Right" VerticalAlignment="Center">
                   <Button Command="{Binding ToggleTextModeCommand}" Classes="IconBtn"
                           ToolTip.Tip="Toggle text mode" Width="28" Height="28" Padding="4">
-                    <Path Classes="Feather" Data="{StaticResource feather-code}" Width="14" Height="14"
+                    <Path Classes="Lucide" Data="{StaticResource lucide-code}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" />
                   </Button>
                   <Button Command="{Binding ToggleThemeCommand}" Classes="IconBtn"
                           ToolTip.Tip="Toggle theme" Width="28" Height="28" Padding="4">
                     <Panel>
-                      <Path Classes="Feather" Data="{StaticResource feather-moon}" Width="14" Height="14"
+                      <Path Classes="Lucide" Data="{StaticResource lucide-moon}" Width="14" Height="14"
                                 Stroke="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"
                                 IsVisible="{Binding Dark}" />
-                      <Path Classes="Feather" Data="{StaticResource feather-sun}" Width="14" Height="14"
+                      <Path Classes="Lucide" Data="{StaticResource lucide-sun}" Width="14" Height="14"
                                 Stroke="{DynamicResource TextSecondaryBrush}"
                                 IsVisible="{Binding Dark, Converter={x:Static conv:EditorConverters.InverseBool}}" />
                     </Panel>
@@ -221,7 +203,7 @@
                           Click="AddProperty_Click" ToolTip.Tip="Add property"
                           VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4">
-                      <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="10" Height="10"
+                      <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="10" Height="10"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
                       <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10"
                                  Foreground="{DynamicResource TextSecondaryBrush}" />
@@ -230,13 +212,13 @@
                   <Button Command="{Binding UndoCommand}" Classes="IconBtn"
                           IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
                           Width="22" Height="22" Padding="2">
-                    <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                    <Path Classes="Lucide" Data="{StaticResource lucide-undo}" Width="11" Height="11"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                   <Button Command="{Binding RedoCommand}" Classes="IconBtn"
                           IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
                           Width="22" Height="22" Padding="2">
-                    <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="11" Height="11"
+                    <Path Classes="Lucide" Data="{StaticResource lucide-redo}" Width="11" Height="11"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                 </StackPanel>
@@ -265,7 +247,7 @@
                               <TextBlock Text="{Binding NestedObjectSummary}"
                                          Foreground="{DynamicResource TextSecondaryBrush}"
                                          FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                              <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                              <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
                           </Button>
@@ -276,11 +258,11 @@
                                   BorderBrush="{DynamicResource PanelBorderBrush}"
                                   BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
                             <StackPanel Orientation="Horizontal" Spacing="6">
-                              <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
+                              <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
                                         Stroke="{DynamicResource AccentBrush}" />
                               <TextBlock Text="{Binding ArrayItemCount}"
                                          FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                              <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                              <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
                            </Button>
@@ -403,7 +385,7 @@
                         Click="AddProperty_Click" ToolTip.Tip="Add property"
                         VerticalAlignment="Center">
                   <StackPanel Orientation="Horizontal" Spacing="4">
-                    <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="10" Height="10"
+                    <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="10" Height="10"
                           Stroke="{DynamicResource TextSecondaryBrush}" />
                     <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10"
                                Foreground="{DynamicResource TextSecondaryBrush}" />
@@ -412,20 +394,20 @@
                 <Button Command="{Binding UndoCommand}" Classes="IconBtn"
                         IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
                         Width="22" Height="22" Padding="2">
-                  <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                  <Path Classes="Lucide" Data="{StaticResource lucide-undo}" Width="11" Height="11"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
                 <Button Command="{Binding RedoCommand}" Classes="IconBtn"
                         IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
                         Width="22" Height="22" Padding="2">
-                  <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="11" Height="11"
+                  <Path Classes="Lucide" Data="{StaticResource lucide-redo}" Width="11" Height="11"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
                 <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
                         Classes="IconBtn"
                         Command="{Binding ExitNestedArrayCommand}"
                         Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
-                  <Path Classes="Feather" Data="{StaticResource feather-arrow-left}" Width="11" Height="11"
+                  <Path Classes="Lucide" Data="{StaticResource lucide-arrow-left}" Width="11" Height="11"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
               </StackPanel>
@@ -453,7 +435,7 @@
                           IsEnabled="{Binding ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                           HorizontalAlignment="Stretch" Height="32">
                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
-                      <Path Classes="Feather" Data="{StaticResource feather-plus}" Width="12" Height="12"
+                      <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="12" Height="12"
                                 Stroke="{DynamicResource TextSecondaryBrush}" />
                       <TextBlock Text="Hinzufügen"
                                  FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
@@ -474,7 +456,7 @@
                                            FontFamily="{StaticResource FontJetBrainsMono}"
                                            FontSize="11" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}" />
-                                <Path Classes="Feather" Data="{StaticResource feather-alert-circle}" Width="10" Height="10"
+                                <Path Classes="Lucide" Data="{StaticResource lucide-circle-alert}" Width="10" Height="10"
                                           Stroke="{DynamicResource ErrorBrush}"
                                           IsVisible="{Binding HasErrors}" />
                               </StackPanel>
@@ -486,7 +468,7 @@
                                     Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
                                     CommandParameter="{Binding Index}"
                                     Tapped="CardDelete_Tapped" ToolTip.Tip="Delete">
-                              <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
+                              <Path Classes="Lucide" Data="{StaticResource lucide-trash-2}" Width="12" Height="12"
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </Button>
                           </Grid>
@@ -526,7 +508,7 @@
                                   <TextBlock Text="{Binding NestedObjectSummary}"
                                              Foreground="{DynamicResource TextSecondaryBrush}"
                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                                  <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                                  <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                             Stroke="{DynamicResource TextTertiaryBrush}" />
                                 </StackPanel>
                               </Button>
@@ -537,11 +519,11 @@
                                        BorderBrush="{DynamicResource PanelBorderBrush}"
                                        BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
                                  <StackPanel Orientation="Horizontal" Spacing="6">
-                                   <Path Classes="Feather" Data="{StaticResource feather-bracket}" Width="10" Height="10"
+                                   <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
                                              Stroke="{DynamicResource AccentBrush}" />
                                    <TextBlock Text="{Binding ArrayItemCount}"
                                               FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
-                                   <Path Classes="Feather" Data="{StaticResource feather-arrow-right}" Width="10" Height="10"
+                                   <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                              Stroke="{DynamicResource TextTertiaryBrush}" />
                                  </StackPanel>
                                </Button>
@@ -715,7 +697,7 @@
               <TextBlock Text="DIFF — original vs. current" Classes="HeaderLabel" />
               <Button DockPanel.Dock="Right" Classes="IconBtn"
                       Command="{Binding CloseDiffCommand}" Width="22" Height="22" Padding="2">
-                <Path Classes="Feather" Data="{StaticResource feather-x}" Width="12" Height="12"
+                <Path Classes="Lucide" Data="{StaticResource lucide-x}" Width="12" Height="12"
                           Stroke="{DynamicResource TextSecondaryBrush}" />
               </Button>
             </DockPanel>

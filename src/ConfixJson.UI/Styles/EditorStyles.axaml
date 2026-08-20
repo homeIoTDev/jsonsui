@@ -114,8 +114,8 @@
     <Setter Property="FontSize" Value="11" />
   </Style>
 
-  <!-- Feather Outline Icons -->
-  <Style Selector="Path.Feather">
+  <!-- Lucide Outline Icons -->
+  <Style Selector="Path.Lucide">
     <Setter Property="Stretch" Value="Uniform" />
     <Setter Property="HorizontalAlignment" Value="Center" />
     <Setter Property="VerticalAlignment" Value="Center" />

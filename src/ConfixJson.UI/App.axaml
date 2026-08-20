@@ -4,6 +4,10 @@
              RequestedThemeVariant="Dark">
   <Application.Resources>
     <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://confix/Styles/LucideIcons.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+
       <ResourceDictionary.ThemeDictionaries>
         <!-- ===== DARK ===== -->
         <ResourceDictionary x:Key="Dark">
@@ -68,12 +72,6 @@
       <!-- Fonts -->
       <FontFamily x:Key="FontJetBrainsMono">avares://confix/Assets/Fonts/JetBrainsMono/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
       <FontFamily x:Key="FontInter">avares://confix/Assets/Fonts/Inter/Inter-Regular.otf#Inter</FontFamily>
-
-      <!-- Tree icons (needed by TreeDataTemplate at Application level) -->
-      <StreamGeometry x:Key="feather-chevron-right">M9 18l6-6-6-6</StreamGeometry>
-      <StreamGeometry x:Key="feather-chevron-down">M6 9l6 6 6-6</StreamGeometry>
-      <StreamGeometry x:Key="feather-bracket">M3,3 L3,11 M3,3 L5,3 M3,11 L5,11 M11,3 L11,11 M9,3 L11,3 M9,11 L11,11</StreamGeometry>
-      <StreamGeometry x:Key="feather-alert-circle">M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 8v4M12 16h.01</StreamGeometry>
     </ResourceDictionary>
   </Application.Resources>
   <Application.Styles>

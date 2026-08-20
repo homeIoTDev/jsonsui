@@ -78,8 +78,8 @@ public class TreeDataTemplate : IDataTemplate
         if (node.IsExpandable)
         {
             chevron.Data = isExpanded
-                ? Res<StreamGeometry>("feather-chevron-down")
-                : Res<StreamGeometry>("feather-chevron-right");
+                ? Res<StreamGeometry>("lucide-chevron-down")
+                : Res<StreamGeometry>("lucide-chevron-right");
             chevron.Stroke = Res<IBrush>("TextTertiaryBrush");
         }
         row.Children.Add(chevron);
@@ -92,7 +92,7 @@ public class TreeDataTemplate : IDataTemplate
                 Stretch = Stretch.Uniform,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Data = Res<StreamGeometry>("feather-bracket"),
+                Data = Res<StreamGeometry>("array-bracket"),
                 Stroke = Res<IBrush>("AccentBrush"),
                 StrokeThickness = 2,
                 StrokeLineCap = PenLineCap.Round,
@@ -148,7 +148,7 @@ public class TreeDataTemplate : IDataTemplate
             Stretch = Stretch.Uniform,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Data = Res<StreamGeometry>("feather-alert-circle"),
+            Data = Res<StreamGeometry>("lucide-circle-alert"),
             Stroke = Res<IBrush>("ErrorBrush"),
             StrokeThickness = 2,
             StrokeLineCap = PenLineCap.Round,
