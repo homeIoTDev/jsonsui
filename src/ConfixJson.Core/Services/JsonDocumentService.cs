@@ -87,12 +87,23 @@ public static class JsonDocumentService
         return AddPropertyResult.Ok(cloned);
     }
 
-    public static JsonNode RemoveProperty(JsonNode root, string[] objectPath, string name)
+    public static RemovePropertyResult RemoveProperty(JsonNode root, string[] objectPath, string name)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            return RemovePropertyResult.Fail(RemovePropertyFailure.InvalidPropertyName, root);
+
+        var parent = GetByPath(root, objectPath);
+        if (parent == null)
+            return RemovePropertyResult.Fail(RemovePropertyFailure.ParentNotFound, root);
+        if (parent is not JsonObject obj)
+            return RemovePropertyResult.Fail(RemovePropertyFailure.ParentNotObject, root);
+        if (!obj.ContainsKey(name))
+            return RemovePropertyResult.Fail(RemovePropertyFailure.PropertyNotFound, root);
+
         var cloned = Clone(root);
-        if (GetByPath(cloned, objectPath) is JsonObject obj)
-            obj.Remove(name);
-        return cloned;
+        var clonedParent = GetByPath(cloned, objectPath) as JsonObject;
+        clonedParent!.Remove(name);
+        return RemovePropertyResult.Ok(cloned);
     }
 
     public static JsonNode Clone(JsonNode node) => node.DeepClone();

@@ -248,9 +248,9 @@
               <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="models:FieldRow">
-                    <Border Margin="0,0,0,8" Padding="0"
+                    <Border Margin="0,0,0,8" Padding="0" Classes="FieldRowDeleteHost"
                             Tapped="FieldRow_Tapped" Tag="{Binding Path}">
-                      <Grid ColumnDefinitions="130,10,*">
+                      <Grid ColumnDefinitions="130,10,*,Auto">
                         <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                         <Grid Grid.Column="1" />
@@ -341,9 +341,18 @@
                                       IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                       FontStyle="Italic" VerticalAlignment="Center" />
-                         </Grid>
-                       </Grid>
-                     </Border>
+                          </Grid>
+                          <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
+                                  VerticalAlignment="Center"
+                                  IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DeletePropertyCommand}"
+                                  CommandParameter="{Binding}"
+                                  Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Delete">
+                            <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
+                                      Stroke="{DynamicResource TextTertiaryBrush}" />
+                          </Button>
+                        </Grid>
+                      </Border>
                    </DataTemplate>
                  </ItemsControl.ItemTemplate>
                </ItemsControl>
@@ -501,8 +510,9 @@
                   <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="models:FieldRow">
-                        <Border Margin="0,0,0,8" Tapped="FieldRow_Tapped" Tag="{Binding Path}">
-                          <Grid ColumnDefinitions="130,10,*">
+                        <Border Margin="0,0,0,8" Classes="FieldRowDeleteHost"
+                                Tapped="FieldRow_Tapped" Tag="{Binding Path}">
+                          <Grid ColumnDefinitions="130,10,*,Auto">
                             <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
                                        VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                             <Grid Grid.Column="1" />
@@ -593,9 +603,18 @@
                                           IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                           FontStyle="Italic" VerticalAlignment="Center" />
-                            </Grid>
-                          </Grid>
-                        </Border>
+                             </Grid>
+                             <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
+                                     VerticalAlignment="Center"
+                                     IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                     Command="{Binding ElementName=RootWindow, Path=DataContext.DeletePropertyCommand}"
+                                     CommandParameter="{Binding}"
+                                     Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Delete">
+                               <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
+                                         Stroke="{DynamicResource TextTertiaryBrush}" />
+                             </Button>
+                           </Grid>
+                         </Border>
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>

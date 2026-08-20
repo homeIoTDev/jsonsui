@@ -204,6 +204,27 @@ public static class EditorLogic
         return result;
     }
 
+    public static RemovePropertyResult RemoveProperty(EditorState state, string[] objectPath, string name,
+        UndoRedoService undoRedo)
+    {
+        var oldValue = JsonDocumentService.GetByPath(state.Json, objectPath.Concat([name]).ToArray());
+
+        var result = JsonDocumentService.RemoveProperty(state.Json, objectPath, name);
+        if (!result.IsSuccess)
+            return result;
+
+        state.Json = result.Root;
+        undoRedo.PushUndo(new UndoCommand
+        {
+            Path = objectPath,
+            PropertyName = name,
+            OldValue = oldValue?.DeepClone(),
+            Action = "remove_property"
+        });
+        Validate(state);
+        return result;
+    }
+
     public static void AddArrayItem(EditorState state, string[] arrayPath, UndoRedoService undoRedo)
     {
         var arr = JsonDocumentService.GetByPath(state.Json, arrayPath) as JsonArray;

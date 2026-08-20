@@ -497,6 +497,47 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
+    private void DeleteProperty(FieldRow? row)
+    {
+        if (row == null || row.IsReadOnly || row.Path.Length == 0) return;
+
+        var objectPath = row.Path[..^1];
+        var key = row.Path[^1];
+
+        string? focusKey = null;
+        if (JsonDocumentService.GetByPath(_state.Json, objectPath) is JsonObject obj)
+        {
+            var keys = obj.Select(kv => kv.Key).ToList();
+            int idx = keys.IndexOf(key);
+            if (idx >= 0)
+            {
+                if (idx + 1 < keys.Count)
+                    focusKey = keys[idx + 1];
+                else if (idx > 0)
+                    focusKey = keys[idx - 1];
+            }
+        }
+
+        var result = EditorLogic.RemoveProperty(_state, objectPath, key, _undoRedo);
+        if (!result.IsSuccess)
+            return;
+
+        if (focusKey != null)
+        {
+            var focusPath = objectPath.Concat([focusKey]).ToArray();
+            _state.FocusFieldPath = focusPath;
+            RefreshUI();
+            RestoreFocus(focusPath);
+            RestoreFocus(focusPath, Avalonia.Threading.DispatcherPriority.Background);
+        }
+        else
+        {
+            _state.FocusFieldPath = null;
+            RefreshUI();
+        }
+    }
+
     private void RefreshErrorState()
     {
         ErrorCount = _state.Errors.Length;

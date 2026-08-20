@@ -554,4 +554,15 @@
     <Setter Property="Theme" Value="{StaticResource EditorButtonSpinnerTheme}" />
   </Style>
 
+  <!-- FieldRow Delete Button: nur bei Hover über der FieldRow sichtbar -->
+  <Style Selector="Button.FieldRowDeleteBtn">
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="IsHitTestVisible" Value="False" />
+  </Style>
+
+  <Style Selector="Border.FieldRowDeleteHost:pointerover Button.FieldRowDeleteBtn">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="IsHitTestVisible" Value="True" />
+  </Style>
+
 </Styles>

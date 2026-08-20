@@ -41,6 +41,13 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
+    private void FieldRowDelete_Tapped(object? sender, TappedEventArgs e)
+    {
+        // Stop propagation so the FieldRow_Tapped focus handler doesn't target the
+        // soon-to-be-deleted property
+        e.Handled = true;
+    }
+
     private void DiffOverlay_Tapped(object? sender, TappedEventArgs e)
     {
         if (DataContext is MainWindowViewModel vm)

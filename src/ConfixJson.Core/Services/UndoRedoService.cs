@@ -58,7 +58,7 @@ public class UndoRedoService
             "set" => JsonDocumentService.SetByPath(document, cmd.Path, cmd.OldValue!),
             "remove_array_item" => JsonDocumentService.AddArrayItem(document, cmd.Path, cmd.OldValue!),
             "add_array_item" => JsonDocumentService.RemoveArrayItem(document, cmd.Path, cmd.ArrayIndex),
-            "add_property" => JsonDocumentService.RemoveProperty(document, cmd.Path, cmd.PropertyName),
+            "add_property" => JsonDocumentService.RemoveProperty(document, cmd.Path, cmd.PropertyName).Root,
             "remove_property" => JsonDocumentService.AddProperty(document, cmd.Path, cmd.PropertyName, cmd.OldValue!).Root,
             _ => document
         };
@@ -75,7 +75,7 @@ public class UndoRedoService
             "remove_array_item" => JsonDocumentService.RemoveArrayItem(document, cmd.Path, cmd.ArrayIndex),
             "add_array_item" => JsonDocumentService.AddArrayItem(document, cmd.Path, cmd.NewValue!),
             "add_property" => JsonDocumentService.AddProperty(document, cmd.Path, cmd.PropertyName, cmd.NewValue!).Root,
-            "remove_property" => JsonDocumentService.RemoveProperty(document, cmd.Path, cmd.PropertyName),
+            "remove_property" => JsonDocumentService.RemoveProperty(document, cmd.Path, cmd.PropertyName).Root,
             _ => document
         };
     }
