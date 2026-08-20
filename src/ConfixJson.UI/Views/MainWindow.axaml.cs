@@ -1,10 +1,12 @@
 using System.Globalization;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.VisualTree;
 using ConfixJson.Core.Models;
 using ConfixJson.UI.ViewModels;
 
@@ -46,6 +48,67 @@ public partial class MainWindow : Window
         // Stop propagation so the FieldRow_Tapped focus handler doesn't target the
         // soon-to-be-deleted property
         e.Handled = true;
+    }
+
+    private void FieldRowAction_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+        if (btn.DataContext is not FieldRow row) return;
+        OpenPropertyActionsMenu(vm, btn, row);
+    }
+
+    private void FieldRow_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Apps && !(e.Key == Key.F10 && e.KeyModifiers.HasFlag(KeyModifiers.Shift))) return;
+        if (sender is not Border border) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+        if (border.DataContext is not FieldRow row) return;
+        e.Handled = true;
+
+        // anchor at the ⋮ action button of the focused row, independent of the mouse position
+        var actionButton = border.GetVisualDescendants()
+            .OfType<Button>()
+            .FirstOrDefault(b => b.Classes.Contains("FieldRowDeleteBtn"));
+        var target = actionButton ?? (Control)border;
+
+        // open after the key event fully completes so the popup keeps focus
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => OpenPropertyActionsMenu(vm, target, row),
+            Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    private void OpenPropertyActionsMenu(MainWindowViewModel vm, Control target, FieldRow row)
+    {
+        var menu = new ContextMenu
+        {
+            Placement = PlacementMode.BottomEdgeAlignedRight
+        };
+
+        // ContextMenu.PopupKeyUp schließt das Menü, wenn der OpenContextMenu-Hotkey
+        // (Shift+F10 / Context-Menü-Taste) losgelassen wird, während das Menü fokussiert
+        // ist. Da wir das Menü per Tastatur öffnen, den KeyUp dieses Gestures als handled
+        // markieren, damit PopupKeyUp das Menü nicht sofort wieder schließt.
+        menu.KeyUp += (_, ke) =>
+        {
+            if (Avalonia.Application.Current?.PlatformSettings?.HotkeyConfiguration is { } cfg &&
+                cfg.OpenContextMenu.Any(g => g.Matches(ke)))
+            {
+                ke.Handled = true;
+            }
+        };
+
+        var deleteItem = new MenuItem
+        {
+            Header = "Delete",
+            IsEnabled = !row.IsReadOnly
+        };
+        deleteItem.Command = vm.DeletePropertyCommand;
+        deleteItem.CommandParameter = row;
+        menu.Items.Add(deleteItem);
+
+        // future actions: Rename, Move Up, Move Down
+
+        menu.Open(target);
     }
 
     private void DiffOverlay_Tapped(object? sender, TappedEventArgs e)

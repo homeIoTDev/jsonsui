@@ -560,7 +560,8 @@
     <Setter Property="IsHitTestVisible" Value="False" />
   </Style>
 
-  <Style Selector="Border.FieldRowDeleteHost:pointerover Button.FieldRowDeleteBtn">
+  <Style Selector="Border.FieldRowDeleteHost:pointerover Button.FieldRowDeleteBtn,
+                   Border.FieldRowDeleteHost:focus-within Button.FieldRowDeleteBtn">
     <Setter Property="Opacity" Value="1" />
     <Setter Property="IsHitTestVisible" Value="True" />
   </Style>

@@ -248,8 +248,8 @@
               <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="models:FieldRow">
-                    <Border Margin="0,0,0,8" Padding="0" Classes="FieldRowDeleteHost"
-                            Tapped="FieldRow_Tapped" Tag="{Binding Path}">
+                    <Border Margin="0,0,0,8" Padding="0" Background="Transparent" Classes="FieldRowDeleteHost"
+                            Tapped="FieldRow_Tapped" KeyDown="FieldRow_KeyDown" Tag="{Binding Path}">
                       <Grid ColumnDefinitions="130,10,*,Auto">
                         <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
@@ -345,11 +345,10 @@
                           <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
                                   VerticalAlignment="Center"
                                   IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DeletePropertyCommand}"
-                                  CommandParameter="{Binding}"
-                                  Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Delete">
-                            <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
-                                      Stroke="{DynamicResource TextTertiaryBrush}" />
+                                  Click="FieldRowAction_Click"
+                                  Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Property actions">
+                            <TextBlock Text="⋮" FontSize="15" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
                           </Button>
                         </Grid>
                       </Border>
@@ -510,8 +509,8 @@
                   <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="models:FieldRow">
-                        <Border Margin="0,0,0,8" Classes="FieldRowDeleteHost"
-                                Tapped="FieldRow_Tapped" Tag="{Binding Path}">
+                        <Border Margin="0,0,0,8" Background="Transparent" Classes="FieldRowDeleteHost"
+                                Tapped="FieldRow_Tapped" KeyDown="FieldRow_KeyDown" Tag="{Binding Path}">
                           <Grid ColumnDefinitions="130,10,*,Auto">
                             <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
                                        VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
@@ -607,11 +606,10 @@
                              <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
                                      VerticalAlignment="Center"
                                      IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                     Command="{Binding ElementName=RootWindow, Path=DataContext.DeletePropertyCommand}"
-                                     CommandParameter="{Binding}"
-                                     Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Delete">
-                               <Path Classes="Feather" Data="{StaticResource feather-trash-2}" Width="12" Height="12"
-                                         Stroke="{DynamicResource TextTertiaryBrush}" />
+                                     Click="FieldRowAction_Click"
+                                     Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Property actions">
+                               <TextBlock Text="⋮" FontSize="15" FontWeight="Bold"
+                                          Foreground="{DynamicResource TextSecondaryBrush}" />
                              </Button>
                            </Grid>
                          </Border>
