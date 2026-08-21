@@ -15,6 +15,13 @@ public class FieldRow : System.ComponentModel.INotifyPropertyChanged
     public bool IsDeprecated { get; set; }
     public bool IsReadOnly { get; set; }
     public bool HasErrors { get; set; }
+
+    // --- Inline Rename state (UI) ---
+    public bool IsEditingName { get; set; }
+    public string? EditName { get; set; }
+    public string? RenameError { get; set; }
+    public bool HasRenameError => !string.IsNullOrEmpty(RenameError);
+
     public string? DefaultValue { get; set; }
     public string? Comment { get; set; }
     public double? Minimum { get; set; }

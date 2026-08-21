@@ -225,6 +225,25 @@ public static class EditorLogic
         return result;
     }
 
+    public static RenamePropertyResult RenameProperty(EditorState state, string[] objectPath, string oldName, string newName,
+        UndoRedoService undoRedo)
+    {
+        var result = JsonDocumentService.RenameProperty(state.Json, objectPath, oldName, newName);
+        if (!result.IsSuccess)
+            return result;
+
+        state.Json = result.Root;
+        undoRedo.PushUndo(new UndoCommand
+        {
+            Path = objectPath,
+            OldPropertyName = oldName,
+            PropertyName = newName,
+            Action = "rename_property"
+        });
+        Validate(state);
+        return result;
+    }
+
     public static void AddArrayItem(EditorState state, string[] arrayPath, UndoRedoService undoRedo)
     {
         var arr = JsonDocumentService.GetByPath(state.Json, arrayPath) as JsonArray;

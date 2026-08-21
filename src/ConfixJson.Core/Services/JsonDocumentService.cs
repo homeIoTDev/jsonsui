@@ -106,6 +106,29 @@ public static class JsonDocumentService
         return RemovePropertyResult.Ok(cloned);
     }
 
+    public static RenamePropertyResult RenameProperty(JsonNode root, string[] objectPath, string oldName, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(oldName) || string.IsNullOrWhiteSpace(newName))
+            return RenamePropertyResult.Fail(RenamePropertyFailure.InvalidPropertyName, root);
+
+        var parent = GetByPath(root, objectPath);
+        if (parent == null)
+            return RenamePropertyResult.Fail(RenamePropertyFailure.ParentNotFound, root);
+        if (parent is not JsonObject obj)
+            return RenamePropertyResult.Fail(RenamePropertyFailure.ParentNotObject, root);
+        if (!obj.ContainsKey(oldName))
+            return RenamePropertyResult.Fail(RenamePropertyFailure.PropertyNotFound, root);
+        if (obj.ContainsKey(newName))
+            return RenamePropertyResult.Fail(RenamePropertyFailure.PropertyAlreadyExists, root);
+
+        var cloned = Clone(root);
+        var clonedParent = GetByPath(cloned, objectPath) as JsonObject;
+        var value = clonedParent![oldName];
+        clonedParent.Remove(oldName);
+        clonedParent[newName] = value;
+        return RenamePropertyResult.Ok(cloned);
+    }
+
     public static JsonNode Clone(JsonNode node) => node.DeepClone();
 
     public static string ToFormattedJson(JsonNode node)

@@ -97,6 +97,18 @@ public partial class MainWindow : Window
             }
         };
 
+        var renameItem = new MenuItem
+        {
+            Header = "Rename",
+            IsEnabled = !row.IsReadOnly
+        };
+        renameItem.Click += (_, _) =>
+        {
+            vm.BeginRename(row);
+            FocusFieldNameEditor(row);
+        };
+        menu.Items.Add(renameItem);
+
         var deleteItem = new MenuItem
         {
             Header = "Delete",
@@ -106,9 +118,80 @@ public partial class MainWindow : Window
         deleteItem.CommandParameter = row;
         menu.Items.Add(deleteItem);
 
-        // future actions: Rename, Move Up, Move Down
-
         menu.Open(target);
+    }
+
+    // --- Inline Rename ---
+
+    private void FieldName_DoubleTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is not TextBlock tb) return;
+        if (tb.DataContext is not FieldRow row) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+        if (row.IsReadOnly) return;
+
+        e.Handled = true;
+        vm.BeginRename(row);
+        FocusFieldNameEditor(row);
+    }
+
+    private void FocusFieldNameEditor(FieldRow row)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            var editor = FindFieldNameEditor(this, row.Path);
+            if (editor == null) return;
+            editor.Focus();
+            editor.SelectAll();
+        }, Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    private static TextBox? FindFieldNameEditor(Avalonia.Visual node, string[] path)
+    {
+        if (node is TextBox tb &&
+            tb.Classes.Contains("FieldNameEditor") &&
+            tb.DataContext is FieldRow row &&
+            row.Path.SequenceEqual(path))
+            return tb;
+
+        foreach (var child in node.GetVisualChildren())
+        {
+            var result = FindFieldNameEditor(child, path);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
+    private void FieldNameEditor_GotFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb)
+            tb.SelectAll();
+    }
+
+    private void FieldNameEditor_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter && e.Key != Key.Escape) return;
+        if (sender is not TextBox tb) return;
+        if (tb.DataContext is not FieldRow row) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+        e.Handled = true;
+
+        if (e.Key == Key.Enter)
+            vm.CommitRename(row);
+        else
+            vm.CancelRename(row);
+    }
+
+    private void FieldNameEditor_LostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBox tb || tb.Parent == null) return;
+        if (tb.DataContext is not FieldRow row) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+        if (vm.IsRefreshing) return;
+        if (tb.IsKeyboardFocusWithin) return;
+
+        // LostFocus commits nothing; it only exits the rename edit mode without a change.
+        vm.CancelRename(row);
     }
 
     private void DiffOverlay_Tapped(object? sender, TappedEventArgs e)

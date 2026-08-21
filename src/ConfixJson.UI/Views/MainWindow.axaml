@@ -233,8 +233,22 @@
                     <Border Margin="0,0,0,8" Padding="0" Background="Transparent" Classes="FieldRowDeleteHost"
                             Tapped="FieldRow_Tapped" KeyDown="FieldRow_KeyDown" Tag="{Binding Path}">
                       <Grid ColumnDefinitions="130,10,*,Auto">
-                        <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
-                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                          <Grid>
+                            <TextBlock Text="{Binding Key}" Classes="FieldLabel"
+                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                       DoubleTapped="FieldName_DoubleTapped"
+                                       IsVisible="{Binding IsEditingName, Converter={x:Static conv:EditorConverters.InverseBool}}" />
+                            <TextBox Text="{Binding EditName}" Classes="FieldNameEditor"
+                                     VerticalContentAlignment="Center"
+                                     IsVisible="{Binding IsEditingName}"
+                                     GotFocus="FieldNameEditor_GotFocus"
+                                     KeyDown="FieldNameEditor_KeyDown"
+                                     LostFocus="FieldNameEditor_LostFocus" />
+                          </Grid>
+                          <TextBlock Text="{Binding RenameError}" Classes="RenameErrorText"
+                                     IsVisible="{Binding HasRenameError}" />
+                        </StackPanel>
                         <Grid Grid.Column="1" />
                         <Grid Grid.Column="2" VerticalAlignment="Center">
                           <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
@@ -437,7 +451,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                       <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="12" Height="12"
                                 Stroke="{DynamicResource TextSecondaryBrush}" />
-                      <TextBlock Text="Hinzufügen"
+                      <TextBlock Text="Hinzufügen" VerticalAlignment="Center"
                                  FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
                     </StackPanel>
                   </Button>
@@ -494,8 +508,22 @@
                         <Border Margin="0,0,0,8" Background="Transparent" Classes="FieldRowDeleteHost"
                                 Tapped="FieldRow_Tapped" KeyDown="FieldRow_KeyDown" Tag="{Binding Path}">
                           <Grid ColumnDefinitions="130,10,*,Auto">
-                            <TextBlock Grid.Column="0" Text="{Binding Key}" Classes="FieldLabel"
-                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                              <Grid>
+                                <TextBlock Text="{Binding Key}" Classes="FieldLabel"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           DoubleTapped="FieldName_DoubleTapped"
+                                           IsVisible="{Binding IsEditingName, Converter={x:Static conv:EditorConverters.InverseBool}}" />
+                                <TextBox Text="{Binding EditName}" Classes="FieldNameEditor"
+                                         VerticalContentAlignment="Center" 
+                                         IsVisible="{Binding IsEditingName}"
+                                         GotFocus="FieldNameEditor_GotFocus"
+                                         KeyDown="FieldNameEditor_KeyDown"
+                                         LostFocus="FieldNameEditor_LostFocus" />
+                              </Grid>
+                              <TextBlock Text="{Binding RenameError}" Classes="RenameErrorText"
+                                         IsVisible="{Binding HasRenameError}" />
+                            </StackPanel>
                             <Grid Grid.Column="1" />
                             <Grid Grid.Column="2" VerticalAlignment="Center">
                               <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"

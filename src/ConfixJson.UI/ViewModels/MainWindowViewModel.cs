@@ -551,6 +551,72 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(ArrayHelpVisible));
     }
 
+    // --- Rename Property (inline, UI state only; mutation via EditorLogic.RenameProperty) ---
+
+    public void BeginRename(FieldRow row)
+    {
+        if (row == null || row.IsReadOnly || row.Path.Length == 0) return;
+
+        row.EditName = row.Key;
+        row.RenameError = null;
+        row.IsEditingName = true;
+        row.NotifyPropertyChanged(nameof(FieldRow.EditName));
+        row.NotifyPropertyChanged(nameof(FieldRow.RenameError));
+        row.NotifyPropertyChanged(nameof(FieldRow.HasRenameError));
+        row.NotifyPropertyChanged(nameof(FieldRow.IsEditingName));
+    }
+
+    public void CommitRename(FieldRow row)
+    {
+        if (row == null || !row.IsEditingName || row.IsReadOnly || row.Path.Length == 0) return;
+
+        var newName = row.EditName?.Trim() ?? "";
+        var objectPath = row.Path[..^1];
+        var oldName = row.Path[^1];
+
+        var result = EditorLogic.RenameProperty(_state, objectPath, oldName, newName, _undoRedo);
+        if (!result.IsSuccess)
+        {
+            row.RenameError = result.Failure switch
+            {
+                RenamePropertyFailure.InvalidPropertyName => string.IsNullOrEmpty(newName)
+                    ? "Name darf nicht leer sein."
+                    : "Ungültiger Property-Name.",
+                RenamePropertyFailure.PropertyAlreadyExists => $"\"{newName}\" existiert bereits.",
+                RenamePropertyFailure.PropertyNotFound => "Property nicht gefunden.",
+                _ => "Umbenennen fehlgeschlagen."
+            };
+            row.NotifyPropertyChanged(nameof(FieldRow.RenameError));
+            row.NotifyPropertyChanged(nameof(FieldRow.HasRenameError));
+            return;
+        }
+
+        row.IsEditingName = false;
+        row.RenameError = null;
+        row.NotifyPropertyChanged(nameof(FieldRow.IsEditingName));
+        row.NotifyPropertyChanged(nameof(FieldRow.RenameError));
+        row.NotifyPropertyChanged(nameof(FieldRow.HasRenameError));
+
+        var newPath = objectPath.Concat([newName]).ToArray();
+        _state.FocusFieldPath = newPath;
+        RefreshUI();
+        RestoreFocus(newPath);
+        RestoreFocus(newPath, Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    public void CancelRename(FieldRow row)
+    {
+        if (row == null || !row.IsEditingName) return;
+
+        row.IsEditingName = false;
+        row.EditName = null;
+        row.RenameError = null;
+        row.NotifyPropertyChanged(nameof(FieldRow.IsEditingName));
+        row.NotifyPropertyChanged(nameof(FieldRow.EditName));
+        row.NotifyPropertyChanged(nameof(FieldRow.RenameError));
+        row.NotifyPropertyChanged(nameof(FieldRow.HasRenameError));
+    }
+
     [RelayCommand]
     private void AddCard()
     {

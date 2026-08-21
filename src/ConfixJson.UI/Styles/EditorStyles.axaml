@@ -199,6 +199,30 @@
     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
 
+  <!-- Inline property-name editor for rename -->
+  <Style Selector="TextBox.FieldNameEditor">
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Padding" Value="3,2" />
+    <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="TextBox.FieldNameEditor:focus">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.RenameErrorText">
+    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="Margin" Value="0,2,0,0" />
+  </Style>
+
   <!-- Temporal field: icons embedded at the front, text field spans full width -->
   <Style Selector="Border.EditorInputField">
     <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
