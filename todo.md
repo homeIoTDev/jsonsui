@@ -2,10 +2,9 @@ DeepSeek:
 03:00–06:00 Uhr morgens und
 08:00–12:00 Uhr mittags doppelte preisabreichung!
 
-
 [ ] wie werden neue oder unbekante elemente hinzugefügt oder gelöscht im json!
-[ ] undo/redo https://lucide.dev/icons/?search=redo nutzen. 
 [ ] Bug ein Spung von root auf plugin[] wechselt nicht die baumansicht
+[ ] Rücksprung-Button im Array ein Fehler??
 [ ] Errors werden noch nicht angezeigt, wenn ein Feld fehlt, dann sieht man nur 1 Fehler.
 [ ] Es ist nicht konsistent, dass der rote stern * requier anzeigt, aber die fehler nicht sichbar sind.
 wird deprecatet grund formuliert und angegeben im hilfetext
@@ -18,6 +17,12 @@ wird deprecatet grund formuliert und angegeben im hilfetext
 [ ] DIFF-View soll gegen speicher und gegen file parameter und grafisch aufbereit sein.
 [ ] Komische Navigations-Buttons im Breadcrumbs, zum zurück navigieren
 [ ] komischer roter stern * bei auth = required , deprecated und readOnly default const usw. solte cool dargestellt werden
+Feedback: untersützung von Kommentaren im JSON (nicht standard also sowas //)
+Prüf mal die Paraemter mit dem Routing.JSON ob das geht, Bug vermutlich keine editeren möglich
+Filter Sollte Breadcramp darstellen und nur im baumsuchen
+Es sollte eine Suche geben STRG-F über Values und Alles.
+Erzeugen von Standard-Werten bei leere JSON z.B beim Öffen einer Schema => Direkter Eintrag der REF auf Schema
+Rücksprung-Button im Array ein Fehler??
 
 
 

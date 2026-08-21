@@ -25,5 +25,21 @@ public class SchemaProperty
 
     public SchemaProperty? ArrayItemSchema { get; set; }
 
+    /// <summary>
+    /// Effektiver (Nicht-null-)Typ des Felds. Bei "type": ["object","null"] ist
+    /// dies "object"; "null" wird separat über <see cref="IsNullable"/> erfasst.
+    /// </summary>
     public string JsonType { get; set; } = "string";
+
+    /// <summary>
+    /// true, wenn der Typ als Array mit "null" angegeben wurde
+    /// (z. B. ["string","null"]). Der effektive Typ steht in <see cref="JsonType"/>.
+    /// </summary>
+    public bool IsNullable { get; set; }
+
+    /// <summary>
+    /// Alle Nicht-null-Typen aus einem "type"-Array, falls vorhanden.
+    /// null = "type" war ein einzelner String.
+    /// </summary>
+    public List<string>? JsonTypes { get; set; }
 }

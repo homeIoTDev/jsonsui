@@ -5,10 +5,22 @@ namespace ConfixJson.Core.Services;
 
 public class SchemaParser
 {
+    private const int MaxRecursionDepth = 32;
+
+    /// <summary>
+    /// Root-level "definitions" dieses Schemas. Werden für die Auflösung
+    /// lokaler "$ref": "#/definitions/&lt;Name&gt;"-Verweise genutzt.
+    /// </summary>
+    private Dictionary<string, JsonElement> _definitions = new();
+
+    private int _recursionDepth;
+
     public SchemaModel Parse(JsonDocument schema)
     {
         var root = schema.RootElement;
         var model = new SchemaModel();
+
+        LoadDefinitions(root);
 
         if (root.TryGetProperty("title", out var title))
             model.Title = title.GetString();
@@ -44,7 +56,77 @@ public class SchemaParser
         return model;
     }
 
-    private static void ParseAdditionalProperties(SchemaModel model, JsonElement element)
+    /// <summary>
+    /// Parst ein Object-Schema (die "properties"/"required"/"additionalProperties"
+    /// einer beliebigen Schema-Ebene) mit Zugriff auf die vorhandenen definitions.
+    /// </summary>
+    private SchemaModel ParseObjectSchema(JsonElement element)
+    {
+        if (_recursionDepth >= MaxRecursionDepth)
+            return new SchemaModel();
+
+        _recursionDepth++;
+        try
+        {
+            var model = new SchemaModel();
+
+            if (element.TryGetProperty("description", out var desc))
+                model.Description = desc.GetString();
+
+            if (element.TryGetProperty("required", out var requiredArray) && requiredArray.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in requiredArray.EnumerateArray())
+                {
+                    var name = item.GetString();
+                    if (name is not null)
+                        model.Required.Add(name);
+                }
+            }
+
+            if (element.TryGetProperty("properties", out var properties) && properties.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var prop in properties.EnumerateObject())
+                {
+                    var schemaProp = ParseProperty(prop.Name, prop.Value);
+                    schemaProp.IsRequired = model.Required.Contains(prop.Name);
+                    model.Properties.Add(schemaProp);
+                }
+            }
+
+            ParseAdditionalProperties(model, element);
+
+            return model;
+        }
+        finally
+        {
+            _recursionDepth--;
+        }
+    }
+
+    private void LoadDefinitions(JsonElement root)
+    {
+        _definitions = new Dictionary<string, JsonElement>();
+        if (!root.TryGetProperty("definitions", out var definitions) || definitions.ValueKind != JsonValueKind.Object)
+            return;
+
+        foreach (var def in definitions.EnumerateObject())
+            _definitions[def.Name] = def.Value.Clone();
+    }
+
+    private JsonElement? ResolveRef(string? reference)
+    {
+        if (string.IsNullOrEmpty(reference))
+            return null;
+
+        const string prefix = "#/definitions/";
+        if (!reference.StartsWith(prefix))
+            return null;
+
+        var name = reference.Substring(prefix.Length);
+        return _definitions.TryGetValue(name, out var def) ? def : null;
+    }
+
+    private void ParseAdditionalProperties(SchemaModel model, JsonElement element)
     {
         if (!element.TryGetProperty("additionalProperties", out var ap)) return;
 
@@ -62,14 +144,18 @@ public class SchemaParser
         }
     }
 
-    private static SchemaProperty ParseProperty(string name, JsonElement element)
+    private SchemaProperty ParseProperty(string name, JsonElement element)
     {
         var prop = new SchemaProperty { Name = name };
 
-        if (element.TryGetProperty("type", out var typeProp))
+        if (element.TryGetProperty("$ref", out var refProp) && refProp.ValueKind == JsonValueKind.String)
         {
-            prop.JsonType = typeProp.GetString() ?? "string";
+            var resolved = ResolveRef(refProp.GetString());
+            if (resolved != null)
+                element = resolved.Value;
         }
+
+        ParseType(prop, element);
 
         if (element.TryGetProperty("description", out var desc))
             prop.Description = desc.GetString();
@@ -133,12 +219,56 @@ public class SchemaParser
             (element.TryGetProperty("properties", out _) ||
              element.TryGetProperty("additionalProperties", out _)))
         {
-            using var doc = JsonDocument.Parse(element.GetRawText());
-            prop.ObjectSchema = new SchemaParser().Parse(doc);
+            prop.ObjectSchema = ParseObjectSchema(element);
         }
 
         prop.UiType = DetermineUiType(prop);
         return prop;
+    }
+
+    /// <summary>
+    /// Liest "type" als String oder als Array (nullable Union) und bestimmt den
+    /// effektiven Nicht-null-Typ. Wirft keine Exception bei ValueKind Array.
+    /// </summary>
+    private static void ParseType(SchemaProperty prop, JsonElement element)
+    {
+        if (!element.TryGetProperty("type", out var typeProp))
+            return;
+
+        switch (typeProp.ValueKind)
+        {
+            case JsonValueKind.String:
+                prop.JsonType = typeProp.GetString() ?? "string";
+                break;
+
+            case JsonValueKind.Array:
+            {
+                var types = new List<string>();
+                bool nullable = false;
+                foreach (var item in typeProp.EnumerateArray())
+                {
+                    if (item.ValueKind != JsonValueKind.String)
+                        continue;
+                    var typeName = item.GetString();
+                    if (typeName == "null")
+                    {
+                        nullable = true;
+                        continue;
+                    }
+                    if (typeName is not null)
+                        types.Add(typeName);
+                }
+
+                prop.IsNullable = nullable;
+                prop.JsonTypes = types.Count > 0 ? types : null;
+                prop.JsonType = types.Count > 0 ? types[0] : "string";
+                break;
+            }
+
+            default:
+                // Unerwarteter ValueKind (z. B. Objekt) – bestehenden Default beibehalten.
+                break;
+        }
     }
 
     private static UiElementType DetermineUiType(SchemaProperty prop)
