@@ -140,21 +140,54 @@ public static class EditorLogic
     {
         var value = JsonDocumentService.GetByPath(state.Json, path);
         state.FocusFieldPath = null;
+        var previousSelectedPath = state.SelectedPath.ToArray();
         if (value is JsonArray)
-            state.NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0, Previous = state.NestedCtx };
+            state.NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0, PreviousSelectedPath = previousSelectedPath, Previous = state.NestedCtx };
         else
-            state.NestedCtx = new NestedContext { ObjectPath = path, Previous = state.NestedCtx };
+            state.NestedCtx = new NestedContext { ObjectPath = path, PreviousSelectedPath = previousSelectedPath, Previous = state.NestedCtx };
+        SyncTreeSelection(state, path);
     }
 
     public static void DrillIntoArray(EditorState state, string[] path)
     {
-        state.NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0, Previous = state.NestedCtx };
+        var previousSelectedPath = state.SelectedPath.ToArray();
+        state.NestedCtx = new NestedContext { ArrayPath = path, CardIndex = 0, PreviousSelectedPath = previousSelectedPath, Previous = state.NestedCtx };
         state.FocusFieldPath = null;
+        SyncTreeSelection(state, path);
+    }
+
+    private static void SyncTreeSelection(EditorState state, string[] path)
+    {
+        var navigable = new List<string>();
+        JsonNode? current = state.Json;
+        foreach (var segment in path)
+        {
+            if (current is JsonArray)
+                break;
+            navigable.Add(segment);
+            current = current is JsonObject obj ? obj[segment] : null;
+            if (current == null)
+                break;
+        }
+
+        if (navigable.Count == 0)
+            return;
+
+        var np = navigable.ToArray();
+        if (np.SequenceEqual(state.SelectedPath))
+            return;
+
+        state.SelectedPath = np;
+        for (int i = 1; i < np.Length; i++)
+            state.Expanded.Add(string.Join("/", np[..i]));
     }
 
     public static void ExitNestedArray(EditorState state)
     {
+        var previousSelectedPath = state.NestedCtx?.PreviousSelectedPath;
         state.NestedCtx = state.NestedCtx?.Previous;
+        if (previousSelectedPath != null)
+            state.SelectedPath = previousSelectedPath;
         state.FocusFieldPath = null;
     }
 

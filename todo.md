@@ -3,7 +3,6 @@ Mo-Fr:
 03:00–06:00 Uhr und
 08:00–12:00 Uhr!
 
-[ ] wie werden neue oder unbekante elemente hinzugefügt oder gelöscht im json!
 [ ] Bug ein Spung von root auf plugin[] wechselt nicht die baumansicht
 [ ] Rücksprung-Button im Array ein Fehler??
 [ ] Errors werden noch nicht angezeigt, wenn ein Feld fehlt, dann sieht man nur 1 Fehler.
