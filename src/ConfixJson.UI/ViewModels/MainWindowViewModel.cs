@@ -77,6 +77,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     public partial bool HasErrors { get; set; }
 
+    public ObservableCollection<ErrorListItem> ErrorItems { get; set; } = [];
+
     [ObservableProperty]
     public partial bool CanUndo { get; set; }
 
@@ -295,6 +297,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         CanAddProperty = GetObjectContextPath(_state) != null;
         ErrorCount = _state.Errors.Length;
         HasErrors = ErrorCount > 0;
+        ErrorItems = new ObservableCollection<ErrorListItem>(EditorLogic.BuildErrorItems(_state));
         CanUndo = _undoRedo.CanUndo;
         CanRedo = _undoRedo.CanRedo;
         NestedCtx = _state.NestedCtx;
@@ -439,6 +442,19 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return null;
     }
 
+    public void NavigateToError(ErrorListItem item)
+    {
+        if (item == null) return;
+        var error = new ValidationError { Path = item.Path, Message = item.Message };
+        EditorLogic.NavigateToErrorContext(_state, error);
+        RefreshUI();
+        if (!item.IsMissing)
+        {
+            RestoreFocus(item.Path);
+            RestoreFocus(item.Path, Avalonia.Threading.DispatcherPriority.Background);
+        }
+    }
+
     // --- Add Property (Flyout support) ---
 
     private string[]? _addPropertyTargetPath;
@@ -548,6 +564,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         ErrorCount = _state.Errors.Length;
         HasErrors = ErrorCount > 0;
+        ErrorItems = new ObservableCollection<ErrorListItem>(EditorLogic.BuildErrorItems(_state));
         CanUndo = _undoRedo.CanUndo;
         CanRedo = _undoRedo.CanRedo;
         EditorHelpInfo = EditorLogic.GetHelpInfo(_state);

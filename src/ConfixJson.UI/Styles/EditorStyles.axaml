@@ -473,6 +473,18 @@
     <Setter Property="Padding" Value="6,2" />
   </Style>
 
+  <Style Selector="Button.StatusError">
+    <Setter Property="Background" Value="#40FF4422" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="Button.StatusError:pointerover">
+    <Setter Property="Background" Value="#70FF4422" />
+  </Style>
+
   <!-- Scrollbar -->
   <Style Selector="ScrollBar">
     <Setter Property="Width" Value="6" />

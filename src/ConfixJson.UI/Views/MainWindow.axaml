@@ -69,13 +69,16 @@
                          FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10" FontWeight="Bold" />
             </Button>
           </StackPanel>
-          <Border Classes="StatusError" IsVisible="{Binding HasErrors}"
-                  DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
-            <TextBlock Text="{Binding ErrorCount, StringFormat={}{0} errors}"
-                       Foreground="{DynamicResource ErrorBrush}"
-                       FontFamily="{StaticResource FontJetBrainsMono}"
-                       FontSize="9" FontWeight="Bold" />
-          </Border>
+          <Button Classes="StatusError" IsVisible="{Binding HasErrors}"
+                  DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center"
+                  Click="ErrorBadge_Click" ToolTip.Tip="Errors">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="{Binding ErrorCount, StringFormat={}{0} errors}"
+                         Foreground="{DynamicResource ErrorBrush}"
+                         FontFamily="{StaticResource FontJetBrainsMono}"
+                         FontSize="9" FontWeight="Bold" />
+            </StackPanel>
+          </Button>
           <Border Classes="StatusSuccess" IsVisible="{Binding ShowSaved}"
                   DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
             <TextBlock Text="saved" Foreground="{DynamicResource AccentBrush}"

@@ -158,6 +158,20 @@ public static class EditorLogic
 
     private static void SyncTreeSelection(EditorState state, string[] path)
     {
+        var np = GetNavigablePrefix(state, path);
+        if (np.Length == 0)
+            return;
+
+        if (np.SequenceEqual(state.SelectedPath))
+            return;
+
+        state.SelectedPath = np;
+        for (int i = 1; i < np.Length; i++)
+            state.Expanded.Add(string.Join("/", np[..i]));
+    }
+
+    private static string[] GetNavigablePrefix(EditorState state, string[] path)
+    {
         var navigable = new List<string>();
         JsonNode? current = state.Json;
         foreach (var segment in path)
@@ -169,17 +183,63 @@ public static class EditorLogic
             if (current == null)
                 break;
         }
+        return navigable.ToArray();
+    }
 
-        if (navigable.Count == 0)
+    public static void NavigateToErrorContext(EditorState state, ValidationError error)
+    {
+        if (error.Path.Length == 0)
             return;
 
-        var np = navigable.ToArray();
-        if (np.SequenceEqual(state.SelectedPath))
-            return;
+        var container = error.Path[..^1];
+        var navigable = GetNavigablePrefix(state, container);
 
-        state.SelectedPath = np;
-        for (int i = 1; i < np.Length; i++)
-            state.Expanded.Add(string.Join("/", np[..i]));
+        state.SelectedPath = navigable;
+        for (int i = 1; i < navigable.Length; i++)
+            state.Expanded.Add(string.Join("/", navigable[..i]));
+
+        int? elementIndex = null;
+        if (JsonDocumentService.GetByPath(state.Json, container) is JsonArray containerArr &&
+            int.TryParse(error.Path[^1], out var idx) && idx >= 0 && idx < containerArr.Count)
+            elementIndex = idx;
+
+        state.NestedCtx = BuildContainerContext(state, container, navigable, elementIndex);
+        state.CardIndex = elementIndex;
+        state.FocusFieldPath = (string[])error.Path.Clone();
+    }
+
+    private static NestedContext? BuildContainerContext(EditorState state, string[] container, string[] navigable, int? elementIndex)
+    {
+        NestedContext? ctx = null;
+        var path = new List<string>(navigable);
+        JsonNode? current = JsonDocumentService.GetByPath(state.Json, navigable);
+        for (int i = navigable.Length; i < container.Length; i++)
+        {
+            var segment = container[i];
+            if (current is JsonArray arr)
+            {
+                if (!int.TryParse(segment, out var index) || index < 0 || index >= arr.Count)
+                    break;
+                ctx = new NestedContext { ArrayPath = path.ToArray(), CardIndex = index, Previous = ctx };
+                path.Add(segment);
+                current = arr[index];
+            }
+            else if (current is JsonObject obj)
+            {
+                path.Add(segment);
+                ctx = new NestedContext { ObjectPath = path.ToArray(), Previous = ctx };
+                current = obj[segment];
+            }
+            else
+                break;
+        }
+
+        if (elementIndex != null &&
+            JsonDocumentService.GetByPath(state.Json, container) is JsonArray)
+        {
+            ctx = new NestedContext { ArrayPath = (string[])container.Clone(), CardIndex = elementIndex, Previous = ctx };
+        }
+        return ctx;
     }
 
     public static void ExitNestedArray(EditorState state)
@@ -811,6 +871,59 @@ public static class EditorLogic
             NodeType = "scalar",
             HasErrors = state.Errors.Any(e => e.PathString == string.Join(".", path))
         };
+    }
+
+    // --- Error List & Navigation ---
+
+    public static List<ErrorListItem> BuildErrorItems(EditorState state)
+    {
+        var items = new List<ErrorListItem>();
+        foreach (var error in state.Errors)
+        {
+            items.Add(new ErrorListItem
+            {
+                Path = (string[])error.Path.Clone(),
+                DisplayPath = FormatErrorPath(state.Json, error.Path),
+                Message = error.Message,
+                IsMissing = IsErrorTargetMissing(state, error)
+            });
+        }
+        return items;
+    }
+
+    public static bool IsErrorTargetMissing(EditorState state, ValidationError error)
+    {
+        if (error.Path.Length == 0) return false;
+        var container = JsonDocumentService.GetByPath(state.Json, error.Path[..^1]);
+        return container is JsonObject obj && !obj.ContainsKey(error.Path[^1]);
+    }
+
+    public static string FormatErrorPath(JsonNode root, string[] path)
+    {
+        var sb = new System.Text.StringBuilder();
+        JsonNode? current = root;
+        foreach (var segment in path)
+        {
+            if (current is JsonArray)
+            {
+                sb.Append('[').Append(segment).Append(']');
+            }
+            else
+            {
+                if (sb.Length > 0)
+                    sb.Append('.');
+                sb.Append(segment);
+            }
+            current = current switch
+            {
+                JsonObject obj => obj[segment],
+                JsonArray arr when int.TryParse(segment, out var idx) && idx >= 0 && idx < arr.Count => arr[idx],
+                _ => null
+            };
+            if (current == null)
+                break;
+        }
+        return sb.ToString();
     }
 
     // --- Schema Resolution ---
