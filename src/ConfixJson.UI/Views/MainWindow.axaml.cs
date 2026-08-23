@@ -1,5 +1,7 @@
+using System;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -14,6 +16,54 @@ namespace ConfixJson.UI.Views;
 
 public partial class MainWindow : Window
 {
+    // --- TEMPORARY DIAGNOSTIC INSTRUMENTATION (Phase: Avalonia PlatformImpl investigation) ---
+    private static int _diagSeq;
+    private static readonly System.Diagnostics.Stopwatch _diagSw = System.Diagnostics.Stopwatch.StartNew();
+
+    private static void Diag(string tag, string msg)
+    {
+        var line = $"[DIAG][{Interlocked.Increment(ref _diagSeq):000}][{_diagSw.ElapsedMilliseconds:00000}ms] {tag}: {msg}";
+        System.Diagnostics.Debug.WriteLine(line);
+        Console.WriteLine(line);
+    }
+
+    private static string DiagAttached(Visual? v) => v == null ? "<n/a>" : v.IsAttachedToVisualTree().ToString();
+
+    private static string DiagFocus()
+    {
+        var app = Avalonia.Application.Current;
+        if (app?.ApplicationLifetime is not Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+            return "<no-desktop>";
+        var w = desktop.MainWindow;
+        if (w == null) return "<no-window>";
+        var f = w.FocusManager?.GetFocusedElement();
+        if (f == null) return "<none>";
+        var name = (f as Control)?.Name ?? f.GetType().Name;
+        var dcStr = (f as StyledElement)?.DataContext switch
+        {
+            FieldRow r => $"FieldRow:{r.Key}@{string.Join("/", r.Path)}",
+            null => "null",
+            var o => o!.GetType().Name
+        };
+        var tl = TopLevel.GetTopLevel(f as Visual);
+        var tlName = tl == null ? "<none>" : tl.GetType().Name;
+        return $"{name} dc={dcStr} root={tlName} attached={DiagAttached(f as Visual)}";
+    }
+
+    private static void DiagMenuItemPointer(string label, MenuItem item)
+    {
+        item.AddHandler(InputElement.PointerPressedEvent, (_, e) =>
+            Diag($"Item[{label}]", $"PointerPressed src={e.Source?.GetType().Name} handled={e.Handled}"));
+        item.AddHandler(InputElement.PointerReleasedEvent, (_, e) =>
+            Diag($"Item[{label}]", $"PointerReleased src={e.Source?.GetType().Name} handled={e.Handled}"));
+    }
+
+    private static string DiagPopupId(MenuBase menu)
+    {
+        var tl = TopLevel.GetTopLevel(menu);
+        if (tl == null) return "<no-top-level>";
+        return $"{tl.GetType().Name}#{tl.GetHashCode()} attached={DiagAttached(tl)}";
+    }
     public MainWindow()
     {
         InitializeComponent();
@@ -84,6 +134,15 @@ public partial class MainWindow : Window
             Placement = PlacementMode.BottomEdgeAlignedRight
         };
 
+        // TEMP DIAG: ContextMenu lifecycle for the ⋮ (property actions) menu.
+        Diag("Menu⋮", $"Created row={row.Key} path={string.Join("/", row.Path)} target={target.GetType().Name}");
+        menu.Opening += (_, _) => Diag("Menu⋮", $"Opening focus={DiagFocus()}");
+        menu.Opened += (_, _) => Diag("Menu⋮", $"Opened popup={DiagPopupId(menu)} focus={DiagFocus()}");
+        menu.Closing += (_, _) => Diag("Menu⋮", $"Closing popup={DiagPopupId(menu)} focus={DiagFocus()}");
+        menu.Closed += (_, _) => Diag("Menu⋮", $"Closed popup={DiagPopupId(menu)} focus={DiagFocus()}");
+        menu.AttachedToVisualTree += (_, _) => Diag("Menu⋮", $"AttachedToVisualTree popup={DiagPopupId(menu)}");
+        menu.DetachedFromVisualTree += (_, _) => Diag("Menu⋮", $"DetachedFromVisualTree popup={DiagPopupId(menu)}");
+
         // ContextMenu.PopupKeyUp schließt das Menü, wenn der OpenContextMenu-Hotkey
         // (Shift+F10 / Context-Menü-Taste) losgelassen wird, während das Menü fokussiert
         // ist. Da wir das Menü per Tastatur öffnen, den KeyUp dieses Gestures als handled
@@ -102,10 +161,13 @@ public partial class MainWindow : Window
             Header = "Rename",
             IsEnabled = !row.IsReadOnly
         };
+        DiagMenuItemPointer("Rename", renameItem);
         renameItem.Click += (_, _) =>
         {
+            Diag("Item[Rename]", $"Click BEGIN focus={DiagFocus()}");
             vm.BeginRename(row);
             FocusFieldNameEditor(row);
+            Diag("Item[Rename]", $"Click END focus={DiagFocus()}");
         };
         menu.Items.Add(renameItem);
 
@@ -114,11 +176,37 @@ public partial class MainWindow : Window
             Header = "Delete",
             IsEnabled = !row.IsReadOnly
         };
+        DiagMenuItemPointer("Delete", deleteItem);
+        deleteItem.Click += (_, _) => Diag("Item[Delete]", $"Click (Command) BEGIN focus={DiagFocus()}");
         deleteItem.Command = vm.DeletePropertyCommand;
         deleteItem.CommandParameter = row;
         menu.Items.Add(deleteItem);
 
+        // Set to null – nur wenn das Schema null erlaubt und der aktuelle Wert nicht bereits null ist.
+        if (vm.FieldAllowsNull(row.Path) && !vm.FieldIsNull(row.Path))
+        {
+            var setNullItem = new MenuItem
+            {
+                Header = "Set to null",
+                IsEnabled = !row.IsReadOnly
+            };
+            DiagMenuItemPointer("SetNull", setNullItem);
+            // Deferred ausführen: das ContextMenu muss erst vollständig schließen, bevor
+            // RefreshUI() die FieldRow-Controls (inkl. Anker-Button) zerstört. Sonst routet
+            // Avalonia Input/Fokus auf ein bereits detached Control -> "PlatformImpl is null".
+            setNullItem.Click += (_, _) =>
+            {
+                var path = (string[])row.Path.Clone();
+                Diag("Item[SetNull]", $"Click BEGIN (posting deferred) focus={DiagFocus()}");
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => vm.SetFieldToType(path, "null"),
+                    Avalonia.Threading.DispatcherPriority.Background);
+                Diag("Item[SetNull]", $"Click END (deferred posted) focus={DiagFocus()}");
+            };
+            menu.Items.Add(setNullItem);
+        }
+
         menu.Open(target);
+        Diag("Menu⋮", $"Open called popup={DiagPopupId(menu)} focus={DiagFocus()}");
     }
 
     // --- Inline Rename ---
@@ -192,6 +280,70 @@ public partial class MainWindow : Window
 
         // LostFocus commits nothing; it only exits the rename edit mode without a change.
         vm.CancelRename(row);
+    }
+
+    // --- Nullable / Union type selection ---
+
+    private void NullableTypeButton_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn) return;
+        if (btn.DataContext is not FieldRow row) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+        if (row.IsReadOnly) return;
+
+        OpenNullableTypeMenu(vm, btn, row);
+    }
+
+    private void OpenNullableTypeMenu(MainWindowViewModel vm, Control target, FieldRow row)
+    {
+        var types = vm.GetFieldJsonTypes(row.Path);
+        if (types is not { Count: > 0 }) return;
+
+        var menu = new ContextMenu
+        {
+            Placement = PlacementMode.BottomEdgeAlignedRight
+        };
+
+        // TEMP DIAG: ContextMenu lifecycle for the nullable-type selection menu.
+        Diag("MenuType", $"Created row={row.Key} path={string.Join("/", row.Path)} types={string.Join(",", types)}");
+        menu.Opening += (_, _) => Diag("MenuType", $"Opening focus={DiagFocus()}");
+        menu.Opened += (_, _) => Diag("MenuType", $"Opened popup={DiagPopupId(menu)} focus={DiagFocus()}");
+        menu.Closing += (_, _) => Diag("MenuType", $"Closing popup={DiagPopupId(menu)} focus={DiagFocus()}");
+        menu.Closed += (_, _) => Diag("MenuType", $"Closed popup={DiagPopupId(menu)} focus={DiagFocus()}");
+        menu.AttachedToVisualTree += (_, _) => Diag("MenuType", $"AttachedToVisualTree popup={DiagPopupId(menu)}");
+        menu.DetachedFromVisualTree += (_, _) => Diag("MenuType", $"DetachedFromVisualTree popup={DiagPopupId(menu)}");
+
+        // Einziges Nicht-null-Typ-Angebot: direkt der Typ.
+        foreach (var type in types)
+        {
+            var label = type switch
+            {
+                "object" => "Create Object",
+                "array" => "Create Array",
+                "boolean" => "Create Boolean",
+                "integer" or "number" => $"Create {type[0].ToString().ToUpperInvariant() + type[1..]}",
+                "string" => "Create String",
+                _ => $"Create {type}"
+            };
+
+            var item = new MenuItem { Header = label };
+            var captured = type;
+            DiagMenuItemPointer(label, item);
+            // Deferred ausführen (wie bei "Set to null"): das ContextMenu muss erst schließen,
+            // bevor RefreshUI() die FieldRow-Controls zerstört -> kein "PlatformImpl is null".
+            item.Click += (_, _) =>
+            {
+                var path = (string[])row.Path.Clone();
+                Diag($"Item[{label}]", $"Click BEGIN (posting deferred) focus={DiagFocus()}");
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => vm.SetFieldToType(path, captured),
+                    Avalonia.Threading.DispatcherPriority.Background);
+                Diag($"Item[{label}]", $"Click END (deferred posted) focus={DiagFocus()}");
+            };
+            menu.Items.Add(item);
+        }
+
+        menu.Open(target);
+        Diag("MenuType", $"Open called popup={DiagPopupId(menu)} focus={DiagFocus()}");
     }
 
     private void DiffOverlay_Tapped(object? sender, TappedEventArgs e)

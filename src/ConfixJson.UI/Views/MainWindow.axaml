@@ -197,6 +197,13 @@
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Spacing="8">
                   <TextBlock Text="OBJECT" Classes="HeaderLabel" />
                   <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle" />
+                  <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
+                          Classes="IconBtn"
+                          Command="{Binding ExitNestedArrayCommand}"
+                          Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
+                    <Path Classes="Lucide" Data="{StaticResource lucide-arrow-left}" Width="11" Height="11"
+                          Stroke="{DynamicResource TextSecondaryBrush}" />
+                  </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4" DockPanel.Dock="Right">
                   <Button Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
@@ -333,10 +340,23 @@
                              <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
                                      IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
                            </Grid>
-                           <TextBlock Text="null"
-                                      IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
-                                      Foreground="{DynamicResource TextTertiaryBrush}"
-                                      FontStyle="Italic" VerticalAlignment="Center" />
+                            <TextBlock Text="null"
+                                       IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontStyle="Italic" VerticalAlignment="Center" />
+                            <Button Classes="NullableTypeBtn" Click="NullableTypeButton_Click"
+                                    IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=nullable}"
+                                    IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                    Padding="8,4"
+                                    ToolTip.Tip="Select type">
+                              <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="null" FontStyle="Italic"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                <Path Classes="Lucide" Data="{StaticResource lucide-chevron-down}" Width="10" Height="10"
+                                          Stroke="{DynamicResource TextTertiaryBrush}" />
+                              </StackPanel>
+                            </Button>
                           </Grid>
                           <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
                                   VerticalAlignment="Center"
@@ -393,6 +413,13 @@
             <DockPanel VerticalAlignment="Center">
                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="4">  
                   <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle" VerticalAlignment="Center" />
+                  <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
+                        Classes="IconBtn"
+                        Command="{Binding ExitNestedArrayCommand}"
+                        Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
+                  <Path Classes="Lucide" Data="{StaticResource lucide-arrow-left}" Width="11" Height="11"
+                            Stroke="{DynamicResource TextSecondaryBrush}" />
+                </Button>
               </StackPanel>
               <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
                 <Button Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
@@ -415,13 +442,6 @@
                         IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
                         Width="22" Height="22" Padding="2">
                   <Path Classes="Lucide" Data="{StaticResource lucide-redo}" Width="11" Height="11"
-                            Stroke="{DynamicResource TextSecondaryBrush}" />
-                </Button>
-                <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
-                        Classes="IconBtn"
-                        Command="{Binding ExitNestedArrayCommand}"
-                        Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
-                  <Path Classes="Lucide" Data="{StaticResource lucide-arrow-left}" Width="11" Height="11"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
               </StackPanel>
@@ -612,6 +632,19 @@
                                           IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                           FontStyle="Italic" VerticalAlignment="Center" />
+                               <Button Classes="NullableTypeBtn" Click="NullableTypeButton_Click"
+                                       IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=nullable}"
+                                       IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                       Padding="8,4"
+                                       ToolTip.Tip="Select type">
+                                 <StackPanel Orientation="Horizontal" Spacing="4">
+                                   <TextBlock Text="null" FontStyle="Italic"
+                                              Foreground="{DynamicResource TextSecondaryBrush}"
+                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                   <Path Classes="Lucide" Data="{StaticResource lucide-chevron-down}" Width="10" Height="10"
+                                             Stroke="{DynamicResource TextTertiaryBrush}" />
+                                 </StackPanel>
+                               </Button>
                              </Grid>
                              <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
                                      VerticalAlignment="Center"

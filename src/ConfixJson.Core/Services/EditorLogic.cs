@@ -251,7 +251,7 @@ public static class EditorLogic
         if (arr != null && arr.Count > 0)
             template = JsonDocumentService.CreateTemplate(arr[0]);
         else
-            template = new JsonObject();
+            template = CreateEmptyArrayItemTemplate(state.ActiveSchema, arrayPath);
 
         state.Json = JsonDocumentService.AddArrayItem(state.Json, arrayPath, template!);
         var newIndex = ((JsonArray?)JsonDocumentService.GetByPath(state.Json, arrayPath))?.Count - 1 ?? 0;
@@ -269,6 +269,25 @@ public static class EditorLogic
             state.CardIndex = newIndex;
 
         Validate(state);
+    }
+
+    /// <summary>
+    /// Erzeugt den Initialwert für ein neues Element eines leeren Arrays.
+    /// Verwendet das Items-Schema (ArrayItemSchema), sofern vorhanden, damit bei
+    /// primitiven Item-Typen (z. B. "string" bei ["string","null"]) kein JsonObject {}
+    /// entsteht. Ohne Items-Schema bleibt das bisherige Fallback (JsonObject).
+    /// Nullable Items erzeugen nicht automatisch null, sondern den Nicht-null-Initialwert.
+    /// </summary>
+    private static JsonNode CreateEmptyArrayItemTemplate(SchemaModel? schema, string[] arrayPath)
+    {
+        var itemSchema = schema != null
+            ? ResolveSchemaProperty(schema, arrayPath)?.ArrayItemSchema
+            : null;
+
+        if (itemSchema == null)
+            return new JsonObject();
+
+        return CreatePrimitiveForType(itemSchema.JsonType);
     }
 
     public static void RemoveArrayItem(EditorState state, string[] arrayPath, int index, UndoRedoService undoRedo)
@@ -908,9 +927,44 @@ public static class EditorLogic
         if (value is JsonObject) return "object";
         if (value is JsonArray) return "array";
 
+        // Null-Wert bei nullable strukturierten/Union-Typen: als nullable Typ anzeigen,
+        // nicht als normalen Scalar/Text. (JSON-null wird von JsonNode als null-Referenz geliefert.)
+        if (value == null &&
+            schemaProp != null &&
+            schemaProp.IsNullable &&
+            (schemaProp.JsonType is "object" or "array" ||
+             (schemaProp.JsonTypes is { Count: > 1 })))
+        {
+            return "nullable";
+        }
+
+        // Schema-basierte Sonderfälle, die unabhängig vom konkreten Wert gelten.
+        if (schemaProp?.EnumValues is { Count: > 0 }) return "enum";
+
+        // Bei einem vorhandenen, nicht-null JSON-Wert bestimmt der tatsächliche
+        // JsonValueKind die UI-Control-Wahl. Bei Union-Typen wie ["string","boolean","null"]
+        // ist schemaProp.JsonType nur der erste Nicht-null-Typ ("string"); ein tatsächlicher
+        // Boolean-Wert false muss deshalb als "boolean" (CheckBox) erkannt werden.
+        if (value is JsonValue jv)
+        {
+            return jv.GetValueKind() switch
+            {
+                JsonValueKind.True or JsonValueKind.False => "boolean",
+                JsonValueKind.Number => IsIntegralNumber(jv) ? "integer" : "number",
+                JsonValueKind.String => schemaProp?.Format switch
+                {
+                    "date" => "date",
+                    "time" => "time",
+                    "date-time" => "date-time",
+                    _ => "scalar"
+                },
+                _ => "scalar"
+            };
+        }
+
+        // Schema-basierte Entscheidung, wenn kein konkreter JSON-Wert vorliegt.
         if (schemaProp != null)
         {
-            if (schemaProp.EnumValues is { Count: > 0 }) return "enum";
             if (schemaProp.JsonType == "string")
             {
                 if (schemaProp.Format == "date") return "date";
@@ -921,17 +975,6 @@ public static class EditorLogic
             {
                 "boolean" => "boolean",
                 "integer" or "number" => schemaProp.JsonType,
-                _ => "scalar"
-            };
-        }
-
-        if (value is JsonValue jv)
-        {
-            return jv.GetValueKind() switch
-            {
-                JsonValueKind.True or JsonValueKind.False => "boolean",
-                JsonValueKind.Number => IsIntegralNumber(jv) ? "integer" : "number",
-                JsonValueKind.Null => "null",
                 _ => "scalar"
             };
         }

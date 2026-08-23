@@ -21,11 +21,11 @@ public static class JsonDocumentService
         return current;
     }
 
-    public static JsonNode SetByPath(JsonNode root, string[] path, JsonNode value)
+    public static JsonNode SetByPath(JsonNode root, string[] path, JsonNode? value)
     {
         var cloned = Clone(root);
         if (path.Length == 0)
-            return value.DeepClone();
+            return value?.DeepClone() ?? JsonValue.Create<string?>(null)!;
 
         var parent = cloned;
         for (int i = 0; i < path.Length - 1; i++)
@@ -40,10 +40,11 @@ public static class JsonDocumentService
         }
 
         var lastSeg = path[^1];
+        var newValue = value?.DeepClone() ?? JsonValue.Create<string?>(null);
         if (parent is JsonObject obj2)
-            obj2[lastSeg] = value.DeepClone();
+            obj2[lastSeg] = newValue;
         else if (parent is JsonArray arr2 && int.TryParse(lastSeg, out var idx2) && idx2 >= 0 && idx2 < arr2.Count)
-            arr2[idx2] = value.DeepClone();
+            arr2[idx2] = newValue;
 
         return cloned;
     }

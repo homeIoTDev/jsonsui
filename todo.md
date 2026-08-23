@@ -1,6 +1,7 @@
-DeepSeek:
-03:00–06:00 Uhr morgens und
-08:00–12:00 Uhr mittags doppelte preisabreichung!
+DeepSeek Peak-Times:
+Mo-Fr:
+03:00–06:00 Uhr und
+08:00–12:00 Uhr!
 
 [ ] wie werden neue oder unbekante elemente hinzugefügt oder gelöscht im json!
 [ ] Bug ein Spung von root auf plugin[] wechselt nicht die baumansicht
@@ -17,6 +18,7 @@ wird deprecatet grund formuliert und angegeben im hilfetext
 [ ] DIFF-View soll gegen speicher und gegen file parameter und grafisch aufbereit sein.
 [ ] Komische Navigations-Buttons im Breadcrumbs, zum zurück navigieren
 [ ] komischer roter stern * bei auth = required , deprecated und readOnly default const usw. solte cool dargestellt werden
+[ ] MainWindow.axaml in UserControls auslagern
 Feedback: untersützung von Kommentaren im JSON (nicht standard also sowas //)
 Prüf mal die Paraemter mit dem Routing.JSON ob das geht, Bug vermutlich keine editeren möglich
 Filter Sollte Breadcramp darstellen und nur im baumsuchen

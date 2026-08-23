@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.VisualTree;
@@ -192,12 +194,41 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     // --- Refresh UI from EditorState ---
 
+    // TEMP DIAG: ViewModel-side diagnostic logging for the PlatformImpl investigation.
+    private static int _diagSeq;
+    private static readonly System.Diagnostics.Stopwatch _diagSw = System.Diagnostics.Stopwatch.StartNew();
+    private static void Diag(string tag, string msg)
+    {
+        var line = $"[DIAG][{Interlocked.Increment(ref _diagSeq):000}][{_diagSw.ElapsedMilliseconds:00000}ms] VM:{tag}: {msg}";
+        System.Diagnostics.Debug.WriteLine(line);
+        Console.WriteLine(line);
+    }
+    private static string DiagAttached(Avalonia.Visual? v) => v == null ? "<n/a>" : v.IsAttachedToVisualTree().ToString();
+    private string DiagFocus()
+    {
+        var window = GetWindow();
+        if (window == null) return "<no-window>";
+        var f = window.FocusManager?.GetFocusedElement();
+        if (f == null) return "<none>";
+        var name = (f as Avalonia.Controls.Control)?.Name ?? f.GetType().Name;
+        var dcStr = (f as Avalonia.StyledElement)?.DataContext switch
+        {
+            FieldRow r => $"FieldRow:{r.Key}@{string.Join("/", r.Path)}",
+            null => "null",
+            var o => o!.GetType().Name
+        };
+        var tl = TopLevel.GetTopLevel(f as Avalonia.Visual);
+        var tlName = tl == null ? "<none>" : tl.GetType().Name;
+        return $"{name} dc={dcStr} root={tlName} attached={DiagAttached(f as Avalonia.Visual)}";
+    }
+
     public void RefreshUI()
     {
         string[]? focusedPath = null;
         if (_refreshDepth == 0)
             focusedPath = CaptureFocusedFieldPath();
 
+        Diag("RefreshUI", $"BEGIN depth={_refreshDepth} focusedPath={(focusedPath is null ? "<null>" : string.Join("/", focusedPath))} focus={DiagFocus()}");
         _refreshDepth++;
         try
         {
@@ -216,6 +247,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             OnPropertyChanged(nameof(SchemaTooltip));
         }
 
+        Diag("RefreshUI", $"END depth={_refreshDepth} focus={DiagFocus()}");
         if (_refreshDepth == 0 && focusedPath != null)
             RestoreFocus(focusedPath);
     }
@@ -245,9 +277,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             var window = GetWindow();
             if (window == null) return;
+            Diag("RestoreFocus", $"post-exec path={string.Join("/", path)} prio={priority} focus={DiagFocus()}");
             var control = FindDeepestFocusable(window, path);
+            var ctlTl = TopLevel.GetTopLevel(control as Avalonia.Visual);
+            var ctlRoot = ctlTl == null ? "<none>" : ctlTl.GetType().Name;
+            Diag("RestoreFocus", $"found={(control == null ? "<null>" : control.GetType().Name)} attached={DiagAttached(control as Avalonia.Visual)} root={ctlRoot}");
             if (control != null)
-                control.Focus();
+            {
+                var ok = control.Focus();
+                Diag("RestoreFocus", $"Focus() returned={ok} focus={DiagFocus()}");
+            }
         }, priority);
     }
 
@@ -502,6 +541,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         if (row == null || row.IsReadOnly || row.Path.Length == 0) return;
 
+        Diag("DeleteProperty", $"BEGIN path={string.Join("/", row.Path)} focus={DiagFocus()}");
         var objectPath = row.Path[..^1];
         var key = row.Path[^1];
 
@@ -536,6 +576,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             _state.FocusFieldPath = null;
             RefreshUI();
         }
+        Diag("DeleteProperty", $"END focus={DiagFocus()}");
     }
 
     private void RefreshErrorState()
@@ -626,6 +667,85 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         RefreshUI();
         if (EditorLogic.GetDetailItemValue(_state) is JsonValue)
             FocusScalarDetailEditor();
+    }
+
+    // --- Nullable / Union type helpers ---
+
+    /// <summary>
+    /// Liefert die Nicht-null-Typen eines Felds laut Schema (aus JsonTypes oder JsonType).
+    /// null = Feld hat kein Schema.
+    /// </summary>
+    public List<string>? GetFieldJsonTypes(string[] path)
+    {
+        if (_state.ActiveSchema == null) return null;
+        var prop = EditorLogic.ResolveSchemaProperty(_state.ActiveSchema, path);
+        if (prop == null) return null;
+
+        if (prop.JsonTypes is { Count: > 0 })
+            return prop.JsonTypes.Where(t => t != "null").Distinct().ToList();
+        return [prop.JsonType];
+    }
+
+    /// <summary>Gibt an, ob das Schema dieses Felds null erlaubt (IsNullable).</summary>
+    public bool FieldAllowsNull(string[] path)
+    {
+        if (_state.ActiveSchema == null) return false;
+        var prop = EditorLogic.ResolveSchemaProperty(_state.ActiveSchema, path);
+        return prop?.IsNullable == true;
+    }
+
+    public bool FieldIsNull(string[] path)
+    {
+        var value = JsonDocumentService.GetByPath(_state.Json, path);
+        // JSON null wird in System.Text.Json.Nodes als C#-null-Referenz repräsentiert
+        // (GetByPath liefert dann null), nicht als JsonValue mit ValueKind.Null.
+        return value == null || (value is JsonValue jv && jv.GetValueKind() == JsonValueKind.Null);
+    }
+
+    /// <summary>
+    /// Setzt den Wert eines Felds auf den gewünschten (Schema-)Typ über den bestehenden
+    /// Core-Änderungs-/Undo-Pfad (EditorLogic.SetValueAtPath). Danach wird die UI aktualisiert.
+    /// </summary>
+    public void SetFieldToType(string[] path, string type)
+    {
+        if (path.Length == 0) return;
+
+        Diag("SetFieldToType", $"BEGIN type={type} path={string.Join("/", path)} focus={DiagFocus()}");
+
+        JsonNode? value = type switch
+        {
+            "object" => new JsonObject(),
+            "array" => new JsonArray(),
+            "boolean" => JsonValue.Create(false),
+            "string" => JsonValue.Create(""),
+            // JSON null ist in System.Text.Json.Nodes eine C#-null-Referenz
+            // (JsonNode.Parse("null") liefert ebenfalls null). SetValueAtPath/SetByPath
+            // setzen dadurch die Property korrekt auf JSON null (Property bleibt erhalten).
+            "null" => null,
+            _ => null
+        };
+        if (value == null && type != "null") return;
+
+        EditorLogic.SetValueAtPath(_state, path, value, _undoRedo);
+
+        if (type == "object")
+        {
+            _state.FocusFieldPath = path;
+            DrillInto(path);
+        }
+        else if (type == "array")
+        {
+            _state.FocusFieldPath = path;
+            DrillIntoArray(path);
+        }
+        else
+        {
+            _state.FocusFieldPath = path;
+            RefreshUI();
+            RestoreFocus(path);
+            RestoreFocus(path, Avalonia.Threading.DispatcherPriority.Background);
+        }
+        Diag("SetFieldToType", $"END type={type} focus={DiagFocus()}");
     }
 
     private void FocusScalarDetailEditor()

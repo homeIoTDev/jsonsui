@@ -223,6 +223,26 @@
     <Setter Property="Margin" Value="0,2,0,0" />
   </Style>
 
+  <!-- Nullable / union type chip (value is null, schema allows object/array/multi types) -->
+  <Style Selector="Button.NullableTypeBtn">
+    <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+
+  <Style Selector="Button.NullableTypeBtn:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+  </Style>
+
+  <Style Selector="Button.NullableTypeBtn:focus-visible">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
   <!-- Temporal field: icons embedded at the front, text field spans full width -->
   <Style Selector="Border.EditorInputField">
     <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
