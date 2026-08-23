@@ -260,8 +260,9 @@ public class SchemaParser
                 }
 
                 prop.IsNullable = nullable;
-                prop.JsonTypes = types.Count > 0 ? types : null;
-                prop.JsonType = types.Count > 0 ? types[0] : "string";
+                prop.JsonTypes = types;
+                if (types.Count > 0)
+                    prop.JsonType = types[0];
                 break;
             }
 

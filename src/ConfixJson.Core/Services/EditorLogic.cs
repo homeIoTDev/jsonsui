@@ -197,7 +197,7 @@ public static class EditorLogic
         {
             Path = objectPath,
             PropertyName = name,
-            NewValue = value.DeepClone(),
+            NewValue = value?.DeepClone(),
             Action = "add_property"
         });
         Validate(state);
@@ -287,7 +287,7 @@ public static class EditorLogic
         if (itemSchema == null)
             return new JsonObject();
 
-        return CreatePrimitiveForType(itemSchema.JsonType);
+        return CreatePrimitiveForType(itemSchema.JsonType ?? "string");
     }
 
     public static void RemoveArrayItem(EditorState state, string[] arrayPath, int index, UndoRedoService undoRedo)
@@ -495,7 +495,7 @@ public static class EditorLogic
 
     // --- Property Initial Values ---
 
-    private static JsonNode DetermineInitialValue(SchemaProperty? schemaProp, JsonNode? explicitValue)
+    private static JsonNode? DetermineInitialValue(SchemaProperty? schemaProp, JsonNode? explicitValue)
     {
         if (explicitValue != null)
             return explicitValue.DeepClone();
@@ -503,25 +503,29 @@ public static class EditorLogic
         if (schemaProp == null)
             return JsonValue.Create<string>("")!;
 
+        // 0 Nicht-null-Typen (z. B. ["null"]): Property als JSON-null anlegen.
+        if (schemaProp.JsonTypes is { Count: 0 })
+            return null;
+
         if (schemaProp.Const != null)
         {
-            var node = CreateNodeFromSchemaString(schemaProp.JsonType, schemaProp.Const);
+            var node = CreateNodeFromSchemaString(schemaProp.JsonType!, schemaProp.Const);
             if (node != null) return node;
         }
 
         if (schemaProp.DefaultValue != null)
         {
-            var node = CreateNodeFromSchemaString(schemaProp.JsonType, schemaProp.DefaultValue);
+            var node = CreateNodeFromSchemaString(schemaProp.JsonType!, schemaProp.DefaultValue);
             if (node != null) return node;
         }
 
         if (schemaProp.EnumValues is { Count: > 0 })
         {
-            var node = CreateNodeFromSchemaString(schemaProp.JsonType, schemaProp.EnumValues[0]);
+            var node = CreateNodeFromSchemaString(schemaProp.JsonType!, schemaProp.EnumValues[0]);
             if (node != null) return node;
         }
 
-        return CreatePrimitiveForType(schemaProp.JsonType);
+        return CreatePrimitiveForType(schemaProp.JsonType!);
     }
 
     private static JsonNode? CreateNodeFromSchemaString(string jsonType, string text)
@@ -553,7 +557,7 @@ public static class EditorLogic
         }
     }
 
-    private static JsonNode CreatePrimitiveForType(string jsonType) => jsonType switch
+    public static JsonNode CreatePrimitiveForType(string jsonType) => jsonType switch
     {
         "string" => JsonValue.Create<string>("")!,
         "integer" => JsonValue.Create(0)!,
@@ -927,13 +931,12 @@ public static class EditorLogic
         if (value is JsonObject) return "object";
         if (value is JsonArray) return "array";
 
-        // Null-Wert bei nullable strukturierten/Union-Typen: als nullable Typ anzeigen,
-        // nicht als normalen Scalar/Text. (JSON-null wird von JsonNode als null-Referenz geliefert.)
+        // Null-Wert bei vorhandenen JSON-Daten: als nullable Typ anzeigen, damit der
+        // tatsächliche null-Wert sichtbar bleibt (unabhängig von der Typ-Anzahl im Schema).
+        // (JSON-null wird von JsonNode als null-Referenz geliefert.)
         if (value == null &&
             schemaProp != null &&
-            schemaProp.IsNullable &&
-            (schemaProp.JsonType is "object" or "array" ||
-             (schemaProp.JsonTypes is { Count: > 1 })))
+            schemaProp.IsNullable)
         {
             return "nullable";
         }
@@ -974,7 +977,9 @@ public static class EditorLogic
             return schemaProp.JsonType switch
             {
                 "boolean" => "boolean",
-                "integer" or "number" => schemaProp.JsonType,
+                "integer" or "number" => schemaProp.JsonType!,
+                "object" => "object",
+                "array" => "array",
                 _ => "scalar"
             };
         }

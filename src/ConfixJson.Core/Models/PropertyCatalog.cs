@@ -7,7 +7,7 @@ namespace ConfixJson.Core.Models;
 public sealed class PropertyCatalogItem
 {
     public string Name { get; init; } = "";
-    public string Type { get; init; } = "string";
+    public string? Type { get; init; }
     public bool IsRequired { get; init; }
     public bool IsAlreadyPresent { get; init; }
     public bool IsCustom { get; init; }

@@ -17,14 +17,40 @@ public class SchemaNumericUpDown : NumericUpDown
 {
     public SchemaNumericUpDown()
     {
-        // Avalonia resolves the default ControlTheme by the exact control type, so a
-        // subclass gets no theme/template (=> invisible). Inherit the base theme.
-        if (Application.Current is { } app &&
-            app.TryGetResource(typeof(NumericUpDown), out var theme) &&
-            theme is ControlTheme controlTheme)
+        // TEMP DIAG: prüfen, ob das Control erzeugt wird und das Theme gefunden wird.
+        ResolveBaseTheme();
+
+        // Retry, sobald das Control in den Visual Tree gehängt wird – zu diesem Zeitpunkt
+        // sind die App-Ressourcen (FluentTheme) definitiv aufgelöst.
+        AttachedToLogicalTree += (_, _) => ResolveBaseTheme();
+    }
+
+    private void ResolveBaseTheme()
+    {
+        if (Theme is not null) return;
+
+        if (Application.Current is not { } app)
         {
-            Theme = controlTheme;
+            System.Diagnostics.Debug.WriteLine("[SchemaNumericUpDown] Application.Current is null (Theme bleibt ungesetzt).");
+            return;
         }
+
+        // Zuerst mit explizitem ThemeVariant (robust), dann ohne.
+        if (app.TryGetResource(typeof(NumericUpDown), Avalonia.Styling.ThemeVariant.Default, out var v1) && v1 is ControlTheme t1)
+        {
+            Theme = t1;
+            System.Diagnostics.Debug.WriteLine($"[SchemaNumericUpDown] Theme inherited (variant). type={t1.GetType().Name}");
+            return;
+        }
+
+        if (app.TryGetResource(typeof(NumericUpDown), out var v2) && v2 is ControlTheme t2)
+        {
+            Theme = t2;
+            System.Diagnostics.Debug.WriteLine($"[SchemaNumericUpDown] Theme inherited. type={t2.GetType().Name}");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine("[SchemaNumericUpDown] WARN: kein NumericUpDown-ControlTheme via TryGetResource gefunden -> Control wäre unsichtbar.");
     }
 
     protected override void OnSpin(SpinEventArgs e)

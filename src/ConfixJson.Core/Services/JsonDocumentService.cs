@@ -67,12 +67,10 @@ public static class JsonDocumentService
         return cloned;
     }
 
-    public static AddPropertyResult AddProperty(JsonNode root, string[] objectPath, string name, JsonNode value)
+    public static AddPropertyResult AddProperty(JsonNode root, string[] objectPath, string name, JsonNode? value)
     {
         if (string.IsNullOrWhiteSpace(name))
             return AddPropertyResult.Fail(PropertyAddFailure.InvalidPropertyName, root);
-        if (value == null)
-            return AddPropertyResult.Fail(PropertyAddFailure.InvalidOperation, root);
 
         var parent = GetByPath(root, objectPath);
         if (parent == null)
@@ -84,7 +82,7 @@ public static class JsonDocumentService
 
         var cloned = Clone(root);
         var clonedParent = GetByPath(cloned, objectPath) as JsonObject;
-        clonedParent![name] = value.DeepClone();
+        clonedParent![name] = value?.DeepClone();
         return AddPropertyResult.Ok(cloned);
     }
 
