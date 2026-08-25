@@ -318,7 +318,7 @@
   </Style>
 
   <Style Selector="TextBlock.HelpMetaValue">
-    <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
+    <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
