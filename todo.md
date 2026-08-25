@@ -9,7 +9,6 @@ wird deprecatet grund formuliert und angegeben im hilfetext
 [ ] constrains und ui controls
 [ ] Const wie enum behandeln?? und wie pattern behandeln??
 [ ] Codeview ist nicht bildschirm füllend und wird nicht übernommen aus änderungen der UI-Controls.
-[ ] Resizing split views
 [ ] Suchfeld geht nicht: Schrift geht nicht
 [ ] DIFF-View soll gegen speicher und gegen file parameter und grafisch aufbereit sein.
 [ ] Komische Navigations-Buttons im Breadcrumbs, zum zurück navigieren
