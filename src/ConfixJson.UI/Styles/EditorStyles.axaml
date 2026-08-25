@@ -548,7 +548,7 @@
 
   <Style Selector="TextBlock.FlyoutEmpty">
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
-    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
     <Setter Property="FontStyle" Value="Italic" />
   </Style>
 
@@ -561,7 +561,7 @@
   <Style Selector="TextBlock.FlyoutItemType">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
-    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
   </Style>
 
   <Style Selector="TextBlock.FlyoutBadgeText">
