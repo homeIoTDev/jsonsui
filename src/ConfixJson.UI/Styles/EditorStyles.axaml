@@ -111,7 +111,7 @@
   <!-- Window base -->
   <Style Selector="Window">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
   </Style>
 
   <!-- Lucide Outline Icons -->
@@ -135,33 +135,33 @@
 
   <Style Selector="TextBlock.HeaderLabel">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
 
   <Style Selector="TextBlock.HeaderSubtitle">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
 
   <!-- Tree -->
   <Style Selector="TextBlock.TreeLabel">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
   </Style>
 
   <Style Selector="TextBlock.TreeTag">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
   </Style>
 
   <!-- Field Row -->
   <Style Selector="TextBlock.FieldLabel">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
   </Style>
 
   <!-- Card -->
@@ -180,14 +180,14 @@
 
   <Style Selector="TextBlock.CardPreview">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
   </Style>
 
   <!-- Scalar Input -->
   <Style Selector="TextBox.EditorInput">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Padding" Value="5,8" />
     <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
@@ -202,7 +202,7 @@
   <!-- Inline property-name editor for rename -->
   <Style Selector="TextBox.FieldNameEditor">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Padding" Value="3,2" />
     <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
@@ -218,7 +218,7 @@
   <Style Selector="TextBlock.RenameErrorText">
     <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="TextWrapping" Value="Wrap" />
     <Setter Property="Margin" Value="0,2,0,0" />
   </Style>
@@ -257,7 +257,7 @@
 
   <Style Selector="TextBox.EditorInputInner">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Padding" Value="4,8" />
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderBrush" Value="Transparent" />
@@ -290,14 +290,14 @@
 
   <Style Selector="TextBlock.HelpDescription">
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
     <Setter Property="TextWrapping" Value="Wrap" />
   </Style>
 
   <Style Selector="TextBlock.HelpFieldDescription">
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
     <Setter Property="TextWrapping" Value="Wrap" />
     <Setter Property="Margin" Value="0,2,0,0" />
@@ -305,7 +305,7 @@
 
   <Style Selector="TextBlock.HelpMeta">
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
     <Setter Property="TextWrapping" Value="Wrap" />
     <Setter Property="Margin" Value="0,1,0,0" />
@@ -313,19 +313,19 @@
 
   <Style Selector="TextBlock.HelpMetaLabel">
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
   </Style>
 
   <Style Selector="TextBlock.HelpMetaValue">
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
 
   <Style Selector="TextBlock.HelpComment">
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
     <Setter Property="FontStyle" Value="Italic" />
   </Style>
@@ -356,7 +356,7 @@
 
   <Style Selector="TextBlock.BadgeText">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="9" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeTiny}" />
     <Setter Property="FontWeight" Value="Bold" />
   </Style>
 
@@ -369,7 +369,7 @@
   </Style>
 
   <Style Selector="TextBlock.ErrorText">
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
   </Style>
@@ -377,7 +377,7 @@
   <!-- Text Editor -->
   <Style Selector="TextBox.MonoEditor">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="AcceptsReturn" Value="True" />
     <Setter Property="TextWrapping" Value="NoWrap" />
     <Setter Property="Padding" Value="8" />
@@ -541,26 +541,26 @@
   <!-- Add Property Flyout -->
   <Style Selector="TextBlock.FlyoutHeader">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="FontWeight" Value="Bold" />
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
 
   <Style Selector="TextBlock.FlyoutEmpty">
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
     <Setter Property="FontStyle" Value="Italic" />
   </Style>
 
   <Style Selector="TextBlock.FlyoutItemName">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="FontWeight" Value="Bold" />
   </Style>
 
   <Style Selector="TextBlock.FlyoutItemType">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
   </Style>
 

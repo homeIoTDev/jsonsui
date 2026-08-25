@@ -114,7 +114,7 @@ public class TreeDataTemplate : IDataTemplate
         {
             Text = node.Label,
             FontFamily = Res<FontFamily>("FontJetBrainsMono") ?? FontFamily.Default,
-            FontSize = 11,
+            FontSize = ResFontSize("EditorFontSizeBase", 14),
             VerticalAlignment = VerticalAlignment.Center
         };
 
@@ -135,7 +135,7 @@ public class TreeDataTemplate : IDataTemplate
             {
                 Text = node.TypeTag,
                 FontFamily = Res<FontFamily>("FontJetBrainsMono") ?? FontFamily.Default,
-                FontSize = 11,
+                FontSize = ResFontSize("EditorFontSizeBase", 14),
                 Foreground = Res<IBrush>("TextTertiaryBrush"),
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(4, 0, 0, 0)
@@ -192,5 +192,14 @@ public class TreeDataTemplate : IDataTemplate
             return value as T;
 
         return null;
+    }
+
+    private static double ResFontSize(string key, double fallback)
+    {
+        var app = Application.Current;
+        if (app != null && ((Avalonia.Controls.IResourceHost)app).TryFindResource(key, app.RequestedThemeVariant, out var value))
+            return value is double d ? d : fallback;
+
+        return fallback;
     }
 }

@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="using:System"
              x:Class="ConfixJson.UI.App"
              RequestedThemeVariant="Dark">
   <Application.Resources>
@@ -72,6 +73,12 @@
       <!-- Fonts -->
       <FontFamily x:Key="FontJetBrainsMono">avares://confix/Assets/Fonts/JetBrainsMono/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
       <FontFamily x:Key="FontInter">avares://confix/Assets/Fonts/Inter/Inter-Regular.otf#Inter</FontFamily>
+
+      <!-- Font sizes (design tokens) -->
+      <sys:Double x:Key="EditorFontSizeTiny">10</sys:Double>
+      <sys:Double x:Key="EditorFontSizeSmall">12</sys:Double>
+      <sys:Double x:Key="EditorFontSizeBase">13</sys:Double>
+      <sys:Double x:Key="EditorFontSizeLarge">18</sys:Double>
     </ResourceDictionary>
   </Application.Resources>
   <Application.Styles>

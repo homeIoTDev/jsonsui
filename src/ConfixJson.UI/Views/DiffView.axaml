@@ -15,10 +15,10 @@
               <TextBlock Text="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarker}}"
                          Width="12"
                          FontFamily="{StaticResource FontJetBrainsMono}"
-                         FontSize="11" FontWeight="Bold"
+                         FontSize="{DynamicResource EditorFontSizeBase}" FontWeight="Bold"
                          Foreground="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarkerColor}}" />
               <TextBlock Text="{Binding Text}"
-                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
             </StackPanel>
           </Border>
         </DataTemplate>

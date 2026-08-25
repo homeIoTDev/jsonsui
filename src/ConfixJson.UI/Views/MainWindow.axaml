@@ -45,7 +45,7 @@
             <TextBlock Text="{Binding DocumentFilename}"
                        Foreground="{DynamicResource TextTertiaryBrush}"
                        FontFamily="{StaticResource FontJetBrainsMono}"
-                       FontSize="11" VerticalAlignment="Center" />
+                       FontSize="{DynamicResource EditorFontSizeBase}" VerticalAlignment="Center" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="6" DockPanel.Dock="Right"
                       Margin="0,0,8,0" VerticalAlignment="Center"
@@ -54,19 +54,19 @@
                     ToolTip.Tip="{Binding SchemaTooltip}"
                     IsVisible="{Binding IsSchemaLoaded}">
               <TextBlock Text="✓ Schema" Foreground="{DynamicResource AccentBrush}"
-                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10" FontWeight="Bold" />
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}" FontWeight="Bold" />
             </Button>
             <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
                     ToolTip.Tip="{Binding SchemaTooltip}"
                     IsVisible="{Binding IsSchemaNone}">
               <TextBlock Text="⚠ Kein Schema" Foreground="{DynamicResource WarnBrush}"
-                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10" FontWeight="Bold" />
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}" FontWeight="Bold" />
             </Button>
             <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
                     ToolTip.Tip="{Binding SchemaTooltip}"
                     IsVisible="{Binding IsSchemaFailed}">
               <TextBlock Text="⚠ Schemafehler" Foreground="{DynamicResource ErrorBrush}"
-                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10" FontWeight="Bold" />
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}" FontWeight="Bold" />
             </Button>
           </StackPanel>
           <Button Classes="StatusError" IsVisible="{Binding HasErrors}"
@@ -76,14 +76,14 @@
               <TextBlock Text="{Binding ErrorCount, StringFormat={}{0} errors}"
                          Foreground="{DynamicResource ErrorBrush}"
                          FontFamily="{StaticResource FontJetBrainsMono}"
-                         FontSize="9" FontWeight="Bold" />
+                         FontSize="{DynamicResource EditorFontSizeTiny}" FontWeight="Bold" />
             </StackPanel>
           </Button>
           <Border Classes="StatusSuccess" IsVisible="{Binding ShowSaved}"
                   DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
             <TextBlock Text="saved" Foreground="{DynamicResource AccentBrush}"
                        FontFamily="{StaticResource FontJetBrainsMono}"
-                       FontSize="9" FontWeight="Bold" />
+                       FontSize="{DynamicResource EditorFontSizeTiny}" FontWeight="Bold" />
             </Border>
           </DockPanel>
         </Border>
@@ -102,7 +102,7 @@
             <!-- Tree Search -->
             <TextBox Grid.Row="0" PlaceholderText="Filter..." 
                      FontFamily="{StaticResource FontJetBrainsMono}"
-                     FontSize="11" Padding="6,4"
+                     FontSize="{DynamicResource EditorFontSizeBase}" Padding="6,4"
                      Background="{DynamicResource InputBackgroundBrush}"
                      BorderBrush="{DynamicResource PanelBorderBrush}"
                      BorderThickness="0,0,0,1"
@@ -215,7 +215,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="4">
                       <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="10" Height="10"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
-                      <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10"
+                      <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}"
                                  Foreground="{DynamicResource TextSecondaryBrush}" />
                     </StackPanel>
                   </Button>
@@ -270,7 +270,7 @@
                             <StackPanel Orientation="Horizontal" Spacing="6">
                               <TextBlock Text="{Binding NestedObjectSummary}"
                                          Foreground="{DynamicResource TextSecondaryBrush}"
-                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                               <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
@@ -285,7 +285,7 @@
                               <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
                                         Stroke="{DynamicResource AccentBrush}" />
                               <TextBlock Text="{Binding ArrayItemCount}"
-                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                               <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </StackPanel>
@@ -355,7 +355,7 @@
                               <StackPanel Orientation="Horizontal" Spacing="4">
                                 <TextBlock Text="null" FontStyle="Italic"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                           FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                                 <Path Classes="Lucide" Data="{StaticResource lucide-chevron-down}" Width="10" Height="10"
                                           Stroke="{DynamicResource TextTertiaryBrush}" />
                               </StackPanel>
@@ -366,7 +366,7 @@
                                   IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                   Click="FieldRowAction_Click"
                                   Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Property actions">
-                            <TextBlock Text="⋮" FontSize="15" FontWeight="Bold"
+                            <TextBlock Text="⋮" FontSize="{DynamicResource EditorFontSizeLarge}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextSecondaryBrush}" />
                           </Button>
                         </Grid>
@@ -431,7 +431,7 @@
                   <StackPanel Orientation="Horizontal" Spacing="4">
                     <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="10" Height="10"
                           Stroke="{DynamicResource TextSecondaryBrush}" />
-                    <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="10"
+                    <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}"
                                Foreground="{DynamicResource TextSecondaryBrush}" />
                   </StackPanel>
                 </Button>
@@ -475,7 +475,7 @@
                       <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="12" Height="12"
                                 Stroke="{DynamicResource TextSecondaryBrush}" />
                       <TextBlock Text="Hinzufügen" VerticalAlignment="Center"
-                                 FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                 FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                     </StackPanel>
                   </Button>
                 </Border>
@@ -491,7 +491,7 @@
                               <StackPanel Orientation="Horizontal" Spacing="6">
                                 <TextBlock Text="{Binding Index, StringFormat=[{0}]}"
                                            FontFamily="{StaticResource FontJetBrainsMono}"
-                                           FontSize="11" FontWeight="Bold"
+                                           FontSize="{DynamicResource EditorFontSizeBase}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}" />
                                 <Path Classes="Lucide" Data="{StaticResource lucide-circle-alert}" Width="10" Height="10"
                                           Stroke="{DynamicResource ErrorBrush}"
@@ -522,7 +522,7 @@
                 <Border Grid.Row="0" IsVisible="{Binding ShowEmptyDetailState}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                   <TextBlock Text="Kein Item ausgewählt"
-                             Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="11" />
+                             Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="{DynamicResource EditorFontSizeBase}" />
                 </Border>
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasObjectFields}">
                   <ItemsControl ItemsSource="{Binding ObjectFields}" Margin="12,14">
@@ -558,7 +558,7 @@
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                   <TextBlock Text="{Binding NestedObjectSummary}"
                                              Foreground="{DynamicResource TextSecondaryBrush}"
-                                             FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                             FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                                   <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                             Stroke="{DynamicResource TextTertiaryBrush}" />
                                 </StackPanel>
@@ -573,7 +573,7 @@
                                    <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
                                              Stroke="{DynamicResource AccentBrush}" />
                                    <TextBlock Text="{Binding ArrayItemCount}"
-                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                                    <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                                              Stroke="{DynamicResource TextTertiaryBrush}" />
                                  </StackPanel>
@@ -643,7 +643,7 @@
                                  <StackPanel Orientation="Horizontal" Spacing="4">
                                    <TextBlock Text="null" FontStyle="Italic"
                                               Foreground="{DynamicResource TextSecondaryBrush}"
-                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="11" />
+                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                                    <Path Classes="Lucide" Data="{StaticResource lucide-chevron-down}" Width="10" Height="10"
                                              Stroke="{DynamicResource TextTertiaryBrush}" />
                                  </StackPanel>
@@ -654,7 +654,7 @@
                                      IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                      Click="FieldRowAction_Click"
                                      Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Property actions">
-                               <TextBlock Text="⋮" FontSize="15" FontWeight="Bold"
+                               <TextBlock Text="⋮" FontSize="{DynamicResource EditorFontSizeLarge}" FontWeight="Bold"
                                           Foreground="{DynamicResource TextSecondaryBrush}" />
                              </Button>
                            </Grid>
