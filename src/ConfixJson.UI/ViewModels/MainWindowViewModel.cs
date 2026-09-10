@@ -188,6 +188,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public ObservableCollection<JsonEditorNode> TreeRootNodes { get; } = [];
 
+    [ObservableProperty]
+    public partial string FilterText { get; set; } = "";
+
+    partial void OnFilterTextChanged(string value) => RefreshTree();
+
     public MainWindowViewModel()
     {
         RefreshUI();
@@ -306,10 +311,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         System.Diagnostics.Debug.WriteLine($"[RefreshUI] mode={CurrentEditorMode}");
 
         // Rebuild tree
-        var root = EditorLogic.BuildTree(_state);
-        EditorLogic.MarkErrors(root, _state.Errors);
-        TreeRootNodes.Clear();
-        TreeRootNodes.Add(root);
+        RefreshTree();
 
         // Reset all mode-specific content
         ObjectFields.Clear();
@@ -359,6 +361,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
 
         System.Diagnostics.Debug.WriteLine("[RefreshUI] END");
+    }
+
+    private void RefreshTree()
+    {
+        var root = EditorLogic.BuildTree(_state, FilterText);
+        EditorLogic.MarkErrors(root, _state.Errors);
+        TreeRootNodes.Clear();
+        if (root.IsVisible)
+            TreeRootNodes.Add(root);
     }
 
     // --- Commands ---
@@ -935,6 +946,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 await using var stream = await file.OpenReadAsync();
                 var node = await JsonFileService.LoadFromStreamAsync(stream);
                 EditorLogic.InitDocument(_state, node, file.Name);
+                FilterText = "";
                 DocumentFilename = file.Name;
                 _currentFilePath = file.Path.LocalPath;
                 _undoRedo.Clear();
@@ -960,6 +972,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             var node = EditorLogic.LoadDocument(filePath);
             EditorLogic.InitDocument(_state, node, System.IO.Path.GetFileName(filePath));
+            FilterText = "";
             DocumentFilename = System.IO.Path.GetFileName(filePath);
             _currentFilePath = filePath;
             _undoRedo.Clear();

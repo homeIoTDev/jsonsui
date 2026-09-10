@@ -105,6 +105,11 @@
           <Grid RowDefinitions="Auto,*,Auto">
             <!-- Tree Search -->
             <TextBox Grid.Row="0" PlaceholderText="Filter..." 
+                     x:Name="FilterBox"
+                     Text="{Binding FilterText}"
+                     Classes="clearButton"
+                     KeyDown="FilterBox_KeyDown"
+                     VerticalContentAlignment="Center"
                      FontFamily="{StaticResource FontJetBrainsMono}"
                      FontSize="{DynamicResource EditorFontSizeBase}" Padding="6,4"
                      Background="{DynamicResource InputBackgroundBrush}"

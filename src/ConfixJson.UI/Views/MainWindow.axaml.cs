@@ -19,6 +19,13 @@ public partial class MainWindow : Window
         InitializeComponent();
     }
 
+    private void FilterBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Escape || sender is not TextBox tb) return;
+        e.Handled = true;
+        tb.Clear();
+    }
+
     private void FieldRow_Tapped(object? sender, TappedEventArgs e)
     {
         if (sender is Border border && border.Tag is string[] path && DataContext is MainWindowViewModel vm)

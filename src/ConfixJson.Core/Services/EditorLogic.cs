@@ -22,7 +22,7 @@ public static class EditorLogic
 
     // --- Tree Building ---
 
-    public static JsonEditorNode BuildTree(EditorState state)
+    public static JsonEditorNode BuildTree(EditorState state, string? filterText = null)
     {
         var nodeByPathKey = new Dictionary<string, JsonEditorNode>();
         var root = BuildNode(state.Json, "root", [], 0, null, state.Expanded, nodeByPathKey);
@@ -30,7 +30,60 @@ public static class EditorLogic
         root.IsSelected = state.SelectedPath.Length == 0;
         if (state.SelectedPath.Length > 0 && nodeByPathKey.TryGetValue(string.Join("/", state.SelectedPath), out var sel))
             sel.IsSelected = true;
+        ApplyFilter(root, filterText);
         return root;
+    }
+
+    // --- Filtering (affects only the visible tree/navigation structure) ---
+
+    /// <summary>
+    /// Markiert Tree-Knoten als sichtbar/unsichtbar anhand des Filtertextes.
+    /// Sichtbar bleibt ein Knoten, wenn er selbst oder ein Nachkomme matcht.
+    /// Array-Index-Labels ([0], [1], ...) matchen nicht selbst, werden aber
+    /// rekursiv durchsucht. state.Expanded wird nicht verändert; Ancestors von
+    /// Treffern werden nur auf dem frischen Baum temporär aufgeklappt.
+    /// </summary>
+    public static void ApplyFilter(JsonEditorNode root, string? filterText)
+    {
+        if (string.IsNullOrWhiteSpace(filterText))
+        {
+            SetAllVisible(root, true);
+            return;
+        }
+
+        FilterNode(root, filterText.Trim());
+    }
+
+    private static bool FilterNode(JsonEditorNode node, string filter)
+    {
+        var selfMatch = !IsArrayIndexNode(node) &&
+                        node.Label.Contains(filter, StringComparison.OrdinalIgnoreCase);
+
+        var childMatch = false;
+        foreach (var child in node.Children)
+            childMatch |= FilterNode(child, filter);
+
+        node.IsVisible = selfMatch || childMatch;
+        if (childMatch)
+            node.IsExpanded = true;
+
+        return node.IsVisible;
+    }
+
+    private static bool IsArrayIndexNode(JsonEditorNode node)
+    {
+        if (node.Parent?.NodeType != "array")
+            return false;
+        var label = node.Label;
+        return label.Length >= 2 && label[0] == '[' && label[^1] == ']' &&
+               int.TryParse(label.AsSpan(1, label.Length - 2), out _);
+    }
+
+    private static void SetAllVisible(JsonEditorNode node, bool visible)
+    {
+        node.IsVisible = visible;
+        foreach (var child in node.Children)
+            SetAllVisible(child, visible);
     }
 
     private static JsonEditorNode BuildNode(JsonNode? value, string label, string[] path, int depth,

@@ -13,6 +13,7 @@ public class JsonEditorNode
     public JsonNode? Value { get; set; }
     public bool IsExpanded { get; set; }
     public bool IsSelected { get; set; }
+    public bool IsVisible { get; set; } = true;
     public bool HasErrors { get; set; }
     public List<JsonEditorNode> Children { get; set; } = [];
     public int Depth { get; set; }
@@ -22,7 +23,7 @@ public class JsonEditorNode
         NodeType switch
         {
             "array" => Enumerable.Empty<JsonEditorNode>(),
-            _ => Children.Where(c => c.NodeType is "object" or "array")
+            _ => Children.Where(c => c.IsVisible && c.NodeType is "object" or "array")
         };
 
     public bool IsExpandable => NavigableChildren.Any();
