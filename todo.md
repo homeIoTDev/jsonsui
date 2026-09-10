@@ -5,15 +5,13 @@ Mo-Fr:
 
 [ ] Es ist nicht konsistent, dass der rote stern * requier anzeigt, aber die fehler nicht sichbar sind.
 wird deprecatet grund formuliert und angegeben im hilfetext
-[ ] Der Hilfetext sollte die schrift größer für prop größer sein tree-schrift und der rest ein kleiner. w
-[ ] constrains und ui controls
-[ ] Const wie enum behandeln?? und wie pattern behandeln??
 [ ] Codeview ist nicht bildschirm füllend und wird nicht übernommen aus änderungen der UI-Controls.
 [ ] Suchfeld geht nicht: Schrift geht nicht
 [ ] DIFF-View soll gegen speicher und gegen file parameter und grafisch aufbereit sein.
 [ ] Komische Navigations-Buttons im Breadcrumbs, zum zurück navigieren
 [ ] komischer roter stern * bei auth = required , deprecated und readOnly default const usw. solte cool dargestellt werden
 [ ] MainWindow.axaml in UserControls auslagern
+[ ]  Verschieben von Object Properties
 Feedback: untersützung von Kommentaren im JSON (nicht standard also sowas //)
 Prüf mal die Paraemter mit dem Routing.JSON ob das geht, Bug vermutlich keine editeren möglich
 Filter Sollte Breadcramp darstellen und nur im baumsuchen

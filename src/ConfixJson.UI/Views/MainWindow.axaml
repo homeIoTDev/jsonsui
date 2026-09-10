@@ -460,14 +460,10 @@
             </DockPanel>
           </Border>
           <!-- Split Content: Cards | Detail -->
-          <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="240" MinWidth="150" />
-              <ColumnDefinition Width="6" />
-              <ColumnDefinition Width="*" MinWidth="280" />
-            </Grid.ColumnDefinitions>
+          <Grid Grid.Row="1" ColumnDefinitions="240,*">
             <!-- Card List -->
-            <Border Grid.Column="0"
+            <Border Grid.Column="0" BorderThickness="0,0,1,0"
+                    BorderBrush="{DynamicResource CardSplitBrush}"
                     Background="{DynamicResource PanelBackgroundBrush}">
               <DockPanel>
                 <Border Classes="HelpStripCompact" DockPanel.Dock="Top"
@@ -528,13 +524,8 @@
                 </ScrollViewer>
               </DockPanel>
             </Border>
-
-            <GridSplitter Grid.Column="1"
-                          Theme="{StaticResource PanelSplitterTheme}"
-                          BorderBrush="{DynamicResource CardSplitBrush}" />
-
             <!-- Detail Panel -->
-            <Border Grid.Column="2" Background="{DynamicResource PanelBackgroundBrush}">
+            <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}">
               <Grid RowDefinitions="*,Auto">
                 <Border Grid.Row="0" IsVisible="{Binding ShowEmptyDetailState}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -731,7 +722,7 @@
         </Grid>
 
         <!-- ===== CONTENT AREA: SCALAR MODE ===== -->
-        <Border Grid.Column="2" Background="{DynamicResource PanelBackgroundBrush}"
+        <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}"
                 IsVisible="{Binding IsScalarMode}">
           <DockPanel>
             <Border Classes="PanelHeader" DockPanel.Dock="Top">

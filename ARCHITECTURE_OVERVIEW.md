@@ -41,7 +41,7 @@ Das Tool soll sowohl **lokal** als native App laufen (Avalonia UI) als auch spä
 - Zeigt die JSON‑Struktur.
 - Hinter jedem Element wird die Anzahl der Unterelemente angezeigt, z. B. `{6}` oder `[9]`.
 - Einzelelemente werden nicht aufgeklappt, da sie im Editorbereich sichtbar sind.
-- Array‑Objekte werden als `[0]`, `[1]` usw. dargestellt – aber nur, wenn das jeweilige Array-Element selbst weitere navigierbare JSON-Strukturen (Objekte oder Arrays) enthält. Enthält ein Array-Element ausschließlich Scalar-Eigenschaften, wird es nicht als eigener Baumknoten dargestellt, da seine Inhalte vollständig im Editorbereich des Arrays bearbeitet werden.
+- Zurückgestellt: Array‑Objekte werden als `[0]`, `[1]` usw. dargestellt – aber nur, wenn das jeweilige Array-Element selbst weitere navigierbare JSON-Strukturen (Objekte oder Arrays) enthält. Enthält ein Array-Element ausschließlich Scalar-Eigenschaften, wird es nicht als eigener Baumknoten dargestellt, da seine Inhalte vollständig im Editorbereich des Arrays bearbeitet werden.
 - Pfeile zeigen den Aufklappstatus:
   - `▶` für zugeklappt
   - `▼` für aufgeklappt
