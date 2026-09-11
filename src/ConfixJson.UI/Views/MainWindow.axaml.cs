@@ -17,7 +17,39 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        TopHeaderBar.PointerPressed += TopHeaderBar_PointerPressed;
     }
+
+    private void TopHeaderBar_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Klicks auf interaktive Elemente (Status-/Fensterbuttons) nicht als Drag behandeln.
+        if (e.Source is Visual v && v.FindAncestorOfType<Button>(includeSelf: true) != null)
+            return;
+
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
+
+        if (e.ClickCount == 2)
+        {
+            ToggleMaximize();
+            return;
+        }
+
+        BeginMoveDrag(e);
+    }
+
+    private void Minimize_Click(object? sender, RoutedEventArgs e)
+        => WindowState = WindowState.Minimized;
+
+    private void Maximize_Click(object? sender, RoutedEventArgs e)
+        => ToggleMaximize();
+
+    private void Close_Click(object? sender, RoutedEventArgs e)
+        => Close();
+
+    private void ToggleMaximize()
+        => WindowState = WindowState == WindowState.Maximized
+            ? WindowState.Normal
+            : WindowState.Maximized;
 
     private void FilterBox_KeyDown(object? sender, KeyEventArgs e)
     {

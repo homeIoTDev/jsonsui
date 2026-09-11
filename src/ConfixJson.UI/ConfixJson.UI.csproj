@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>confix</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\avalonia-logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

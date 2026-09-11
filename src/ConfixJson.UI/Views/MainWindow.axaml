@@ -14,6 +14,9 @@
         Title="{Binding DocumentFilename}"
         Width="1200" Height="800"
         MinWidth="800" MinHeight="500"
+        Icon="/Assets/app-icon.ico"
+        WindowDecorations="BorderOnly"
+        ExtendClientAreaToDecorationsHint="True"
         Background="{DynamicResource BackgroundBrush}">
 
   <Window.Resources>
@@ -34,19 +37,28 @@
 
   <Panel>
 
+    <Panel Margin="{Binding $parent[Window].OffScreenMargin}">
+
     <!-- ===== MAIN LAYOUT ===== -->
     <DockPanel>
 
-      <!-- ===== TOP HEADER ===== -->
-      <Border Classes="Toolbar TopHeader" DockPanel.Dock="Top" Padding="14,0">
-        <DockPanel VerticalAlignment="Center">
-          <StackPanel Orientation="Horizontal" Spacing="12" DockPanel.Dock="Left">
-            <TextBlock Text="JSON EDITOR" Classes="HeaderLabel" VerticalAlignment="Center" />
-            <TextBlock Text="{Binding DocumentFilename}"
-                       Foreground="{DynamicResource TextTertiaryBrush}"
-                       FontFamily="{StaticResource FontJetBrainsMono}"
-                       FontSize="{DynamicResource EditorFontSizeBase}" VerticalAlignment="Center" />
+      <!-- ===== TOP HEADER (eigene Titelzeile) ===== -->
+      <Border x:Name="TopHeaderBar" Classes="Toolbar TopHeader" DockPanel.Dock="Top" Padding="0">
+        <DockPanel VerticalAlignment="Stretch" LastChildFill="False">
+          <!-- Fensterbuttons (rechts außen) -->
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Stretch">
+            <Button Theme="{StaticResource CaptionButtonTheme}" Click="Minimize_Click" ToolTip.Tip="Minimieren">
+              <Path Classes="CaptionIcon" Data="{StaticResource TitleBarMinIcon}" Width="10" Height="10"
+                    Fill="{DynamicResource TextPrimaryBrush}" Stroke="Transparent" />
+            </Button>
+            <Button Theme="{StaticResource CaptionButtonTheme}" Click="Maximize_Click" ToolTip.Tip="Maximieren">
+              <Path Classes="CaptionIcon" Data="{StaticResource TitleBarMaxIcon}" Width="10" Height="10" />
+            </Button>
+            <Button Theme="{StaticResource CaptionButtonTheme}" Classes="CaptionClose" Click="Close_Click" ToolTip.Tip="Schließen">
+              <Path Classes="CaptionIcon" Data="{StaticResource lucide-x}" Width="10" Height="10" />
+            </Button>
           </StackPanel>
+          <!-- Status (links von den Buttons) -->
           <StackPanel Orientation="Horizontal" Spacing="6" DockPanel.Dock="Right"
                       Margin="0,0,8,0" VerticalAlignment="Center"
                       IsVisible="{Binding IsSchemaStatusVisible}">
@@ -84,9 +96,19 @@
             <TextBlock Text="saved" Foreground="{DynamicResource AccentBrush}"
                        FontFamily="{StaticResource FontJetBrainsMono}"
                        FontSize="{DynamicResource EditorFontSizeTiny}" FontWeight="Bold" />
-            </Border>
-          </DockPanel>
-        </Border>
+          </Border>
+          <!-- Links: App-Icon + App-Name + Dateiname -->
+          <StackPanel Orientation="Horizontal" Spacing="10" DockPanel.Dock="Left"
+                      Margin="5,0,0,0" VerticalAlignment="Center">
+            <Image Source="/Assets/app-icon.png" Width="26" Height="26" VerticalAlignment="Center" />
+            <TextBlock Text="SHUI – Schema UI Configuration Editor" Classes="HeaderLabel" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding DocumentFilename}"
+                       Foreground="{DynamicResource TextTertiaryBrush}"
+                       FontFamily="{StaticResource FontJetBrainsMono}"
+                       FontSize="{DynamicResource EditorFontSizeBase}" VerticalAlignment="Center" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
 
         <Border Classes="ErrorBanner" DockPanel.Dock="Top" IsVisible="{Binding HasLoadError}">
           <TextBlock Text="{Binding LoadError}" Classes="ErrorText" TextWrapping="Wrap" />
@@ -763,6 +785,8 @@
 
       </Grid>
     </DockPanel>
+
+    </Panel>
 
     <!-- ===== DIFF MODAL OVERLAY ===== -->
     <Border IsVisible="{Binding ShowDiff}" Classes="DiffOverlay" Tapped="DiffOverlay_Tapped">

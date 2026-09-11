@@ -4,6 +4,44 @@
   <Styles.Resources>
     <StreamGeometry x:Key="EditorSpinIncreaseIcon">M1,8 L5,2 9,8 Z</StreamGeometry>
     <StreamGeometry x:Key="EditorSpinDecreaseIcon">M1,2 L5,8 9,2 Z</StreamGeometry>
+    <StreamGeometry x:Key="TitleBarMinIcon">M0,4 H10 V5 H0 Z</StreamGeometry>
+    <StreamGeometry x:Key="TitleBarMaxIcon">M0.5,0.5 H9.5 V9.5 H0.5 Z</StreamGeometry>
+
+    <!-- Eigene Fensterbuttons der Titelzeile: minimales Template ohne Fluent-Schatten/Fokusring -->
+    <ControlTheme x:Key="CaptionButtonTheme" TargetType="Button">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Width" Value="46" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="FocusAdorner" Value="{x:Null}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Root" Background="{TemplateBinding Background}">
+            <ContentPresenter Name="PART_ContentPresenter"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+      <Style Selector="^:pointerover /template/ Border#PART_Root">
+        <Setter Property="Background" Value="#2e2e2e" />
+      </Style>
+      <Style Selector="^:pressed /template/ Border#PART_Root">
+        <Setter Property="Background" Value="#3a3a3a" />
+      </Style>
+      <Style Selector="^.CaptionClose:pointerover /template/ Border#PART_Root">
+        <Setter Property="Background" Value="#e81123" />
+      </Style>
+      <Style Selector="^.CaptionClose:pressed /template/ Border#PART_Root">
+        <Setter Property="Background" Value="#b10e1c" />
+      </Style>
+    </ControlTheme>
 
     <ControlTheme x:Key="EditorSpinnerRepeatButton" TargetType="RepeatButton">
       <Setter Property="Background" Value="Transparent" />
@@ -419,7 +457,19 @@
     <Setter Property="Height" Value="38" />
     <Setter Property="BorderThickness" Value="0,0,0,1" />
     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
-    <Setter Property="Background" Value="{DynamicResource ToolbarBackgroundBrush}" />
+    <Setter Property="Background" Value="{DynamicResource TitleBarBackgroundBrush}" />
+  </Style>
+
+  <!-- Icons der eigenen Fensterbuttons -->
+  <Style Selector="Path.CaptionIcon">
+    <Setter Property="Stretch" Value="Uniform" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Stroke" Value="{DynamicResource TextPrimaryBrush}" />
+    <Setter Property="StrokeThickness" Value="1.2" />
+    <Setter Property="StrokeLineCap" Value="Round" />
+    <Setter Property="StrokeJoin" Value="Round" />
+    <Setter Property="Fill" Value="Transparent" />
   </Style>
 
   <Style Selector="Border.TreeToolbar">
