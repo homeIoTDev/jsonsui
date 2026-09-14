@@ -1,12 +1,12 @@
-# ConfixJson Development Guide
+# Jsonsui Development Guide
 
 > **Always read `ARCHITECTURE_OVERVIEW.md` first** — it defines the project architecture, design decisions, and the strict separation between Core (UI-independent) and UI layers.
 
 ## Project Structure
 
-- `src/ConfixJson.Core/` - UI-independent logic: models, services, document CRUD, validation, diff, undo/redo, file I/O
-- `src/ConfixJson.UI/` - Avalonia desktop UI application (MVVM with CommunityToolkit.Mvvm)
-- `ConfixJson.slnx` - .NET solution file
+- `src/Jsonsui.Core/` - UI-independent logic: models, services, document CRUD, validation, diff, undo/redo, file I/O
+- `src/Jsonsui.UI/` - Avalonia desktop UI application (MVVM with CommunityToolkit.Mvvm)
+- `Jsonsui.slnx` - .NET solution file
 
 The UI project references the Core library. **Core must never reference UI.**
 
@@ -17,13 +17,13 @@ The UI project references the Core library. **Core must never reference UI.**
 
 ## Entry Points
 
-**Desktop App:** `dotnet run --project src/ConfixJson.UI/ConfixJson.UI.csproj`
-**Core Library:** Use `src/ConfixJson.Core` as package reference
+**Desktop App:** `dotnet run --project src/Jsonsui.UI/Jsonsui.UI.csproj`
+**Core Library:** Use `src/Jsonsui.Core` as package reference
 
 ## Build & Run
 
-1. Build solution: `dotnet build ConfixJson.slnx`
-2. Run desktop app: `dotnet run --project src/ConfixJson.UI/ConfixJson.UI.csproj`
+1. Build solution: `dotnet build Jsonsui.slnx`
+2. Run desktop app: `dotnet run --project src/Jsonsui.UI/Jsonsui.UI.csproj`
 
 ## Architecture: Core vs UI boundary
 

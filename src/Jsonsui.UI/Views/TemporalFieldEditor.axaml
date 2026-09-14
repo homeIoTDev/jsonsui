@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:Jsonsui.UI.Converters"
+             xmlns:models="using:Jsonsui.Core.Models"
+             x:Class="Jsonsui.UI.Views.TemporalFieldEditor"
+             x:DataType="models:FieldRow">
+
+  <Border Classes="EditorInputField"
+          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeIsTemporal}}">
+
+    <DockPanel>
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="2"
+                  VerticalAlignment="Center">
+
+        <Button Classes="IconAssist"
+                ToolTip.Tip="Datum auswählen"
+                IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeAny}, ConverterParameter=date;date-time}">
+          <Button.Flyout>
+            <Flyout Placement="BottomEdgeAlignedRight"
+                    Opened="CalendarFlyout_Opened">
+              <Calendar SelectionMode="SingleDate"
+                        IsTodayHighlighted="True"
+                        SelectedDatesChanged="Calendar_SelectedDatesChanged" />
+            </Flyout>
+          </Button.Flyout>
+          <Path Classes="Lucide" Data="{StaticResource lucide-calendar}" Width="12" Height="12"
+                Stroke="{DynamicResource TextSecondaryBrush}" />
+        </Button>
+
+        <Button Classes="IconAssist"
+                ToolTip.Tip="Zeit auswählen"
+                IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeAny}, ConverterParameter=time;date-time}">
+          <Button.Flyout>
+            <Flyout Placement="BottomEdgeAlignedRight"
+                    Opened="TimeFlyout_Opened">
+              <TimePicker ClockIdentifier="24HourClock"
+                          UseSeconds="True"
+                          SelectedTimeChanged="TimeFlyoutPicker_SelectedTimeChanged" />
+            </Flyout>
+          </Button.Flyout>
+          <Path Classes="Lucide" Data="{StaticResource lucide-clock}" Width="12" Height="12"
+                Stroke="{DynamicResource TextSecondaryBrush}" />
+        </Button>
+
+      </StackPanel>
+
+      <TextBox x:Name="TemporalTextBox" Classes="EditorInputInner"
+               Text="{Binding ScalarValue}"
+               IsReadOnly="{Binding IsReadOnly}"
+               GotFocus="TemporalText_GotFocus"
+               LostFocus="TemporalText_LostFocus"
+               KeyDown="TemporalText_KeyDown" />
+    </DockPanel>
+
+  </Border>
+</UserControl>

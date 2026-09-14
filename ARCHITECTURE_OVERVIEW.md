@@ -173,7 +173,7 @@ Plugins sind DLLs und werden dynamisch geladen.
 - Läuft überall im Browser
 
 ### 3.3 Core‑Schicht (shared)
-Der Core ConfixJson.Core enthält:
+Der Core Jsonsui.Core enthält:
 
 - JSON Parser (System.Text.Json)
 - JSON Schema Parser (Json.Schema.Net)

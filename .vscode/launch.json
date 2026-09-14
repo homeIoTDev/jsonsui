@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [ 
         {
-            "name": "Avalonia: ConfixJson.UI",
+            "name": "Avalonia: Jsonsui.UI",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/src/ConfixJson.UI/ConfixJson.UI.csproj"
+            "projectPath": "${workspaceFolder}/src/Jsonsui.UI/Jsonsui.UI.csproj"
         }
     ]
 }

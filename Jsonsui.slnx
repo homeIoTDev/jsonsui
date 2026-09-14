@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Jsonsui.Core/Jsonsui.Core.csproj" />
+    <Project Path="src/Jsonsui.UI/Jsonsui.UI.csproj" />
+    <Project Path="src/Jsonsui.Tui/Jsonsui.Tui.csproj" />
+  </Folder>
+</Solution>

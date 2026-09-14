@@ -1,0 +1,77 @@
+{
+  "$schema": "./test_min_more.schema.json",
+
+  "project": {
+    "name1": "Jsonsui Test Project",
+    "version": "2.4.1",
+    "environment": "development",
+    "debug": false,
+    "tags": ["test", "editor", "integration"],
+
+    "releaseDate": "2026-08-16",
+    "maintenanceWindow": "02:00:00",
+    "lastDeployment": "2026-08-16T10:30:00Z",
+
+    "environmentLabel": "dev",
+    "hostnamePattern": "server-01"
+  },
+
+  "server": {
+    "host": "127.0.0.1",
+    "port": 3000,
+    "timeout": 30,
+    "maxConnections": 100,
+    "tls": false,
+
+    "maxRetries": 5
+  },
+
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "name": "jsonsui",
+    "ssl": true,
+    "poolSize": 10,
+    "queryTimeout": 3000,
+
+    "schemaVersion": "v1"
+  },
+
+  "auth": {
+    "provider": "oidc",
+    "clientId": "jsonsui-client",
+    "tokenExpiry": 3600,
+    "refreshEnabled": true,
+
+    "providerConst": "oidc"
+  },
+
+  "plugins": [
+    {
+      "name": "rate-limiter",
+      "enabled": true,
+      "requests": 100,
+      "window": 60
+    },
+    {
+      "name": "request-logger",
+      "enabled": true,
+      "requests": 500,
+      "window": 60
+    },
+    {
+      "name": "security-headers",
+      "enabled": false,
+      "requests": 0,
+      "window": 120
+    }
+  ],
+
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "prettyPrint": false,
+    "maxFiles": 7,
+    "outputs": ["console", "file"]
+  }
+}

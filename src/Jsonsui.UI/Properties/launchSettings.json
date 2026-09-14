@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Jsonsui-Min": {
+      "commandName": "Project",
+      "type": "dotnet",
+      "commandLineArgs": "./TestData/test_min.json"
+    },
+    "Jsonsui-ExampleSchema": {
+      "commandName": "Project",
+      "type": "dotnet",
+      "commandLineArgs": "./TestData/test_example.json --schema ./TestData/test_example.schema.json"
+    },
+    "Jsonsui-Min-More": {
+      "commandName": "Project",
+      "type": "dotnet",
+      "commandLineArgs": "./TestData/test_min_more.json"
+    }
+  }
+}

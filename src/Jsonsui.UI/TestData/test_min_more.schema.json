@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/jsonsui-test.schema.json",
+  "title": "Jsonsui Test Configuration",
+  "description": "Extended schema for testing all UI widgets and validation constraints.",
+  "type": "object",
+
+  "properties": {
+
+    "project": {
+      "type": "object",
+      "description": "Top-level project metadata and runtime settings.",
+
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable project identifier."
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version string.",
+          "default": "1.0.0"
+        },
+        "environment": {
+          "type": "string",
+          "description": "Deployment environment.",
+          "enum": ["development", "staging", "production"],
+          "default": "development",
+          "minLength": 3,
+          "maxLength": 20
+        },
+        "debug": {
+          "type": "boolean",
+          "description": "Enable verbose debug output.",
+          "default": false,
+          "deprecated": true,
+          "$comment": "Never enable in production — may expose sensitive data."
+        },
+        "tags": {
+          "type": "array",
+          "description": "Arbitrary string labels.",
+          "items": { "type": "string" }
+        },
+
+        "releaseDate": {
+          "type": "string",
+          "format": "date",
+          "description": "Release date of the configuration.",
+          "default": "2026-01-01"
+        },
+        "maintenanceWindow": {
+          "type": "string",
+          "format": "time",
+          "description": "Daily maintenance window start time.",
+          "default": "02:00:00"
+        },
+        "lastDeployment": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of last deployment.",
+          "readOnly": true
+        },
+
+        "environmentLabel": {
+          "type": "string",
+          "description": "Short environment label.",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "hostnamePattern": {
+          "type": "string",
+          "description": "Hostname validation pattern.",
+          "pattern": "^[a-z0-9.-]+$"
+        }
+      },
+
+      "required": ["name"]
+    },
+
+    "server": {
+      "type": "object",
+      "description": "HTTP server configuration.",
+
+      "properties": {
+        "host": {
+          "type": "string",
+          "default": "127.0.0.1"
+        },
+        "port": {
+          "type": "integer",
+          "default": 3000,
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "timeout": {
+          "type": "integer",
+          "default": 30,
+          "minimum": 1
+        },
+        "maxConnections": {
+          "type": "integer",
+          "default": 100,
+          "deprecated": true,
+          "$comment": "Use load balancer limits instead."
+        },
+        "tls": {
+          "type": "boolean",
+          "default": false
+        },
+
+        "maxRetries": {
+          "type": "integer",
+          "description": "Maximum retry attempts.",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3
+        }
+      },
+
+      "required": ["port"]
+    },
+
+    "database": {
+      "type": "object",
+      "description": "Database connection parameters.",
+
+      "properties": {
+        "host": { "type": "string" },
+        "port": { "type": "integer", "default": 5432 },
+        "name": { "type": "string" },
+        "ssl": { "type": "boolean", "default": true },
+        "poolSize": {
+          "type": "integer",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "queryTimeout": {
+          "type": "integer",
+          "default": 3000
+        },
+
+        "schemaVersion": {
+          "type": "string",
+          "const": "v1",
+          "description": "Fixed schema version."
+        }
+      },
+
+      "required": ["host", "name"]
+    },
+
+    "auth": {
+      "type": "object",
+      "description": "Authentication provider configuration.",
+
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["oauth2", "oidc", "saml", "local"]
+        },
+        "clientId": {
+          "type": "string",
+          "readOnly": true
+        },
+        "tokenExpiry": {
+          "type": "integer",
+          "default": 3600
+        },
+        "refreshEnabled": {
+          "type": "boolean",
+          "default": true
+        },
+
+        "providerConst": {
+          "type": "string",
+          "const": "oidc",
+          "description": "Provider is fixed."
+        }
+      },
+
+      "required": ["provider"]
+    },
+
+    "plugins": {
+      "type": "array",
+      "description": "Ordered list of middleware plugins.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Plugin identifier — must match a registered module." },
+          "enabled": { "type": "boolean", "description": "Toggle plugin without removing it from config.", "default": true },
+          "requests": {
+            "type": "integer",
+            "description": "Request threshold for rate-limiting.",
+            "default": 100,
+            "minimum": 0
+          },
+          "window": {
+            "type": "integer",
+            "description": "Time window in seconds for the threshold.",
+            "default": 60,
+            "minimum": 1
+          }
+        },
+        "required": ["name"]
+      }
+    },
+
+    "logging": {
+      "type": "object",
+      "description": "Structured logging configuration.",
+
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["trace", "debug", "info", "warn", "error", "fatal"],
+          "default": "info"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["json", "text", "pretty"],
+          "default": "json"
+        },
+        "prettyPrint": {
+          "type": "boolean",
+          "default": false,
+          "deprecated": true,
+          "$comment": "Pretty-printing is for development only."
+        },
+        "maxFiles": {
+          "type": "integer",
+          "default": 7
+        },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

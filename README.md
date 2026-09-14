@@ -1,4 +1,4 @@
-# 🚀 Confix.json
+# 🚀 jsonsui
 
 > **No more raw text. Navigate and edit JSON configurations through a schema-driven UI**  
 > A blazing-fast, cross-platform config editor powered by Avalonia UI.
@@ -7,9 +7,9 @@
 [![Build Status](https://shields.io)](actions)
 [![AvaloniaUI](https://shields.io)](https://avaloniaui.net)
 
-**Confix.json** turns standard JSON Schema into a focused, human-friendly configuration experience for complex JSON files.
+**jsonsui** turns standard JSON Schema into a focused, human-friendly configuration experience for complex JSON files.
 
-Instead of exposing the entire JSON document as a form or forcing users to edit raw JSON, Confix separates navigation from editing:
+Instead of exposing the entire JSON document as a form or forcing users to edit raw JSON, jsonsui separates navigation from editing:
 
 * The tree is for navigation
 * The editor is for the selected JSON context
@@ -39,11 +39,11 @@ Open any JSON configuration file instantly from your terminal:
 
 ```bash
 # Open a config file (auto-detects schema via \$schema)
-confix appsettings.json
+jsonsui appsettings.json
 
 # Force a specific JSON schema
-confix config.json --schema ./schemas/app-schema.json
+jsonsui config.json --schema ./schemas/app-schema.json
 
 # Compare and sync two production environments
-confix --diff prod.json dev.json
+jsonsui --diff prod.json dev.json
 ```
