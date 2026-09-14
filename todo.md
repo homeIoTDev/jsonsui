@@ -4,7 +4,7 @@ Mo-Fr:
 08:00–12:00 Uhr!
 
 [x] Rename to jsonsui (abgeschlossen)
-[ ] Codeview ist nicht bildschirm füllend und wird nicht übernommen aus änderungen der UI-Controls.
+[ ] Json-Text-Veiw ist nicht bildschirm füllend und wird nicht übernommen aus änderungen der UI-Controls.
 [ ] DIFF-View soll gegen speicher und gegen file parameter und grafisch aufbereit sein.
 [ ] MainWindow.axaml in UserControls auslagern
 [ ] Verschieben von Object Properties

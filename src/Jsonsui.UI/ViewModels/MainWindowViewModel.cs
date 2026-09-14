@@ -120,6 +120,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(ShowEmptyDetailState))]
     public partial string DetailScalarText { get; set; } = "";
 
+    [ObservableProperty]
+    public partial FieldRow? ScalarRow { get; set; }
+
     public bool HasScalarDetail => ScalarNode is { Path.Length: > 0 };
 
     public bool ShowEmptyDetailState => !HasObjectFields && !HasScalarDetail;
@@ -317,6 +320,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ObjectFields.Clear();
         CardItems.Clear();
         ScalarNode = new Jsonsui.Core.Models.JsonEditorNode { Label = "", Path = [], NodeType = "scalar" };
+        ScalarRow = null;
         DetailScalarText = "";
         TextContent = "";
         TextEditorPathString = "";
@@ -356,8 +360,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
         else if (mode == EditorMode.Scalar)
         {
-            var selected = EditorLogic.GetSelectedValue(_state);
-            ScalarNode = EditorLogic.BuildScalarNode(_state, _state.SelectedPath, selected);
+            ScalarRow = EditorLogic.BuildScalarFieldRow(_state);
         }
 
         System.Diagnostics.Debug.WriteLine("[RefreshUI] END");
@@ -655,7 +658,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void AddCard()
     {
         var (arrayPath, _) = EditorLogic.GetCardArrayContext(_state);
-        if (arrayPath.Length == 0) return;
+        if (JsonDocumentService.GetByPath(_state.Json, arrayPath) is not JsonArray) return;
         EditorLogic.AddArrayItem(_state, arrayPath, _undoRedo);
         RefreshUI();
         if (EditorLogic.GetDetailItemValue(_state) is JsonValue)

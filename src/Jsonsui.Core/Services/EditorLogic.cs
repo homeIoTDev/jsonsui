@@ -730,7 +730,7 @@ public static class EditorLogic
         => JsonDocumentService.GetByPath(state.Json, state.SelectedPath);
 
     public static string GetSelectedPathString(EditorState state)
-        => string.Join(" / ", state.SelectedPath);
+        => state.SelectedPath.Length == 0 ? "root" : string.Join(" / ", state.SelectedPath);
 
     public static string[] GetEffectiveEditorPath(EditorState state)
     {
@@ -743,7 +743,10 @@ public static class EditorLogic
     }
 
     public static string GetEffectivePathString(EditorState state)
-        => string.Join(" / ", GetEffectiveEditorPath(state));
+    {
+        var path = GetEffectiveEditorPath(state);
+        return path.Length == 0 ? "root" : string.Join(" / ", path);
+    }
 
     private static (string[]?, int?) FindArrayInStack(EditorState state)
     {
@@ -805,7 +808,7 @@ public static class EditorLogic
             return EditorMode.Object;
 
         var selected = GetSelectedValue(state);
-        if ((selected is JsonArray arr && arr.Count > 0) || state.NestedCtx != null)
+        if (selected is JsonArray || state.NestedCtx != null)
             return EditorMode.ArraySplit;
         if (selected is JsonObject)
             return EditorMode.Object;
@@ -830,53 +833,76 @@ public static class EditorLogic
             if (state.ActiveSchema != null)
                 schemaProp = ResolveSchemaProperty(state.ActiveSchema, fieldPath);
 
-            var fieldType = DetermineFieldType(kvp.Value, schemaProp);
-
-            var row = new FieldRow
-            {
-                Key = kvp.Key,
-                Path = fieldPath,
-                FieldType = fieldType,
-                IsRequired = schemaProp?.IsRequired ?? false,
-                IsReadOnly = schemaProp?.IsReadOnly ?? false,
-                IsDeprecated = schemaProp?.IsDeprecated ?? false,
-                DefaultValue = schemaProp?.DefaultValue,
-                Comment = schemaProp?.Comment,
-                HasErrors = state.Errors.Any(e => e.PathString == string.Join(".", fieldPath)),
-                EnumValues = schemaProp?.EnumValues,
-                MinValue = schemaProp?.Minimum != null ? (decimal)schemaProp.Minimum.Value : decimal.MinValue,
-                MaxValue = schemaProp?.Maximum != null ? (decimal)schemaProp.Maximum.Value : decimal.MaxValue
-            };
-
-            if (kvp.Value is JsonObject nestedObj)
-                row.NestedObjectSummary = $"{{{nestedObj.Count} fields}}";
-            else if (kvp.Value is JsonArray nestedArr)
-                row.ArrayItemCount = $"{nestedArr.Count} items";
-            else if (kvp.Value is JsonValue jv)
-            {
-                if (fieldType == "enum" && jv.TryGetValue<string>(out var sv))
-                    row.ScalarValue = sv;
-                else if (fieldType == "boolean" && jv.TryGetValue<bool>(out var bv))
-                    row.BoolValue = bv;
-                else if (fieldType is "integer" or "number")
-                {
-                    var extracted = ExtractNumericValue(jv);
-                    row.NumericValue = extracted;
-                    row.OriginalNumericValue = extracted;
-                    System.Diagnostics.Debug.WriteLine($"[BuildNumeric] Field={kvp.Key} extracted={extracted} jv.ToJsonString()={jv.ToJsonString()}");
-                }
-                else if (fieldType is "date" or "time" or "date-time")
-                {
-                    var str = jv.TryGetValue<string>(out var s) ? s : null;
-                    TemporalValue.Apply(row, fieldType, str);
-                }
-                else if (fieldType != "null")
-                    row.ScalarValue = JsonDocumentService.GetScalarPreview(jv, 200);
-            }
-
-            rows.Add(row);
+            rows.Add(CreateFieldRow(state, fieldPath, kvp.Value, schemaProp));
         }
         return rows;
+    }
+
+    /// <summary>
+    /// Baut eine einzelne <see cref="FieldRow"/> für den aktuellen Skalar-Kontext
+    /// (z. B. ein Dokument, das selbst nur ein Primitivwert ist). Nutzt dieselbe
+    /// Typerkennung wie <see cref="BuildObjectFields"/>, damit die Scalar-Vollansicht
+    /// typspezifisch rendert (bool → CheckBox, Zahl → NumericUpDown usw.).
+    /// </summary>
+    public static FieldRow BuildScalarFieldRow(EditorState state)
+    {
+        var fieldPath = state.SelectedPath;
+        SchemaProperty? schemaProp = null;
+        if (state.ActiveSchema != null)
+            schemaProp = ResolveSchemaProperty(state.ActiveSchema, fieldPath);
+
+        var value = JsonDocumentService.GetByPath(state.Json, fieldPath);
+        return CreateFieldRow(state, fieldPath, value, schemaProp);
+    }
+
+    private static FieldRow CreateFieldRow(EditorState state, string[] fieldPath, JsonNode? value,
+        SchemaProperty? schemaProp)
+    {
+        var fieldType = DetermineFieldType(value, schemaProp);
+
+        var row = new FieldRow
+        {
+            Key = fieldPath.Length > 0 ? fieldPath[^1] : "value",
+            Path = fieldPath,
+            FieldType = fieldType,
+            IsRequired = schemaProp?.IsRequired ?? false,
+            IsReadOnly = schemaProp?.IsReadOnly ?? false,
+            IsDeprecated = schemaProp?.IsDeprecated ?? false,
+            DefaultValue = schemaProp?.DefaultValue,
+            Comment = schemaProp?.Comment,
+            HasErrors = state.Errors.Any(e => e.PathString == string.Join(".", fieldPath)),
+            EnumValues = schemaProp?.EnumValues,
+            MinValue = schemaProp?.Minimum != null ? (decimal)schemaProp.Minimum.Value : decimal.MinValue,
+            MaxValue = schemaProp?.Maximum != null ? (decimal)schemaProp.Maximum.Value : decimal.MaxValue
+        };
+
+        if (value is JsonObject nestedObj)
+            row.NestedObjectSummary = $"{{{nestedObj.Count} fields}}";
+        else if (value is JsonArray nestedArr)
+            row.ArrayItemCount = $"{nestedArr.Count} items";
+        else if (value is JsonValue jv)
+        {
+            if (fieldType == "enum" && jv.TryGetValue<string>(out var sv))
+                row.ScalarValue = sv;
+            else if (fieldType == "boolean" && jv.TryGetValue<bool>(out var bv))
+                row.BoolValue = bv;
+            else if (fieldType is "integer" or "number")
+            {
+                var extracted = ExtractNumericValue(jv);
+                row.NumericValue = extracted;
+                row.OriginalNumericValue = extracted;
+                System.Diagnostics.Debug.WriteLine($"[BuildNumeric] Field={row.Key} extracted={extracted} jv.ToJsonString()={jv.ToJsonString()}");
+            }
+            else if (fieldType is "date" or "time" or "date-time")
+            {
+                var str = jv.TryGetValue<string>(out var s) ? s : null;
+                TemporalValue.Apply(row, fieldType, str);
+            }
+            else if (fieldType != "null")
+                row.ScalarValue = JsonDocumentService.GetScalarPreview(jv, 200);
+        }
+
+        return row;
     }
 
     public static List<CardItem> BuildCardItems(EditorState state, string[] arrayPath)

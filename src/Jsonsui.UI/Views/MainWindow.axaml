@@ -33,6 +33,109 @@
       </StackPanel>
     </DataTemplate>
 
+    <DataTemplate x:Key="FieldControlTemplate" x:DataType="models:FieldRow">
+      <Grid VerticalAlignment="Center">
+        <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
+                Command="{Binding $parent[Window].DataContext.DrillIntoCommand}"
+                CommandParameter="{Binding Path}"
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderBrush="{DynamicResource PanelBorderBrush}"
+                BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="{Binding NestedObjectSummary}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
+            <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
+                      Stroke="{DynamicResource TextTertiaryBrush}" />
+          </StackPanel>
+        </Button>
+        <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
+                Command="{Binding $parent[Window].DataContext.DrillIntoArrayCommand}"
+                CommandParameter="{Binding Path}"
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderBrush="{DynamicResource PanelBorderBrush}"
+                BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
+                      Stroke="{DynamicResource AccentBrush}" />
+            <TextBlock Text="{Binding ArrayItemCount}"
+                       FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
+            <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
+                      Stroke="{DynamicResource TextTertiaryBrush}" />
+          </StackPanel>
+         </Button>
+         <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeIsTemporal}}">
+           <views:TemporalFieldEditor />
+           <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                   IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+         </Grid>
+         <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}">
+            <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                           Classes="EditorNum"
+                           IsReadOnly="{Binding IsReadOnly}"
+                           ValueChanged="NumericUpDown_ValueChanged"
+                           LostFocus="NumericUpDown_LostFocus"
+                           GotFocus="NumericUpDown_GotFocus"
+                           FormatString="N0" />
+           <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                   IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+         </Grid>
+         <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}">
+            <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
+                           Classes="EditorNum"
+                           IsReadOnly="{Binding IsReadOnly}"
+                           ValueChanged="NumericUpDown_ValueChanged"
+                           LostFocus="NumericUpDown_LostFocus"
+                           GotFocus="NumericUpDown_GotFocus"
+                           FormatString="N2" />
+           <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                   IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+         </Grid>
+         <CheckBox IsChecked="{Binding BoolValue}"
+                   IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                   IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=boolean}"
+                   HorizontalAlignment="Left"
+                   GotFocus="EditorField_GotFocus"
+                   IsCheckedChanged="BooleanCheckBox_IsCheckedChanged" />
+         <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}">
+           <ComboBox ItemsSource="{Binding EnumValues}"
+                     SelectedItem="{Binding ScalarValue}"
+                     IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                     HorizontalAlignment="Stretch"
+                     GotFocus="EditorField_GotFocus"
+                     SelectionChanged="EnumComboBox_SelectionChanged" />
+           <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                   IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+         </Grid>
+         <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}">
+           <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
+                    IsReadOnly="{Binding IsReadOnly}"
+                    HorizontalAlignment="Stretch"
+                    GotFocus="EditorField_GotFocus"
+                    LostFocus="EditorScalar_LostFocus"
+                    KeyDown="EditorScalar_KeyDown" />
+           <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
+                   IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
+         </Grid>
+          <TextBlock Text="null"
+                     IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
+                     Foreground="{DynamicResource TextTertiaryBrush}"
+                     FontStyle="Italic" VerticalAlignment="Center" />
+          <Button Classes="NullableTypeBtn" Click="NullableTypeButton_Click"
+                  IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=nullable}"
+                  IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                  Padding="8,4"
+                  ToolTip.Tip="Select type">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="null" FontStyle="Italic"
+                         Foreground="{DynamicResource TextSecondaryBrush}"
+                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
+              <Path Classes="Lucide" Data="{StaticResource lucide-chevron-down}" Width="10" Height="10"
+                        Stroke="{DynamicResource TextTertiaryBrush}" />
+            </StackPanel>
+          </Button>
+      </Grid>
+    </DataTemplate>
   </Window.Resources>
 
   <Panel>
@@ -202,7 +305,7 @@
             <Border Classes="PanelHeader" DockPanel.Dock="Top">
               <DockPanel VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="TEXT" Classes="HeaderLabel" />
+                  <TextBlock Text="JSON" Classes="HeaderLabel" />
                   <TextBlock Text="{Binding TextEditorPathString}" Classes="HeaderSubtitle" />
                 </StackPanel>
               </DockPanel>
@@ -211,9 +314,6 @@
                     IsVisible="{Binding HasTextParseError}">
               <TextBlock Text="{Binding TextParseError}" Classes="ErrorText" />
             </Border>
-            <TextBox Text="{Binding TextContent}"
-                     Classes="MonoEditor" AcceptsReturn="True"
-                     Background="{DynamicResource InputBackgroundBrush}" BorderThickness="0" />
             <Border Classes="HelpStrip" DockPanel.Dock="Bottom" IsVisible="{Binding EditorHelpVisible}">
               <StackPanel Spacing="3">
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
@@ -222,6 +322,9 @@
                            IsVisible="{Binding EditorHelpInfo.FieldDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
               </StackPanel>
             </Border>
+            <TextBox Text="{Binding TextContent}"
+                     Classes="MonoEditor" AcceptsReturn="True"
+                     Background="{DynamicResource InputBackgroundBrush}" BorderThickness="0" />
           </DockPanel>
         </Border>
 
@@ -233,7 +336,7 @@
                     BorderBrush="{DynamicResource PanelBorderBrush}">
               <DockPanel VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Spacing="8">
-                  <TextBlock Text="OBJECT" Classes="HeaderLabel" />
+                  <TextBlock Text="Object" Classes="HeaderLabel" />
                   <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle" />
                   <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
                           Classes="IconBtn"
@@ -295,107 +398,9 @@
                                      IsVisible="{Binding HasRenameError}" />
                         </StackPanel>
                         <Grid Grid.Column="1" />
-                        <Grid Grid.Column="2" VerticalAlignment="Center">
-                          <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
-                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoCommand}"
-                                  CommandParameter="{Binding Path}"
-                                  Background="{DynamicResource CardBackgroundBrush}"
-                                  BorderBrush="{DynamicResource PanelBorderBrush}"
-                                  BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                              <TextBlock Text="{Binding NestedObjectSummary}"
-                                         Foreground="{DynamicResource TextSecondaryBrush}"
-                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
-                              <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
-                                        Stroke="{DynamicResource TextTertiaryBrush}" />
-                            </StackPanel>
-                          </Button>
-                          <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
-                                  Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
-                                  CommandParameter="{Binding Path}"
-                                  Background="{DynamicResource CardBackgroundBrush}"
-                                  BorderBrush="{DynamicResource PanelBorderBrush}"
-                                  BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                              <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
-                                        Stroke="{DynamicResource AccentBrush}" />
-                              <TextBlock Text="{Binding ArrayItemCount}"
-                                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
-                              <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
-                                        Stroke="{DynamicResource TextTertiaryBrush}" />
-                            </StackPanel>
-                           </Button>
-                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeIsTemporal}}">
-                             <views:TemporalFieldEditor />
-                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                           </Grid>
-                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}">
-                              <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                             Classes="EditorNum"
-                                             IsReadOnly="{Binding IsReadOnly}"
-                                             ValueChanged="NumericUpDown_ValueChanged"
-                                             LostFocus="NumericUpDown_LostFocus"
-                                             GotFocus="NumericUpDown_GotFocus"
-                                             FormatString="N0" />
-                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                           </Grid>
-                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}">
-                              <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                             Classes="EditorNum"
-                                             IsReadOnly="{Binding IsReadOnly}"
-                                             ValueChanged="NumericUpDown_ValueChanged"
-                                             LostFocus="NumericUpDown_LostFocus"
-                                             GotFocus="NumericUpDown_GotFocus"
-                                             FormatString="N2" />
-                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                           </Grid>
-                           <CheckBox IsChecked="{Binding BoolValue}"
-                                     IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                     IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=boolean}"
-                                     HorizontalAlignment="Left"
-                                     GotFocus="EditorField_GotFocus"
-                                     IsCheckedChanged="BooleanCheckBox_IsCheckedChanged" />
-                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}">
-                             <ComboBox ItemsSource="{Binding EnumValues}"
-                                       SelectedItem="{Binding ScalarValue}"
-                                       IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                       HorizontalAlignment="Stretch"
-                                       GotFocus="EditorField_GotFocus"
-                                       SelectionChanged="EnumComboBox_SelectionChanged" />
-                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                           </Grid>
-                           <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}">
-                             <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
-                                      IsReadOnly="{Binding IsReadOnly}"
-                                      HorizontalAlignment="Stretch"
-                                      GotFocus="EditorField_GotFocus"
-                                      LostFocus="EditorScalar_LostFocus"
-                                      KeyDown="EditorScalar_KeyDown" />
-                             <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                     IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                           </Grid>
-                            <TextBlock Text="null"
-                                       IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"
-                                       FontStyle="Italic" VerticalAlignment="Center" />
-                            <Button Classes="NullableTypeBtn" Click="NullableTypeButton_Click"
-                                    IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=nullable}"
-                                    IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                    Padding="8,4"
-                                    ToolTip.Tip="Select type">
-                              <StackPanel Orientation="Horizontal" Spacing="4">
-                                <TextBlock Text="null" FontStyle="Italic"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
-                                <Path Classes="Lucide" Data="{StaticResource lucide-chevron-down}" Width="10" Height="10"
-                                          Stroke="{DynamicResource TextTertiaryBrush}" />
-                              </StackPanel>
-                            </Button>
-                          </Grid>
+                        <ContentControl Grid.Column="2" VerticalAlignment="Center"
+                            Content="{Binding}"
+                            ContentTemplate="{StaticResource FieldControlTemplate}" />
                           <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
                                   VerticalAlignment="Center"
                                   IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
@@ -447,9 +452,10 @@
         <Grid Grid.Column="2" RowDefinitions="Auto,*" IsVisible="{Binding IsArrayMode}">
           <!-- Shared Breadcrumb Header -->
            <Border Grid.Row="0" Classes="PanelHeader" Background="{DynamicResource PanelBackgroundBrush}"
-                    BorderBrush="{DynamicResource PanelBorderBrush}" Padding="14,0">
+                    BorderBrush="{DynamicResource PanelBorderBrush}">
             <DockPanel VerticalAlignment="Center">
-               <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="4">  
+               <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="8">  
+                  <TextBlock Text="Array" Classes="HeaderLabel" />
                   <TextBlock Text="{Binding EffectivePathString}" Classes="HeaderSubtitle" VerticalAlignment="Center" />
                   <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
                         Classes="IconBtn"
@@ -583,107 +589,9 @@
                                          IsVisible="{Binding HasRenameError}" />
                             </StackPanel>
                             <Grid Grid.Column="1" />
-                            <Grid Grid.Column="2" VerticalAlignment="Center">
-                              <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
-                                      Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoCommand}"
-                                      CommandParameter="{Binding Path}"
-                                      Background="{DynamicResource CardBackgroundBrush}"
-                                      BorderBrush="{DynamicResource PanelBorderBrush}"
-                                      BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                  <TextBlock Text="{Binding NestedObjectSummary}"
-                                             Foreground="{DynamicResource TextSecondaryBrush}"
-                                             FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
-                                  <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
-                                            Stroke="{DynamicResource TextTertiaryBrush}" />
-                                </StackPanel>
-                              </Button>
-                               <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
-                                       Command="{Binding ElementName=RootWindow, Path=DataContext.DrillIntoArrayCommand}"
-                                       CommandParameter="{Binding Path}"
-                                       Background="{DynamicResource CardBackgroundBrush}"
-                                       BorderBrush="{DynamicResource PanelBorderBrush}"
-                                       BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
-                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                   <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
-                                             Stroke="{DynamicResource AccentBrush}" />
-                                   <TextBlock Text="{Binding ArrayItemCount}"
-                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
-                                   <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
-                                             Stroke="{DynamicResource TextTertiaryBrush}" />
-                                 </StackPanel>
-                               </Button>
-                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.FieldTypeIsTemporal}}">
-                                 <views:TemporalFieldEditor />
-                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                               </Grid>
-                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=integer}">
-                                  <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                                 Classes="EditorNum"
-                                                 IsReadOnly="{Binding IsReadOnly}"
-                                                 ValueChanged="NumericUpDown_ValueChanged"
-                                                 LostFocus="NumericUpDown_LostFocus"
-                                                 GotFocus="NumericUpDown_GotFocus"
-                                                 FormatString="N0" />
-                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                               </Grid>
-                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=number}">
-                                  <controls:SchemaNumericUpDown Value="{Binding NumericValue}" AllowSpin="True" ShowButtonSpinner="True"
-                                                 Classes="EditorNum"
-                                                 IsReadOnly="{Binding IsReadOnly}"
-                                                 ValueChanged="NumericUpDown_ValueChanged"
-                                                 LostFocus="NumericUpDown_LostFocus"
-                                                 GotFocus="NumericUpDown_GotFocus"
-                                                 FormatString="N2" />
-                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                               </Grid>
-                               <CheckBox IsChecked="{Binding BoolValue}"
-                                         IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                         IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=boolean}"
-                                         HorizontalAlignment="Left"
-                                         GotFocus="EditorField_GotFocus"
-                                         IsCheckedChanged="BooleanCheckBox_IsCheckedChanged" />
-                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=enum}">
-                                 <ComboBox ItemsSource="{Binding EnumValues}"
-                                           SelectedItem="{Binding ScalarValue}"
-                                           IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                           HorizontalAlignment="Stretch"
-                                           GotFocus="EditorField_GotFocus"
-                                           SelectionChanged="EnumComboBox_SelectionChanged" />
-                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                               </Grid>
-                               <Grid IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=scalar}">
-                                 <TextBox Text="{Binding ScalarValue}" Classes="EditorInput"
-                                          IsReadOnly="{Binding IsReadOnly}"
-                                          HorizontalAlignment="Stretch"
-                                          GotFocus="EditorField_GotFocus"
-                                          LostFocus="EditorScalar_LostFocus"
-                                          KeyDown="EditorScalar_KeyDown" />
-                                 <Border BorderThickness="1" CornerRadius="3" BorderBrush="{DynamicResource ErrorBrush}"
-                                         IsVisible="{Binding HasErrors}" IsHitTestVisible="False" />
-                               </Grid>
-                               <TextBlock Text="null"
-                                          IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=null}"
-                                          Foreground="{DynamicResource TextTertiaryBrush}"
-                                          FontStyle="Italic" VerticalAlignment="Center" />
-                               <Button Classes="NullableTypeBtn" Click="NullableTypeButton_Click"
-                                       IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=nullable}"
-                                       IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                       Padding="8,4"
-                                       ToolTip.Tip="Select type">
-                                 <StackPanel Orientation="Horizontal" Spacing="4">
-                                   <TextBlock Text="null" FontStyle="Italic"
-                                              Foreground="{DynamicResource TextSecondaryBrush}"
-                                              FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
-                                   <Path Classes="Lucide" Data="{StaticResource lucide-chevron-down}" Width="10" Height="10"
-                                             Stroke="{DynamicResource TextTertiaryBrush}" />
-                                 </StackPanel>
-                               </Button>
-                             </Grid>
+                            <ContentControl Grid.Column="2" VerticalAlignment="Center"
+                                Content="{Binding}"
+                                ContentTemplate="{StaticResource FieldControlTemplate}" />
                              <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
                                      VerticalAlignment="Center"
                                      IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
@@ -702,7 +610,7 @@
                   <DockPanel>
                     <Border Classes="PanelHeader" DockPanel.Dock="Top"
                             BorderBrush="{DynamicResource PanelBorderBrush}" Padding="14,0">
-                      <TextBlock Text="VALUE" Classes="HeaderLabel"
+                      <TextBlock Text="Value" Classes="HeaderLabel"
                                  VerticalAlignment="Center" />
                     </Border>
                     <StackPanel Spacing="8" Margin="12,14" VerticalAlignment="Top">
@@ -749,22 +657,21 @@
         </Grid>
 
         <!-- ===== CONTENT AREA: SCALAR MODE ===== -->
-        <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}"
+        <Border Grid.Column="2" Background="{DynamicResource PanelBackgroundBrush}"
                 IsVisible="{Binding IsScalarMode}">
           <DockPanel>
             <Border Classes="PanelHeader" DockPanel.Dock="Top">
               <DockPanel VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="VALUE" Classes="HeaderLabel" />
+                  <TextBlock Text="Value" Classes="HeaderLabel" />
                   <TextBlock Text="{Binding SelectedPathString}" Classes="HeaderSubtitle" />
                 </StackPanel>
               </DockPanel>
             </Border>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-              <Grid Margin="12,14" VerticalAlignment="Top">
-                <TextBox Text="{Binding ScalarNode.Label}"
-                         Classes="EditorInput" Width="300" />
-              </Grid>
+              <ContentControl Margin="12,14" VerticalAlignment="Top"
+                              Content="{Binding ScalarRow}"
+                              ContentTemplate="{StaticResource FieldControlTemplate}" />
             </ScrollViewer>
             <Border Classes="HelpStrip" DockPanel.Dock="Bottom" IsVisible="{Binding EditorHelpVisible}">
               <StackPanel Spacing="3">
