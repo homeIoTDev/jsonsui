@@ -698,7 +698,9 @@
 
     <!-- ===== DIFF OVERLAY ===== -->
     <Border IsVisible="{Binding Diff.IsOpen}" Classes="DiffOverlay">
-      <Border Classes="DiffPanel" Width="900" Height="650"
+      <Border Classes="DiffPanel"
+              Width="{Binding $parent[Window].Bounds, Converter={x:Static conv:EditorConverters.WindowBoundsToDiffWidth}}"
+              Height="{Binding $parent[Window].Bounds, Converter={x:Static conv:EditorConverters.WindowBoundsToDiffHeight}}"
               HorizontalAlignment="Center" VerticalAlignment="Center">
         <DockPanel>
           <Border Classes="PanelHeader" DockPanel.Dock="Top">

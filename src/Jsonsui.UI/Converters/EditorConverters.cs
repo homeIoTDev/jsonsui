@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
@@ -65,6 +66,12 @@ public static class EditorConverters
         JsonChangeKind.Removed => ResolveBrush("ErrorBrush"),
         _ => ResolveBrush("TextSecondaryBrush")
     });
+
+    public static readonly IValueConverter WindowBoundsToDiffWidth =
+        new FuncValueConverter<Rect, double>(bounds => Math.Clamp(bounds.Width * 0.82, 520, 1100));
+
+    public static readonly IValueConverter WindowBoundsToDiffHeight =
+        new FuncValueConverter<Rect, double>(bounds => Math.Clamp(bounds.Height * 0.82, 400, 820));
 
     private static IBrush? ResolveBrush(string key)
     {
