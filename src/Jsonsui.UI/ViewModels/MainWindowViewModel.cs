@@ -35,9 +35,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public partial bool TextMode { get; set; }
 
     [ObservableProperty]
-    public partial bool ShowDiff { get; set; }
-
-    [ObservableProperty]
     public partial bool ShowSaved { get; set; }
 
     [ObservableProperty]
@@ -939,14 +936,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void OpenDiff()
     {
-        Diff.Load(_state.OriginalJson, _state.Json);
-        ShowDiff = true;
+        Diff.Open(_state.OriginalJson, _state.Json);
     }
 
     [RelayCommand]
     private void CloseDiff()
     {
-        ShowDiff = false;
+        Diff.Close();
     }
 
     [RelayCommand]

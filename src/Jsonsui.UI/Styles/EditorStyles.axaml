@@ -532,7 +532,7 @@
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
   </Style>
 
-  <!-- Diff Modal -->
+  <!-- Diff Overlay -->
   <Style Selector="Border.DiffOverlay">
     <Setter Property="Background" Value="#88000000" />
     <Setter Property="ZIndex" Value="100" />

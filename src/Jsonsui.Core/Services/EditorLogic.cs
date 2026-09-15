@@ -1294,15 +1294,6 @@ public static class EditorLogic
         return JsonFileService.LoadFromStream(stream);
     }
 
-    // --- Diff ---
-
-    public static List<JsonDiffLine> GetDiffLines(EditorState state)
-    {
-        var original = JsonDocumentService.ToFormattedJson(state.OriginalJson);
-        var current = JsonDocumentService.ToFormattedJson(state.Json);
-        return JsonDiffService.ComputeDiff(original, current);
-    }
-
     // --- Change Field ---
 
     public static JsonNode? ConvertToJsonNode(object? value)

@@ -44,26 +44,38 @@ public static class EditorConverters
 
     public static readonly IValueConverter ErrorToOpacity = new FuncValueConverter<bool, double>(hasError => hasError ? 1.0 : 0.0);
 
-    public static readonly IValueConverter DiffLineTypeToBackground = new FuncValueConverter<string, string>(type => type switch
+    public static readonly IValueConverter DiffKindToBackground = new FuncValueConverter<JsonChangeKind, IBrush?>(kind => kind switch
     {
-        "removed" => "ErrorTinted",
-        "added" => "AccentTinted",
-        _ => "Transparent"
+        JsonChangeKind.Added => ResolveBrush("AccentDimBrush"),
+        JsonChangeKind.Removed => ResolveBrush("ErrorDimBrush"),
+        _ => Brushes.Transparent
     });
 
-    public static readonly IValueConverter DiffLineTypeToMarker = new FuncValueConverter<string, string>(type => type switch
+    public static readonly IValueConverter DiffKindToMarker = new FuncValueConverter<JsonChangeKind, string>(kind => kind switch
     {
-        "removed" => "−",
-        "added" => "+",
-        _ => " "
+        JsonChangeKind.Added => "+",
+        JsonChangeKind.Removed => "−",
+        JsonChangeKind.Modified => "~",
+        _ => ""
     });
 
-    public static readonly IValueConverter DiffLineTypeToMarkerColor = new FuncValueConverter<string, string>(type => type switch
+    public static readonly IValueConverter DiffKindToMarkerBrush = new FuncValueConverter<JsonChangeKind, IBrush?>(kind => kind switch
     {
-        "removed" => "Error",
-        "added" => "Accent",
-        _ => "Dim"
+        JsonChangeKind.Added => ResolveBrush("AccentBrush"),
+        JsonChangeKind.Removed => ResolveBrush("ErrorBrush"),
+        _ => ResolveBrush("TextSecondaryBrush")
     });
+
+    private static IBrush? ResolveBrush(string key)
+    {
+        var app = Avalonia.Application.Current;
+        if (app == null) return null;
+
+        var theme = app.RequestedThemeVariant;
+        if (((IResourceHost)app).TryFindResource(key, theme, out var value) && value is IBrush brush)
+            return brush;
+        return null;
+    }
 
     public static readonly IValueConverter CardSelectedToBorder = new FuncValueConverter<bool, string>(selected =>
         selected ? "SelectedBorder" : "BorderSubtle");

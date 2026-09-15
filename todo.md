@@ -3,8 +3,6 @@ Mo-Fr:
 03:00–06:00 Uhr und
 08:00–12:00 Uhr!
 
-[x] Rename to jsonsui (abgeschlossen)
-[ ] Json-Text-Veiw ist nicht bildschirm füllend und wird nicht übernommen aus änderungen der UI-Controls.
 [ ] DIFF-View soll gegen speicher und gegen file parameter und grafisch aufbereit sein.
 [ ] MainWindow.axaml in UserControls auslagern
 [ ] Verschieben von Object Properties

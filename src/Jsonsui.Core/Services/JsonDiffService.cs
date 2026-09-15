@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Jsonsui.Core.Models;
 
 namespace Jsonsui.Core.Services;
 
@@ -13,6 +14,8 @@ public class JsonDiffLine
 
 public static class JsonDiffService
 {
+    // --- Legacy line-based diff (kept for the TUI) ---
+
     public static List<JsonDiffLine> ComputeDiff(JsonNode original, JsonNode current)
         => ComputeDiff(
             JsonDocumentService.ToFormattedJson(original),
@@ -74,5 +77,165 @@ public static class JsonDiffService
         {
             return json;
         }
+    }
+
+    // --- Structural diff ---
+
+    /// <summary>
+    /// Vergleicht zwei JSON-Bäume strukturell. Liefert null, wenn keine Änderung vorliegt.
+    /// </summary>
+    public static JsonDiffNode? Compare(JsonNode? original, JsonNode? current)
+    {
+        if (JsonNode.DeepEquals(original, current))
+            return null;
+
+        return CompareNode(original, current, [], "");
+    }
+
+    private static JsonDiffNode? CompareNode(JsonNode? oldNode, JsonNode? newNode, string[] path, string displayPath)
+    {
+        if (JsonNode.DeepEquals(oldNode, newNode))
+            return null;
+
+        if (oldNode is JsonObject oldObj && newNode is JsonObject newObj)
+        {
+            var children = new List<JsonDiffNode>();
+            var keys = new List<string>();
+            foreach (var kv in oldObj) keys.Add(kv.Key);
+            foreach (var kv in newObj)
+                if (!oldObj.ContainsKey(kv.Key)) keys.Add(kv.Key);
+
+            foreach (var key in keys)
+            {
+                var childPath = AppendSegment(path, key);
+                var childDisplay = AppendKey(displayPath, key);
+                var inOld = oldObj.ContainsKey(key);
+                var inNew = newObj.ContainsKey(key);
+
+                if (inOld && inNew)
+                {
+                    var child = CompareNode(oldObj[key], newObj[key], childPath, childDisplay);
+                    if (child != null) children.Add(child);
+                }
+                else if (inOld)
+                {
+                    children.Add(Leaf(JsonChangeKind.Removed, childPath, childDisplay, Preview(oldObj[key]), null));
+                }
+                else
+                {
+                    children.Add(Leaf(JsonChangeKind.Added, childPath, childDisplay, null, Preview(newObj[key])));
+                }
+            }
+
+            return children.Count == 0 ? null : Container(path, displayPath, children);
+        }
+
+        if (oldNode is JsonArray oldArr && newNode is JsonArray newArr)
+        {
+            var children = new List<JsonDiffNode>();
+            var count = Math.Max(oldArr.Count, newArr.Count);
+            for (var i = 0; i < count; i++)
+            {
+                var childPath = AppendSegment(path, i.ToString());
+                var childDisplay = AppendIndex(displayPath, i);
+                var inOld = i < oldArr.Count;
+                var inNew = i < newArr.Count;
+
+                if (inOld && inNew)
+                {
+                    var child = CompareNode(oldArr[i], newArr[i], childPath, childDisplay);
+                    if (child != null) children.Add(child);
+                }
+                else if (inOld)
+                {
+                    children.Add(Leaf(JsonChangeKind.Removed, childPath, childDisplay, Preview(oldArr[i]), null));
+                }
+                else
+                {
+                    children.Add(Leaf(JsonChangeKind.Added, childPath, childDisplay, null, Preview(newArr[i])));
+                }
+            }
+
+            return children.Count == 0 ? null : Container(path, displayPath, children);
+        }
+
+        // Scalar change or type mismatch (also handles different root types).
+        return new JsonDiffNode
+        {
+            PathSegments = path,
+            DisplayPath = displayPath,
+            Kind = JsonChangeKind.Modified,
+            OldValue = Preview(oldNode),
+            NewValue = Preview(newNode),
+            IsContainer = false,
+            ModifiedCount = 1
+        };
+    }
+
+    private static JsonDiffNode Container(string[] path, string displayPath, List<JsonDiffNode> children)
+    {
+        var added = 0;
+        var removed = 0;
+        var modified = 0;
+        foreach (var child in children)
+        {
+            added += child.AddedCount;
+            removed += child.RemovedCount;
+            modified += child.ModifiedCount;
+        }
+
+        return new JsonDiffNode
+        {
+            PathSegments = path,
+            DisplayPath = displayPath,
+            Kind = JsonChangeKind.Unchanged,
+            IsContainer = true,
+            Children = children,
+            AddedCount = added,
+            RemovedCount = removed,
+            ModifiedCount = modified
+        };
+    }
+
+    private static JsonDiffNode Leaf(JsonChangeKind kind, string[] path, string displayPath, string? oldValue, string? newValue)
+    {
+        return new JsonDiffNode
+        {
+            PathSegments = path,
+            DisplayPath = displayPath,
+            Kind = kind,
+            OldValue = oldValue,
+            NewValue = newValue,
+            IsContainer = false,
+            AddedCount = kind == JsonChangeKind.Added ? 1 : 0,
+            RemovedCount = kind == JsonChangeKind.Removed ? 1 : 0,
+            ModifiedCount = kind == JsonChangeKind.Modified ? 1 : 0
+        };
+    }
+
+    private static string[] AppendSegment(string[] path, string segment)
+    {
+        var result = new string[path.Length + 1];
+        Array.Copy(path, result, path.Length);
+        result[path.Length] = segment;
+        return result;
+    }
+
+    private static string AppendKey(string displayPath, string key)
+        => displayPath.Length == 0 ? key : displayPath + "." + key;
+
+    private static string AppendIndex(string displayPath, int index)
+        => displayPath + "[" + index + "]";
+
+    private static string Preview(JsonNode? node)
+    {
+        return node switch
+        {
+            null => "null",
+            JsonValue value => JsonDocumentService.GetScalarPreview(value, 80),
+            JsonObject => "{…}",
+            JsonArray array => $"[{array.Count}]",
+            _ => ""
+        };
     }
 }

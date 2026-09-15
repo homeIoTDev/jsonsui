@@ -1,28 +1,47 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Jsonsui.UI.ViewModels"
-             xmlns:services="using:Jsonsui.Core.Services"
+             xmlns:models="using:Jsonsui.Core.Models"
              xmlns:conv="clr-namespace:Jsonsui.UI.Converters"
              x:Class="Jsonsui.UI.Views.DiffView"
              x:DataType="vm:DiffViewModel">
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <ItemsControl ItemsSource="{Binding DiffLines}" Margin="0,4">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate x:DataType="services:JsonDiffLine">
-          <Border Background="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToBackground}}"
-                  Padding="8,1">
-            <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Text="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarker}}"
-                         Width="12"
-                         FontFamily="{StaticResource FontJetBrainsMono}"
-                         FontSize="{DynamicResource EditorFontSizeBase}" FontWeight="Bold"
-                         Foreground="{Binding Type, Converter={x:Static conv:EditorConverters.DiffLineTypeToMarkerColor}}" />
-              <TextBlock Text="{Binding Text}"
-                         FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
-            </StackPanel>
-          </Border>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
-    </ItemsControl>
-  </ScrollViewer>
+  <Panel>
+    <TextBlock Text="No changes."
+               IsVisible="{Binding HasNoChanges}"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               Foreground="{DynamicResource TextSecondaryBrush}"
+               FontSize="{DynamicResource EditorFontSizeBase}" />
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  IsVisible="{Binding HasChanges}">
+      <ItemsControl ItemsSource="{Binding Rows}" Margin="0,4">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="models:DiffRow">
+            <Border Background="{Binding Kind, Converter={x:Static conv:EditorConverters.DiffKindToBackground}}"
+                    Padding="10,6">
+              <StackPanel Spacing="2">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <TextBlock Text="{Binding Kind, Converter={x:Static conv:EditorConverters.DiffKindToMarker}}"
+                             Width="12"
+                             FontFamily="{StaticResource FontJetBrainsMono}"
+                             FontSize="{DynamicResource EditorFontSizeBase}" FontWeight="Bold"
+                             Foreground="{Binding Kind, Converter={x:Static conv:EditorConverters.DiffKindToMarkerBrush}}" />
+                  <TextBlock Text="{Binding DisplayPath}"
+                             FontFamily="{StaticResource FontJetBrainsMono}"
+                             FontSize="{DynamicResource EditorFontSizeBase}" FontWeight="SemiBold"
+                             TextWrapping="Wrap" />
+                </StackPanel>
+                <TextBlock Text="{Binding ValueText}"
+                           Margin="20,0,0,0"
+                           FontFamily="{StaticResource FontJetBrainsMono}"
+                           FontSize="{DynamicResource EditorFontSizeBase}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Panel>
 </UserControl>

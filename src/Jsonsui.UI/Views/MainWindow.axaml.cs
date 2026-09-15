@@ -304,12 +304,18 @@ public partial class MainWindow : Window
         menu.Open(target);
     }
 
-    private void DiffOverlay_Tapped(object? sender, TappedEventArgs e)
+    protected override void OnKeyDown(KeyEventArgs e)
     {
-        if (DataContext is MainWindowViewModel vm)
+        if (e.Key == Key.Escape &&
+            DataContext is MainWindowViewModel vm &&
+            vm.Diff.IsOpen)
         {
             vm.CloseDiffCommand.Execute(null);
+            e.Handled = true;
+            return;
         }
+
+        base.OnKeyDown(e);
     }
 
     private void EnumComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
