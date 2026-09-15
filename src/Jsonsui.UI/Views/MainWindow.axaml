@@ -310,10 +310,6 @@
                 </StackPanel>
               </DockPanel>
             </Border>
-            <Border Classes="ErrorBanner" DockPanel.Dock="Top"
-                    IsVisible="{Binding HasTextParseError}">
-              <TextBlock Text="{Binding TextParseError}" Classes="ErrorText" />
-            </Border>
             <Border Classes="HelpStrip" DockPanel.Dock="Bottom" IsVisible="{Binding EditorHelpVisible}">
               <StackPanel Spacing="3">
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
@@ -322,7 +318,12 @@
                            IsVisible="{Binding EditorHelpInfo.FieldDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
               </StackPanel>
             </Border>
-            <TextBox Text="{Binding TextContent}"
+            <Border Classes="StatusBar" DockPanel.Dock="Bottom">
+              <TextBlock Text="{Binding TextParseError}" Classes="ErrorText"
+                         TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                         VerticalAlignment="Center" ToolTip.Tip="{Binding TextParseError}" />
+            </Border>
+            <TextBox Text="{Binding TextContent, Mode=TwoWay}"
                      Classes="MonoEditor" AcceptsReturn="True"
                      Background="{DynamicResource InputBackgroundBrush}" BorderThickness="0" />
           </DockPanel>

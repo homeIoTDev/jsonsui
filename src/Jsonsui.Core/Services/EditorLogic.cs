@@ -487,11 +487,8 @@ public static class EditorLogic
     public static void ParseText(EditorState state, string text)
     {
         var node = JsonNode.Parse(text);
-        if (node != null && state.SelectedPath.Length > 0)
-        {
-            state.Json = JsonDocumentService.SetByPath(state.Json, state.SelectedPath, node);
-            Validate(state);
-        }
+        state.Json = JsonDocumentService.SetByPath(state.Json, state.SelectedPath, node);
+        Validate(state);
     }
 
     // --- Validation ---

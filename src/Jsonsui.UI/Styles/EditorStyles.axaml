@@ -432,6 +432,15 @@
     <Setter Property="Padding" Value="8,6" />
   </Style>
 
+  <!-- Inline status bar (e.g. JSON syntax error) -->
+  <Style Selector="Border.StatusBar">
+    <Setter Property="Height" Value="26" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+  </Style>
+
   <Style Selector="TextBlock.ErrorText">
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
     <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />

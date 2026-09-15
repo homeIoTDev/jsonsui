@@ -19,8 +19,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly UndoRedoService _undoRedo = new();
     private readonly EditorState _state = new();
+    private readonly Avalonia.Threading.DispatcherTimer _textParseTimer;
     private string _currentFilePath = "";
     private int _refreshDepth;
+    private bool _suppressTextSync;
 
     public bool IsRefreshing => _refreshDepth > 0;
 
@@ -196,14 +198,58 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     partial void OnFilterTextChanged(string value) => RefreshTree();
 
+    partial void OnTextContentChanged(string value)
+    {
+        if (_suppressTextSync || !TextMode) return;
+
+        _textParseTimer.Stop();
+        _textParseTimer.Start();
+    }
+
+    private void ApplyTextContent()
+    {
+        if (!TextMode) return;
+
+        var value = TextContent;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            HasTextParseError = false;
+            TextParseError = "";
+            return;
+        }
+
+        try
+        {
+            EditorLogic.ParseText(_state, value);
+            HasTextParseError = false;
+            TextParseError = "";
+            RefreshUI(syncText: false);
+        }
+        catch (JsonException ex)
+        {
+            HasTextParseError = true;
+            TextParseError = ex.Message;
+        }
+    }
+
     public MainWindowViewModel()
     {
+        _textParseTimer = new Avalonia.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(300)
+        };
+        _textParseTimer.Tick += (_, _) =>
+        {
+            _textParseTimer.Stop();
+            ApplyTextContent();
+        };
+
         RefreshUI();
     }
 
     // --- Refresh UI from EditorState ---
 
-    public void RefreshUI()
+    public void RefreshUI(bool syncText = true)
     {
         string[]? focusedPath = null;
         if (_refreshDepth == 0)
@@ -212,7 +258,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _refreshDepth++;
         try
         {
-            RefreshUIImpl();
+            RefreshUIImpl(syncText);
         }
         finally
         {
@@ -288,7 +334,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             FindDeepestFocusableCore(child, path, depth + 1, ref bestDepth, ref best);
     }
 
-    private void RefreshUIImpl()
+    private void RefreshUIImpl(bool syncText)
+    {
+        var previousSuppress = _suppressTextSync;
+        _suppressTextSync = true;
+        try
+        {
+            RefreshUIImplCore(syncText);
+        }
+        finally
+        {
+            _suppressTextSync = previousSuppress;
+        }
+    }
+
+    private void RefreshUIImplCore(bool syncText)
     {
         var stack = new System.Diagnostics.StackTrace(1, false);
         var frame = stack.GetFrame(0);
@@ -322,16 +382,25 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ScalarNode = new Jsonsui.Core.Models.JsonEditorNode { Label = "", Path = [], NodeType = "scalar" };
         ScalarRow = null;
         DetailScalarText = "";
-        TextContent = "";
         TextEditorPathString = "";
+        if (syncText)
+        {
+            _textParseTimer.Stop();
+            HasTextParseError = false;
+            TextParseError = "";
+            TextContent = "";
+        }
 
         // Build mode-specific content
         var mode = CurrentEditorMode;
         if (mode == EditorMode.Text)
         {
             TextEditorPathString = SelectedPathString;
-            var selected = EditorLogic.GetSelectedValue(_state);
-            TextContent = JsonDocumentService.ToFormattedJson(selected ?? _state.Json);
+            if (syncText)
+            {
+                var selected = EditorLogic.GetSelectedValue(_state);
+                TextContent = JsonDocumentService.ToFormattedJson(selected ?? _state.Json);
+            }
         }
         else if (mode == EditorMode.ArraySplit)
         {
@@ -857,6 +926,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleTextMode()
     {
+        if (TextMode && _textParseTimer.IsEnabled)
+        {
+            _textParseTimer.Stop();
+            ApplyTextContent();
+        }
+
         TextMode = !TextMode;
         RefreshUI();
     }
@@ -890,25 +965,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ParseText(string? text)
     {
-        if (string.IsNullOrEmpty(text))
-        {
-            TextContent = "";
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(text)) return;
 
-        TextContent = text;
+        var previousSuppress = _suppressTextSync;
+        _suppressTextSync = true;
         try
         {
-            EditorLogic.ParseText(_state, text);
-            HasTextParseError = false;
-            TextParseError = "";
-            RefreshUI();
+            TextContent = text;
         }
-        catch (JsonException ex)
+        finally
         {
-            HasTextParseError = true;
-            TextParseError = ex.Message;
+            _suppressTextSync = previousSuppress;
         }
+
+        ApplyTextContent();
     }
 
     [RelayCommand]

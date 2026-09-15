@@ -100,8 +100,10 @@
       "routes": []
     }
   ],
+   "workflows": [
+   ],
 
-  "workflows": [
+  "workflowsii": [
     {
       "name": "daily-sync",
       "enabled": true,
