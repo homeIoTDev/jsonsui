@@ -1,18 +1,18 @@
-DeepSeek Peak-Times:
-Mo-Fr:
-03:00–06:00 Uhr und
-08:00–12:00 Uhr!
+DeepSeek peak times:
+Mon–Fri:
+03:00–06:00 and
+08:00–12:00!
 
-[ ] MainWindow.axaml in UserControls auslagern
-[ ] Verschieben von Object Properties
-[ ] Anlegen von Objects
+[ ] Extract MainWindow.axaml into UserControls
+[ ] Moving object properties
+[ ] Creating objects
 
 
-[ ] Zukünfigte Features:
-  Suche mit STRG-F und flyout dialog
-  Alle Properties erzeugen, die requiert sind, in dem in der Mitte eines leeren objektes ein button angzeigt wird.
-  beim Öffen einer Schema-Datei => Direkter Eintrag der REF auf Schema
-  Unterstützung für MS-Kommentare im JSON (nicht json standard)
-  unterstützung für fortgeschrittene Schema-Konstrukte wie oneOf, anyOf, allOf
-      aktuelle Schema Constraints: minimum / maximum, minLength / maxLength, pattern, required, const, default, readOnly, deprecated
+[ ] Future features:
+  Search with Ctrl-F and flyout dialog
+  Create all required properties by showing a button in the center of an empty object.
+  When opening a schema file => directly insert the REF to the schema
+  Support for MS comments in JSON (not part of the JSON standard)
+  Support for advanced schema constructs such as oneOf, anyOf, allOf
+      current schema constraints: minimum / maximum, minLength / maxLength, pattern, required, const, default, readOnly, deprecated
 
