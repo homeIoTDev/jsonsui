@@ -26,8 +26,8 @@ public class FieldRow : System.ComponentModel.INotifyPropertyChanged
     public string? Comment { get; set; }
     public double? Minimum { get; set; }
     public double? Maximum { get; set; }
-    public string? NestedObjectSummary { get; set; }
-    public string ArrayItemCount { get; set; } = "0";
+    public int? NestedObjectCount { get; set; }
+    public int ArrayItemCount { get; set; }
     public string? ScalarValue { get; set; }
     public List<string>? EnumValues { get; set; }
     public bool BoolValue { get; set; }

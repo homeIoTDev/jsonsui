@@ -4,7 +4,10 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
+using System.Text.Json.Nodes;
 using Jsonsui.Core.Models;
+using Jsonsui.Core.Services;
+using Jsonsui.UI.Localization;
 using Jsonsui.UI.ViewModels;
 
 namespace Jsonsui.UI.Views;
@@ -133,7 +136,7 @@ public class TreeDataTemplate : IDataTemplate
         {
             row.Children.Add(new TextBlock
             {
-                Text = node.TypeTag,
+                Text = TagFor(node),
                 FontFamily = Res<FontFamily>("FontJetBrainsMono") ?? FontFamily.Default,
                 FontSize = ResFontSize("EditorFontSizeBase", 14),
                 Foreground = Res<IBrush>("TextTertiaryBrush"),
@@ -179,6 +182,13 @@ public class TreeDataTemplate : IDataTemplate
     }
 
     public bool Match(object? data) => data is JsonEditorNode;
+
+    private static string TagFor(JsonEditorNode node) => node.NodeType switch
+    {
+        "object" => Strings.Format("Tree_ObjectTag", node.Children.Count),
+        "array" => Strings.Format("Tree_ArrayTag", (node.Value as JsonArray)?.Count ?? 0),
+        _ => JsonDocumentService.GetScalarPreview(node.Value)
+    };
 
     private static T? Res<T>(string key) where T : class
     {

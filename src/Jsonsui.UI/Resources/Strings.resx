@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Window_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="Window_Maximize" xml:space="preserve">
+    <value>Maximize</value>
+  </data>
+  <data name="Window_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Toolbar_OpenFile" xml:space="preserve">
+    <value>Open file</value>
+  </data>
+  <data name="Toolbar_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Toolbar_ShowDiff" xml:space="preserve">
+    <value>Show diff</value>
+  </data>
+  <data name="Toolbar_ToggleTextMode" xml:space="preserve">
+    <value>Toggle text mode</value>
+  </data>
+  <data name="Toolbar_ToggleTheme" xml:space="preserve">
+    <value>Toggle theme</value>
+  </data>
+  <data name="Toolbar_Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Toolbar_Redo" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Tree_FilterPlaceholder" xml:space="preserve">
+    <value>Filter...</value>
+  </data>
+  <data name="Tree_ObjectTag" xml:space="preserve">
+    <value>{0} fields</value>
+  </data>
+  <data name="Tree_ArrayTag" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
+  <data name="Schema_Status_Loaded" xml:space="preserve">
+    <value>✓ Schema</value>
+  </data>
+  <data name="Schema_Status_None" xml:space="preserve">
+    <value>⚠ No schema</value>
+  </data>
+  <data name="Schema_Status_Error" xml:space="preserve">
+    <value>⚠ Schema error</value>
+  </data>
+  <data name="Schema_Tooltip_Auto" xml:space="preserve">
+    <value>Schema: {0}&#10;Source: auto-detected via $schema</value>
+  </data>
+  <data name="Schema_Tooltip_Manual" xml:space="preserve">
+    <value>Schema: {0}&#10;Source: manually selected</value>
+  </data>
+  <data name="Schema_Tooltip_Failed" xml:space="preserve">
+    <value>The specified JSON schema could not be loaded.&#10;Click to choose another schema.</value>
+  </data>
+  <data name="Schema_Tooltip_None" xml:space="preserve">
+    <value>No JSON schema loaded.&#10;Click to choose a schema.</value>
+  </data>
+  <data name="Status_Saved" xml:space="preserve">
+    <value>saved</value>
+  </data>
+  <data name="Errors_Tooltip" xml:space="preserve">
+    <value>Errors</value>
+  </data>
+  <data name="Errors_Count" xml:space="preserve">
+    <value>{0} errors</value>
+  </data>
+  <data name="Errors_Header" xml:space="preserve">
+    <value>Errors ({0})</value>
+  </data>
+  <data name="Error_Missing" xml:space="preserve">
+    <value>MISSING</value>
+  </data>
+  <data name="Editor_SelectType" xml:space="preserve">
+    <value>Select type</value>
+  </data>
+  <data name="Editor_Back" xml:space="preserve">
+    <value>back</value>
+  </data>
+  <data name="Editor_NoItemSelected" xml:space="preserve">
+    <value>No item selected</value>
+  </data>
+  <data name="Property_Add" xml:space="preserve">
+    <value>Add property</value>
+  </data>
+  <data name="Property_Actions" xml:space="preserve">
+    <value>Property actions</value>
+  </data>
+  <data name="Property_SchemaSection" xml:space="preserve">
+    <value>Schema properties</value>
+  </data>
+  <data name="Property_NoneAvailable" xml:space="preserve">
+    <value>No schema properties available</value>
+  </data>
+  <data name="Property_AddCustom" xml:space="preserve">
+    <value>+ Custom property</value>
+  </data>
+  <data name="Property_CustomTitle" xml:space="preserve">
+    <value>Custom property</value>
+  </data>
+  <data name="Property_NamePlaceholder" xml:space="preserve">
+    <value>Property name</value>
+  </data>
+  <data name="Property_TypeFor" xml:space="preserve">
+    <value>Type for "{0}"</value>
+  </data>
+  <data name="Property_Default" xml:space="preserve">
+    <value>default {0}</value>
+  </data>
+  <data name="Action_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Action_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Action_Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Action_SetNull" xml:space="preserve">
+    <value>Set to null</value>
+  </data>
+  <data name="Action_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Array_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Badge_Required" xml:space="preserve">
+    <value>REQUIRED</value>
+  </data>
+  <data name="Badge_Deprecated" xml:space="preserve">
+    <value>DEPRECATED</value>
+  </data>
+  <data name="Badge_ReadOnly" xml:space="preserve">
+    <value>READ-ONLY</value>
+  </data>
+  <data name="Diff_Title" xml:space="preserve">
+    <value>JSON Diff</value>
+  </data>
+  <data name="Diff_NoChanges" xml:space="preserve">
+    <value>No changes.</value>
+  </data>
+  <data name="Diff_Summary" xml:space="preserve">
+    <value>{0} changes</value>
+  </data>
+  <data name="Diff_Summary_Singular" xml:space="preserve">
+    <value>1 change</value>
+  </data>
+  <data name="Dialog_OpenJson" xml:space="preserve">
+    <value>Open JSON File</value>
+  </data>
+  <data name="Dialog_OpenSchema" xml:space="preserve">
+    <value>Open Schema File</value>
+  </data>
+  <data name="Save_Error" xml:space="preserve">
+    <value>Save error: {0}</value>
+  </data>
+  <data name="Load_InvalidJson" xml:space="preserve">
+    <value>Invalid JSON – file could not be loaded:&#10;{0}</value>
+  </data>
+  <data name="Load_FileFailed" xml:space="preserve">
+    <value>File could not be loaded: {0}</value>
+  </data>
+  <data name="Rename_EmptyName" xml:space="preserve">
+    <value>Name must not be empty.</value>
+  </data>
+  <data name="Rename_InvalidName" xml:space="preserve">
+    <value>Invalid property name.</value>
+  </data>
+  <data name="Rename_AlreadyExists" xml:space="preserve">
+    <value>"{0}" already exists.</value>
+  </data>
+  <data name="Rename_NotFound" xml:space="preserve">
+    <value>Property not found.</value>
+  </data>
+  <data name="Rename_Failed" xml:space="preserve">
+    <value>Rename failed.</value>
+  </data>
+  <data name="Validation_Required" xml:space="preserve">
+    <value>{0} is required</value>
+  </data>
+  <data name="Validation_IsNull" xml:space="preserve">
+    <value>{0} is null</value>
+  </data>
+  <data name="Validation_IsEmpty" xml:space="preserve">
+    <value>{0} is empty</value>
+  </data>
+  <data name="Validation_Const" xml:space="preserve">
+    <value>{0} must equal {1}</value>
+  </data>
+  <data name="Validation_Pattern" xml:space="preserve">
+    <value>{0} must match pattern {1}</value>
+  </data>
+  <data name="Validation_MinLength" xml:space="preserve">
+    <value>{0} must be at least {1} characters</value>
+  </data>
+  <data name="Validation_MaxLength" xml:space="preserve">
+    <value>{0} must be at most {1} characters</value>
+  </data>
+  <data name="Validation_Minimum" xml:space="preserve">
+    <value>{0} must be &gt;= {1}</value>
+  </data>
+  <data name="Validation_Maximum" xml:space="preserve">
+    <value>{0} must be &lt;= {1}</value>
+  </data>
+  <data name="Temporal_PickDate" xml:space="preserve">
+    <value>Pick date</value>
+  </data>
+  <data name="Temporal_PickTime" xml:space="preserve">
+    <value>Pick time</value>
+  </data>
+  <data name="App_Subtitle" xml:space="preserve">
+    <value>JSON Schema UI</value>
+  </data>
+</root>

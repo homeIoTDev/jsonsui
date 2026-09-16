@@ -12,6 +12,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Jsonsui.Core.Models;
 using Jsonsui.Core.Services;
+using Jsonsui.UI.Localization;
 
 namespace Jsonsui.UI.ViewModels;
 
@@ -178,12 +179,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             return _state.SchemaStatus switch
             {
                 SchemaLoadStatus.Loaded when _state.SchemaAutoDetected =>
-                    $"Schema: {fileName}\nQuelle: automatisch über $schema erkannt",
+                    Strings.Format("Schema_Tooltip_Auto", fileName),
                 SchemaLoadStatus.Loaded =>
-                    $"Schema: {fileName}\nQuelle: manuell ausgewählt",
+                    Strings.Format("Schema_Tooltip_Manual", fileName),
                 SchemaLoadStatus.Failed =>
-                    "Das angegebene JSON-Schema konnte nicht geladen werden.\nKlicken, um ein anderes Schema auszuwählen.",
-                _ => "Kein JSON-Schema geladen.\nKlicken, um ein Schema auszuwählen."
+                    Strings.Get("Schema_Tooltip_Failed"),
+                _ => Strings.Get("Schema_Tooltip_None")
             };
         }
     }
@@ -525,7 +526,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public void NavigateToError(ErrorListItem item)
     {
         if (item == null) return;
-        var error = new ValidationError { Path = item.Path, Message = item.Message };
+        var error = new ValidationError { Path = item.Path };
         EditorLogic.NavigateToErrorContext(_state, error);
         RefreshUI();
         if (!item.IsMissing)
@@ -683,11 +684,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             row.RenameError = result.Failure switch
             {
                 RenamePropertyFailure.InvalidPropertyName => string.IsNullOrEmpty(newName)
-                    ? "Name darf nicht leer sein."
-                    : "Ungültiger Property-Name.",
-                RenamePropertyFailure.PropertyAlreadyExists => $"\"{newName}\" existiert bereits.",
-                RenamePropertyFailure.PropertyNotFound => "Property nicht gefunden.",
-                _ => "Umbenennen fehlgeschlagen."
+                    ? Strings.Get("Rename_EmptyName")
+                    : Strings.Get("Rename_InvalidName"),
+                RenamePropertyFailure.PropertyAlreadyExists => Strings.Format("Rename_AlreadyExists", newName),
+                RenamePropertyFailure.PropertyNotFound => Strings.Get("Rename_NotFound"),
+                _ => Strings.Get("Rename_Failed")
             };
             row.NotifyPropertyChanged(nameof(FieldRow.RenameError));
             row.NotifyPropertyChanged(nameof(FieldRow.HasRenameError));
@@ -885,7 +886,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            TextParseError = $"Save error: {ex.Message}";
+            TextParseError = Strings.Format("Save_Error", ex.Message);
             HasTextParseError = true;
         }
     }
@@ -1001,7 +1002,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
         {
-            Title = "Open JSON File",
+            Title = Strings.Get("Dialog_OpenJson"),
             AllowMultiple = false,
             FileTypeFilter = [new Avalonia.Platform.Storage.FilePickerFileType("JSON") { Patterns = ["*.json"] }]
         });
@@ -1025,11 +1026,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             }
             catch (JsonException ex)
             {
-                LoadError = $"Ungültiges JSON – Datei konnte nicht geladen werden:\n{ex.Message}";
+                LoadError = Strings.Format("Load_InvalidJson", ex.Message);
             }
             catch (Exception ex)
             {
-                LoadError = $"Datei konnte nicht geladen werden: {ex.Message}";
+                LoadError = Strings.Format("Load_FileFailed", ex.Message);
             }
         }
     }
@@ -1056,11 +1057,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
         catch (JsonException ex)
         {
-            LoadError = $"Ungültiges JSON – Datei konnte nicht geladen werden:\n{ex.Message}";
+            LoadError = Strings.Format("Load_InvalidJson", ex.Message);
         }
         catch (Exception ex)
         {
-            LoadError = $"Datei konnte nicht geladen werden: {ex.Message}";
+            LoadError = Strings.Format("Load_FileFailed", ex.Message);
         }
     }
 
@@ -1162,7 +1163,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new Avalonia.Platform.Storage.FilePickerOpenOptions
         {
-            Title = "Open Schema File",
+            Title = Strings.Get("Dialog_OpenSchema"),
             AllowMultiple = false,
             FileTypeFilter = [new Avalonia.Platform.Storage.FilePickerFileType("JSON Schema") { Patterns = ["*.json", "*.schema.json"] }]
         });

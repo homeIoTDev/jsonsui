@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Jsonsui.UI.ViewModels"
         xmlns:views="using:Jsonsui.UI.Views"
+        xmlns:loc="using:Jsonsui.UI.Localization"
         x:Class="Jsonsui.UI.Views.DiffWindow"
         x:DataType="vm:DiffViewModel"
-        Title="JSON Diff"
+        Title="{loc:Localize Diff_Title}"
         Width="1100" Height="800"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
@@ -14,12 +15,12 @@
     <Border Classes="PanelHeader" DockPanel.Dock="Top">
       <DockPanel VerticalAlignment="Center">
         <Button DockPanel.Dock="Right" Classes="IconBtn"
-                Click="Close_Click" Width="22" Height="22" Padding="2" ToolTip.Tip="Close">
+                Click="Close_Click" Width="22" Height="22" Padding="2" ToolTip.Tip="{loc:Localize Action_Close}">
           <Path Classes="Lucide" Data="{StaticResource lucide-x}" Width="12" Height="12"
                 Stroke="{DynamicResource TextSecondaryBrush}" />
         </Button>
         <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-          <TextBlock Text="JSON Diff" Classes="HeaderLabel" />
+          <TextBlock Text="{loc:Localize Diff_Title}" Classes="HeaderLabel" />
           <TextBlock Text="{Binding SummaryText}" VerticalAlignment="Center"
                      Foreground="{DynamicResource TextSecondaryBrush}"
                      FontSize="{DynamicResource EditorFontSizeBase}" />

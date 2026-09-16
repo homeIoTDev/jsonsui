@@ -79,7 +79,7 @@ internal static class Program
     private static int PrintUsage()
     {
         Console.WriteLine("Usage:");
-        Console.WriteLine("  jsonsui-tui <json>");
+        Console.WriteLine("  jsonsui-tui <json> [--schema <path>] [--lang <code>]");
         Console.WriteLine("  jsonsui-tui <json> --schema <path>");
         Console.WriteLine("  jsonsui-tui --diff <fileA> <fileB>");
         Console.WriteLine("  jsonsui-tui --help");

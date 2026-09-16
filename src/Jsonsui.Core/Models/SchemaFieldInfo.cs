@@ -20,7 +20,7 @@ public class SchemaFieldInfo
     public string? Const { get; set; }
     public string? PathString { get; set; }
     public bool HasValidationErrors { get; set; }
-    public string? ErrorMessages { get; set; }
+    public List<MessageTemplate> ErrorMessages { get; } = [];
 
     public string RangeText =>
         Minimum.HasValue && Maximum.HasValue ? $"range: {Minimum} – {Maximum}" :

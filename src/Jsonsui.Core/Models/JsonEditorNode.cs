@@ -28,14 +28,6 @@ public class JsonEditorNode
 
     public bool IsExpandable => NavigableChildren.Any();
 
-    public string TypeTag =>
-        NodeType switch
-        {
-            "object" => $"{{{Children.Count} fields}}",
-            "array" => $"[{((JsonArray?)Value)?.Count ?? 0} items]",
-            _ => Services.JsonDocumentService.GetScalarPreview(Value)
-        };
-
     public string Icon =>
         NodeType switch
         {

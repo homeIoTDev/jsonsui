@@ -510,7 +510,7 @@ public static class EditorLogic
                 foreach (var required in objSchema.Required)
                 {
                     if (!obj.ContainsKey(required))
-                        errors.Add(new ValidationError { Path = path.Concat([required]).ToArray(), Message = $"{required} is required" });
+                        errors.Add(new ValidationError { Path = path.Concat([required]).ToArray(), Message = new MessageTemplate { Key = "Validation_Required", Args = [required] } });
                 }
             }
 
@@ -518,9 +518,9 @@ public static class EditorLogic
             {
                 var childPath = path.Concat([kvp.Key]).ToArray();
                 if (kvp.Value is JsonValue val && val.GetValueKind() == JsonValueKind.Null)
-                    errors.Add(new ValidationError { Path = childPath, Message = $"{kvp.Key} is null" });
+                    errors.Add(new ValidationError { Path = childPath, Message = new MessageTemplate { Key = "Validation_IsNull", Args = [kvp.Key] } });
                 else if (kvp.Value is JsonValue sv && sv.TryGetValue<string>(out var str) && string.IsNullOrEmpty(str))
-                    errors.Add(new ValidationError { Path = childPath, Message = $"{kvp.Key} is empty" });
+                    errors.Add(new ValidationError { Path = childPath, Message = new MessageTemplate { Key = "Validation_IsEmpty", Args = [kvp.Key] } });
                 else if (kvp.Value is JsonObject or JsonArray)
                     ValidateNode(kvp.Value, childPath, errors, schema);
                 else
@@ -546,7 +546,7 @@ public static class EditorLogic
         {
             var preview = JsonDocumentService.GetScalarPreview(node, int.MaxValue);
             if (preview != prop.Const)
-                errors.Add(new ValidationError { Path = path, Message = $"{name} must equal {prop.Const}" });
+                errors.Add(new ValidationError { Path = path, Message = new MessageTemplate { Key = "Validation_Const", Args = [name, prop.Const] } });
         }
 
         if (node is JsonValue jv)
@@ -559,19 +559,19 @@ public static class EditorLogic
                     try { matches = Regex.IsMatch(s, prop.Pattern); }
                     catch (ArgumentException) { matches = true; }
                     if (!matches)
-                        errors.Add(new ValidationError { Path = path, Message = $"{name} must match pattern {prop.Pattern}" });
+                        errors.Add(new ValidationError { Path = path, Message = new MessageTemplate { Key = "Validation_Pattern", Args = [name, prop.Pattern] } });
                 }
                 if (prop.MinLength.HasValue && s.Length < prop.MinLength.Value)
-                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be at least {prop.MinLength.Value} characters" });
+                    errors.Add(new ValidationError { Path = path, Message = new MessageTemplate { Key = "Validation_MinLength", Args = [name, prop.MinLength.Value] } });
                 if (prop.MaxLength.HasValue && s.Length > prop.MaxLength.Value)
-                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be at most {prop.MaxLength.Value} characters" });
+                    errors.Add(new ValidationError { Path = path, Message = new MessageTemplate { Key = "Validation_MaxLength", Args = [name, prop.MaxLength.Value] } });
             }
             else if (TryGetNumber(jv, out var num))
             {
                 if (prop.Minimum.HasValue && num < (decimal)prop.Minimum.Value)
-                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be >= {prop.Minimum.Value}" });
+                    errors.Add(new ValidationError { Path = path, Message = new MessageTemplate { Key = "Validation_Minimum", Args = [name, prop.Minimum.Value] } });
                 if (prop.Maximum.HasValue && num > (decimal)prop.Maximum.Value)
-                    errors.Add(new ValidationError { Path = path, Message = $"{name} must be <= {prop.Maximum.Value}" });
+                    errors.Add(new ValidationError { Path = path, Message = new MessageTemplate { Key = "Validation_Maximum", Args = [name, prop.Maximum.Value] } });
             }
         }
     }
@@ -874,9 +874,9 @@ public static class EditorLogic
         };
 
         if (value is JsonObject nestedObj)
-            row.NestedObjectSummary = $"{{{nestedObj.Count} fields}}";
+            row.NestedObjectCount = nestedObj.Count;
         else if (value is JsonArray nestedArr)
-            row.ArrayItemCount = $"{nestedArr.Count} items";
+            row.ArrayItemCount = nestedArr.Count;
         else if (value is JsonValue jv)
         {
             if (fieldType == "enum" && jv.TryGetValue<string>(out var sv))
@@ -1047,9 +1047,10 @@ public static class EditorLogic
         var info = new SchemaFieldInfo
         {
             PathString = pathStr,
-            HasValidationErrors = errors.Length > 0,
-            ErrorMessages = errors.Length > 0 ? string.Join("; ", errors.Select(e => e.Message)) : null
+            HasValidationErrors = errors.Length > 0
         };
+        foreach (var error in errors)
+            info.ErrorMessages.Add(error.Message);
 
         if (state.ActiveSchema != null)
         {
@@ -1230,9 +1231,10 @@ public static class EditorLogic
         var info = new SchemaFieldInfo
         {
             PathString = pathStr,
-            HasValidationErrors = errors.Length > 0,
-            ErrorMessages = errors.Length > 0 ? string.Join("; ", errors.Select(e => e.Message)) : null
+            HasValidationErrors = errors.Length > 0
         };
+        foreach (var error in errors)
+            info.ErrorMessages.Add(error.Message);
 
         if (state.ActiveSchema != null)
         {

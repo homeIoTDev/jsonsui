@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.VisualTree;
 using Jsonsui.Core.Models;
+using Jsonsui.UI.Localization;
 using Jsonsui.UI.ViewModels;
 
 namespace Jsonsui.UI.Views;
@@ -138,7 +139,7 @@ public partial class MainWindow : Window
 
         var renameItem = new MenuItem
         {
-            Header = "Rename",
+            Header = Strings.Get("Action_Rename"),
             IsEnabled = !row.IsReadOnly
         };
         renameItem.Click += (_, _) =>
@@ -150,7 +151,7 @@ public partial class MainWindow : Window
 
         var deleteItem = new MenuItem
         {
-            Header = "Delete",
+            Header = Strings.Get("Action_Delete"),
             IsEnabled = !row.IsReadOnly
         };
         deleteItem.Command = vm.DeletePropertyCommand;
@@ -162,7 +163,7 @@ public partial class MainWindow : Window
         {
             var setNullItem = new MenuItem
             {
-                Header = "Set to null",
+                Header = Strings.Get("Action_SetNull"),
                 IsEnabled = !row.IsReadOnly
             };
             // Deferred ausführen: das ContextMenu muss erst vollständig schließen, bevor
@@ -471,7 +472,7 @@ public partial class MainWindow : Window
 
         root.Children.Add(new TextBlock
         {
-            Text = $"Errors ({vm.ErrorItems.Count})",
+            Text = Strings.Format("Errors_Header", vm.ErrorItems.Count),
             Classes = { "FlyoutHeader" },
             Margin = new Thickness(4, 2, 4, 6)
         });
@@ -495,13 +496,13 @@ public partial class MainWindow : Window
                     Classes = { "Badge", "BadgeRequired" },
                     Padding = new Thickness(4, 1),
                     VerticalAlignment = VerticalAlignment.Center,
-                    Child = new TextBlock { Text = "FEHLT", Classes = { "BadgeText" } }
+                    Child = new TextBlock { Text = Strings.Get("Error_Missing"), Classes = { "BadgeText" } }
                 });
 
             content.Children.Add(top);
             content.Children.Add(new TextBlock
             {
-                Text = item.Message,
+                Text = Strings.Format(item.Message.Key, item.Message.Args),
                 Classes = { "FlyoutItemType" },
                 TextWrapping = Avalonia.Media.TextWrapping.Wrap
             });
@@ -571,7 +572,7 @@ public partial class MainWindow : Window
 
         root.Children.Add(new TextBlock
         {
-            Text = "Add property",
+            Text = Strings.Get("Property_Add"),
             Classes = { "FlyoutHeader" },
             Margin = new Thickness(4, 2, 4, 6)
         });
@@ -580,7 +581,7 @@ public partial class MainWindow : Window
         {
             root.Children.Add(new TextBlock
             {
-                Text = "No schema properties available",
+                Text = Strings.Get("Property_NoneAvailable"),
                 Classes = { "FlyoutEmpty" },
                 Margin = new Thickness(4, 2, 4, 2)
             });
@@ -589,7 +590,7 @@ public partial class MainWindow : Window
         {
             root.Children.Add(new TextBlock
             {
-                Text = "Schema properties",
+                Text = Strings.Get("Property_SchemaSection"),
                 Classes = { "FlyoutItemType" },
                 Margin = new Thickness(4, 2, 4, 2)
             });
@@ -616,7 +617,7 @@ public partial class MainWindow : Window
                         Classes = { "Badge", "BadgeRequired" },
                         Padding = new Thickness(4, 1),
                         VerticalAlignment = VerticalAlignment.Center,
-                        Child = new TextBlock { Text = "REQUIRED", Classes = { "BadgeText", "FlyoutBadgeText" } }
+                        Child = new TextBlock { Text = Strings.Get("Badge_Required"), Classes = { "BadgeText", "FlyoutBadgeText" } }
                     });
 
                 content.Children.Add(top);
@@ -624,7 +625,7 @@ public partial class MainWindow : Window
                 if (!string.IsNullOrEmpty(item.DefaultValue))
                     content.Children.Add(new TextBlock
                     {
-                        Text = $"default {item.DefaultValue}",
+                        Text = Strings.Format("Property_Default", item.DefaultValue),
                         Classes = { "FlyoutItemType" }
                     });
 
@@ -676,7 +677,7 @@ public partial class MainWindow : Window
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 Padding = new Thickness(6, 4),
-                Content = new TextBlock { Text = "+ Custom property", Classes = { "FlyoutItemName" } }
+                Content = new TextBlock { Text = Strings.Get("Property_AddCustom"), Classes = { "FlyoutItemName" } }
             };
 
             customBtn.Click += (_, _) =>
@@ -704,14 +705,14 @@ public partial class MainWindow : Window
 
         root.Children.Add(new TextBlock
         {
-            Text = "Custom property",
+            Text = Strings.Get("Property_CustomTitle"),
             Classes = { "FlyoutHeader" },
             Margin = new Thickness(4, 2, 4, 4)
         });
 
-        var nameBox = new TextBox { PlaceholderText = "Property name", Classes = { "EditorInput" } };
+        var nameBox = new TextBox { PlaceholderText = Strings.Get("Property_NamePlaceholder"), Classes = { "EditorInput" } };
         var valueBox = new TextBox { PlaceholderText = "Value", Classes = { "EditorInput" } };
-        var addBtn = new Button { Content = "Add", Classes = { "DashedBtn" } };
+        var addBtn = new Button { Content = Strings.Get("Action_Add"), Classes = { "DashedBtn" } };
 
         void Submit()
         {
@@ -778,7 +779,7 @@ public partial class MainWindow : Window
 
         root.Children.Add(new TextBlock
         {
-            Text = $"Type for \"{item.Name}\"",
+            Text = Strings.Format("Property_TypeFor", item.Name),
             Classes = { "FlyoutHeader" },
             Margin = new Thickness(4, 2, 4, 6)
         });

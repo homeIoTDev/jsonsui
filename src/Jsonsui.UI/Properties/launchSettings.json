@@ -3,7 +3,7 @@
     "Jsonsui-Min": {
       "commandName": "Project",
       "type": "dotnet",
-      "commandLineArgs": "./TestData/test_min.json"
+      "commandLineArgs": "./TestData/test_min.json --lang=en"
     },
     "Jsonsui-ExampleSchema": {
       "commandName": "Project",

@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Jsonsui.Core.Models;
 using Jsonsui.Core.Services;
+using Jsonsui.UI.Localization;
 
 namespace Jsonsui.UI.ViewModels;
 
@@ -39,7 +40,9 @@ public partial class DiffViewModel : ViewModelBase
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
     public bool HasNoChanges => !HasChanges;
-    public string SummaryText => ChangeCount == 1 ? "1 change" : $"{ChangeCount} changes";
+    public string SummaryText => ChangeCount == 1
+        ? Strings.Get("Diff_Summary_Singular")
+        : Strings.Format("Diff_Summary", ChangeCount);
 
     public void Open(JsonNode original, JsonNode current)
     {

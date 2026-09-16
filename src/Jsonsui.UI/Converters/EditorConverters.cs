@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using Jsonsui.Core.Models;
+using Jsonsui.Core.Services;
 
 namespace Jsonsui.UI.Converters;
 
@@ -66,6 +69,28 @@ public static class EditorConverters
         JsonChangeKind.Removed => ResolveBrush("ErrorBrush"),
         _ => ResolveBrush("TextSecondaryBrush")
     });
+
+    public static readonly IValueConverter ValidationMessagesToText =
+        new FuncValueConverter<List<MessageTemplate>?, string>(messages =>
+            messages is { Count: > 0 }
+                ? string.Join("; ", messages.Select(m => Localization.Strings.Format(m.Key, m.Args)))
+                : "");
+
+    public static readonly IValueConverter CountToObjectTag =
+        new FuncValueConverter<int?, string>(count => Localization.Strings.Format("Tree_ObjectTag", count ?? 0));
+
+    public static readonly IValueConverter CountToArrayTag =
+        new FuncValueConverter<int, string>(count => Localization.Strings.Format("Tree_ArrayTag", count));
+
+    public static readonly IValueConverter NodeToTag = new FuncValueConverter<JsonEditorNode?, string>(node => node is null ? "" : node.NodeType switch
+    {
+        "object" => Localization.Strings.Format("Tree_ObjectTag", node.Children.Count),
+        "array" => Localization.Strings.Format("Tree_ArrayTag", (node.Value as System.Text.Json.Nodes.JsonArray)?.Count ?? 0),
+        _ => JsonDocumentService.GetScalarPreview(node.Value)
+    });
+
+    public static readonly IValueConverter ErrorCountToText =
+        new FuncValueConverter<int, string>(count => Localization.Strings.Format("Errors_Count", count));
 
     public static readonly IValueConverter WindowBoundsToDiffWidth =
         new FuncValueConverter<Rect, double>(bounds => Math.Clamp(bounds.Width * 0.82, 520, 1100));

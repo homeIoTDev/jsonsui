@@ -3,10 +3,11 @@
              xmlns:vm="using:Jsonsui.UI.ViewModels"
              xmlns:models="using:Jsonsui.Core.Models"
              xmlns:conv="clr-namespace:Jsonsui.UI.Converters"
+             xmlns:loc="using:Jsonsui.UI.Localization"
              x:Class="Jsonsui.UI.Views.DiffView"
              x:DataType="vm:DiffViewModel">
   <Panel>
-    <TextBlock Text="No changes."
+    <TextBlock Text="{loc:Localize Diff_NoChanges}"
                IsVisible="{Binding HasNoChanges}"
                HorizontalAlignment="Center" VerticalAlignment="Center"
                Foreground="{DynamicResource TextSecondaryBrush}"

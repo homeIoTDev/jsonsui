@@ -5,6 +5,7 @@
         xmlns:conv="clr-namespace:Jsonsui.UI.Converters"
         xmlns:controls="using:Jsonsui.UI.Controls"
         xmlns:views="using:Jsonsui.UI.Views"
+        xmlns:loc="using:Jsonsui.UI.Localization"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
@@ -42,7 +43,7 @@
                 BorderBrush="{DynamicResource PanelBorderBrush}"
                 BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
           <StackPanel Orientation="Horizontal" Spacing="6">
-            <TextBlock Text="{Binding NestedObjectSummary}"
+            <TextBlock Text="{Binding NestedObjectCount, Converter={x:Static conv:EditorConverters.CountToObjectTag}}"
                        Foreground="{DynamicResource TextSecondaryBrush}"
                        FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
             <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
@@ -58,7 +59,7 @@
           <StackPanel Orientation="Horizontal" Spacing="6">
             <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
                       Stroke="{DynamicResource AccentBrush}" />
-            <TextBlock Text="{Binding ArrayItemCount}"
+            <TextBlock Text="{Binding ArrayItemCount, Converter={x:Static conv:EditorConverters.CountToArrayTag}}"
                        FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
             <Path Classes="Lucide" Data="{StaticResource lucide-arrow-right}" Width="10" Height="10"
                       Stroke="{DynamicResource TextTertiaryBrush}" />
@@ -125,7 +126,7 @@
                   IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=nullable}"
                   IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                   Padding="8,4"
-                  ToolTip.Tip="Select type">
+                  ToolTip.Tip="{loc:Localize Editor_SelectType}">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="null" FontStyle="Italic"
                          Foreground="{DynamicResource TextSecondaryBrush}"
@@ -150,14 +151,14 @@
         <DockPanel VerticalAlignment="Stretch" LastChildFill="False">
           <!-- Fensterbuttons (rechts außen) -->
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Stretch">
-            <Button Theme="{StaticResource CaptionButtonTheme}" Click="Minimize_Click" ToolTip.Tip="Minimieren">
+            <Button Theme="{StaticResource CaptionButtonTheme}" Click="Minimize_Click" ToolTip.Tip="{loc:Localize Window_Minimize}">
               <Path Classes="CaptionIcon" Data="{StaticResource TitleBarMinIcon}" Width="10" Height="10"
                     Fill="{DynamicResource TextPrimaryBrush}" Stroke="Transparent" />
             </Button>
-            <Button Theme="{StaticResource CaptionButtonTheme}" Click="Maximize_Click" ToolTip.Tip="Maximieren">
+            <Button Theme="{StaticResource CaptionButtonTheme}" Click="Maximize_Click" ToolTip.Tip="{loc:Localize Window_Maximize}">
               <Path Classes="CaptionIcon" Data="{StaticResource TitleBarMaxIcon}" Width="10" Height="10" />
             </Button>
-            <Button Theme="{StaticResource CaptionButtonTheme}" Classes="CaptionClose" Click="Close_Click" ToolTip.Tip="Schließen">
+            <Button Theme="{StaticResource CaptionButtonTheme}" Classes="CaptionClose" Click="Close_Click" ToolTip.Tip="{loc:Localize Window_Close}">
               <Path Classes="CaptionIcon" Data="{StaticResource lucide-x}" Width="10" Height="10" />
             </Button>
           </StackPanel>
@@ -168,27 +169,27 @@
             <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
                     ToolTip.Tip="{Binding SchemaTooltip}"
                     IsVisible="{Binding IsSchemaLoaded}">
-              <TextBlock Text="✓ Schema" Foreground="{DynamicResource AccentBrush}"
+              <TextBlock Text="{loc:Localize Schema_Status_Loaded}" Foreground="{DynamicResource AccentBrush}"
                          FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}" FontWeight="Bold" />
             </Button>
             <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
                     ToolTip.Tip="{Binding SchemaTooltip}"
                     IsVisible="{Binding IsSchemaNone}">
-              <TextBlock Text="⚠ Kein Schema" Foreground="{DynamicResource WarnBrush}"
+              <TextBlock Text="{loc:Localize Schema_Status_None}" Foreground="{DynamicResource WarnBrush}"
                          FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}" FontWeight="Bold" />
             </Button>
             <Button Classes="SchemaStatus" Command="{Binding LoadSchemaCommand}"
                     ToolTip.Tip="{Binding SchemaTooltip}"
                     IsVisible="{Binding IsSchemaFailed}">
-              <TextBlock Text="⚠ Schemafehler" Foreground="{DynamicResource ErrorBrush}"
+              <TextBlock Text="{loc:Localize Schema_Status_Error}" Foreground="{DynamicResource ErrorBrush}"
                          FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}" FontWeight="Bold" />
             </Button>
           </StackPanel>
           <Button Classes="StatusError" IsVisible="{Binding HasErrors}"
                   DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center"
-                  Click="ErrorBadge_Click" ToolTip.Tip="Errors">
+                  Click="ErrorBadge_Click" ToolTip.Tip="{loc:Localize Errors_Tooltip}">
             <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Text="{Binding ErrorCount, StringFormat={}{0} errors}"
+              <TextBlock Text="{Binding ErrorCount, Converter={x:Static conv:EditorConverters.ErrorCountToText}}"
                          Foreground="{DynamicResource ErrorBrush}"
                          FontFamily="{StaticResource FontJetBrainsMono}"
                          FontSize="{DynamicResource EditorFontSizeTiny}" FontWeight="Bold" />
@@ -196,7 +197,7 @@
           </Button>
           <Border Classes="StatusSuccess" IsVisible="{Binding ShowSaved}"
                   DockPanel.Dock="Right" Margin="0,0,8,0" VerticalAlignment="Center">
-            <TextBlock Text="saved" Foreground="{DynamicResource AccentBrush}"
+            <TextBlock Text="{loc:Localize Status_Saved}" Foreground="{DynamicResource AccentBrush}"
                        FontFamily="{StaticResource FontJetBrainsMono}"
                        FontSize="{DynamicResource EditorFontSizeTiny}" FontWeight="Bold" />
           </Border>
@@ -204,7 +205,9 @@
           <StackPanel Orientation="Horizontal" Spacing="10" DockPanel.Dock="Left"
                       Margin="5,0,0,0" VerticalAlignment="Center">
             <Image Source="/Assets/app-icon.png" Width="26" Height="26" VerticalAlignment="Center" />
-            <TextBlock Text="jsonsui – JSON Schema UI" Classes="HeaderLabel" VerticalAlignment="Center" />
+            <TextBlock Classes="HeaderLabel" VerticalAlignment="Center">
+              <Run Text="jsonsui – " /><Run Text="{loc:Localize App_Subtitle}" />
+            </TextBlock>
             <TextBlock Text="{Binding DocumentFilename}"
                        Foreground="{DynamicResource TextTertiaryBrush}"
                        FontFamily="{StaticResource FontJetBrainsMono}"
@@ -229,7 +232,7 @@
                 Background="{DynamicResource TreeBackgroundBrush}">
           <Grid RowDefinitions="Auto,*,Auto">
             <!-- Tree Search -->
-            <TextBox Grid.Row="0" PlaceholderText="Filter..." 
+            <TextBox Grid.Row="0" PlaceholderText="{loc:Localize Tree_FilterPlaceholder}" 
                      x:Name="FilterBox"
                      Text="{Binding FilterText}"
                      Classes="clearButton"
@@ -255,17 +258,17 @@
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="6"
                             VerticalAlignment="Center" >
                   <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
-                          ToolTip.Tip="Open file" Width="28" Height="28" Padding="4">
+                          ToolTip.Tip="{loc:Localize Toolbar_OpenFile}" Width="28" Height="28" Padding="4">
                     <Path Classes="Lucide" Data="{StaticResource lucide-folder}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                   <Button Command="{Binding SaveCommand}" Classes="IconBtn"
-                          ToolTip.Tip="Save" Width="28" Height="28" Padding="4">
+                          ToolTip.Tip="{loc:Localize Toolbar_Save}" Width="28" Height="28" Padding="4">
                     <Path Classes="Lucide" Data="{StaticResource lucide-save}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                   <Button Command="{Binding OpenDiffCommand}" Classes="IconBtn"
-                          ToolTip.Tip="Show diff" Width="28" Height="28" Padding="4">
+                          ToolTip.Tip="{loc:Localize Toolbar_ShowDiff}" Width="28" Height="28" Padding="4">
                     <Path Classes="Lucide" Data="{StaticResource lucide-shuffle}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
@@ -273,12 +276,12 @@
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6"
                             HorizontalAlignment="Right" VerticalAlignment="Center">
                   <Button Command="{Binding ToggleTextModeCommand}" Classes="IconBtn"
-                          ToolTip.Tip="Toggle text mode" Width="28" Height="28" Padding="4">
+                          ToolTip.Tip="{loc:Localize Toolbar_ToggleTextMode}" Width="28" Height="28" Padding="4">
                     <Path Classes="Lucide" Data="{StaticResource lucide-code}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0" />
                   </Button>
                   <Button Command="{Binding ToggleThemeCommand}" Classes="IconBtn"
-                          ToolTip.Tip="Toggle theme" Width="28" Height="28" Padding="4">
+                          ToolTip.Tip="{loc:Localize Toolbar_ToggleTheme}" Width="28" Height="28" Padding="4">
                     <Panel>
                       <Path Classes="Lucide" Data="{StaticResource lucide-moon}" Width="14" Height="14"
                                 Stroke="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"
@@ -342,30 +345,30 @@
                   <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
                           Classes="IconBtn"
                           Command="{Binding ExitNestedArrayCommand}"
-                          Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
+                          Width="22" Height="22" Padding="2" ToolTip.Tip="{loc:Localize Editor_Back}">
                     <Path Classes="Lucide" Data="{StaticResource lucide-arrow-left}" Width="11" Height="11"
                           Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4" DockPanel.Dock="Right">
                   <Button Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
-                          Click="AddProperty_Click" ToolTip.Tip="Add property"
+                          Click="AddProperty_Click" ToolTip.Tip="{loc:Localize Property_Add}"
                           VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                       <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="10" Height="10"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
-                      <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}"
+                      <TextBlock Text="{loc:Localize Property_Add}" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}"
                                  Foreground="{DynamicResource TextSecondaryBrush}" />
                     </StackPanel>
                   </Button>
                   <Button Command="{Binding UndoCommand}" Classes="IconBtn"
-                          IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
+                          IsEnabled="{Binding CanUndo}" ToolTip.Tip="{loc:Localize Toolbar_Undo}"
                           Width="22" Height="22" Padding="2">
                     <Path Classes="Lucide" Data="{StaticResource lucide-undo}" Width="11" Height="11"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
                   </Button>
                   <Button Command="{Binding RedoCommand}" Classes="IconBtn"
-                          IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
+                          IsEnabled="{Binding CanRedo}" ToolTip.Tip="{loc:Localize Toolbar_Redo}"
                           Width="22" Height="22" Padding="2">
                     <Path Classes="Lucide" Data="{StaticResource lucide-redo}" Width="11" Height="11"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
@@ -406,7 +409,7 @@
                                   VerticalAlignment="Center"
                                   IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                   Click="FieldRowAction_Click"
-                                  Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Property actions">
+                                  Tapped="FieldRowDelete_Tapped" ToolTip.Tip="{loc:Localize Property_Actions}">
                             <TextBlock Text="⋮" FontSize="{DynamicResource EditorFontSizeLarge}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextSecondaryBrush}" />
                           </Button>
@@ -419,7 +422,7 @@
              <Border Grid.Row="2" Classes="HelpStrip" IsVisible="{Binding EditorHelpVisible}">
               <StackPanel Spacing="4">
                 <Border IsVisible="{Binding EditorHelpInfo.HasValidationErrors}">
-                  <TextBlock Text="{Binding EditorHelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding EditorHelpInfo.ErrorMessages, Converter={x:Static conv:EditorConverters.ValidationMessagesToText}}" Classes="ErrorText" TextWrapping="Wrap" />
                 </Border>
                 <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
@@ -433,13 +436,13 @@
                               ItemTemplate="{StaticResource MetaItemTemplate}" />
                 <WrapPanel>
                   <Border Classes="Badge BadgeRequired" IsVisible="{Binding EditorHelpInfo.IsRequired}">
-                    <TextBlock Text="REQUIRED" Classes="BadgeText" Foreground="{DynamicResource ErrorBrush}" />
+                    <TextBlock Text="{loc:Localize Badge_Required}" Classes="BadgeText" Foreground="{DynamicResource ErrorBrush}" />
                   </Border>
                   <Border Classes="Badge BadgeWarn" IsVisible="{Binding EditorHelpInfo.IsDeprecated}">
-                    <TextBlock Text="DEPRECATED" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
+                    <TextBlock Text="{loc:Localize Badge_Deprecated}" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
                   </Border>
                   <Border Classes="Badge BadgeMuted" IsVisible="{Binding EditorHelpInfo.IsReadOnly}">
-                    <TextBlock Text="READ-ONLY" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
+                    <TextBlock Text="{loc:Localize Badge_ReadOnly}" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
                   </Border>
                 </WrapPanel>
                 <TextBlock Text="{Binding EditorHelpInfo.Comment}" Classes="HelpComment"
@@ -461,30 +464,30 @@
                   <Button IsVisible="{Binding NestedCtx, Converter={x:Static conv:EditorConverters.NullToBool}}"
                         Classes="IconBtn"
                         Command="{Binding ExitNestedArrayCommand}"
-                        Width="22" Height="22" Padding="2" ToolTip.Tip="zurück">
+                        Width="22" Height="22" Padding="2" ToolTip.Tip="{loc:Localize Editor_Back}">
                   <Path Classes="Lucide" Data="{StaticResource lucide-arrow-left}" Width="11" Height="11"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
               </StackPanel>
               <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
                 <Button Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
-                        Click="AddProperty_Click" ToolTip.Tip="Add property"
+                        Click="AddProperty_Click" ToolTip.Tip="{loc:Localize Property_Add}"
                         VerticalAlignment="Center">
                   <StackPanel Orientation="Horizontal" Spacing="4">
                     <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="10" Height="10"
                           Stroke="{DynamicResource TextSecondaryBrush}" />
-                    <TextBlock Text="Add property" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}"
+                    <TextBlock Text="{loc:Localize Property_Add}" FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeSmall}"
                                Foreground="{DynamicResource TextSecondaryBrush}" />
                   </StackPanel>
                 </Button>
                 <Button Command="{Binding UndoCommand}" Classes="IconBtn"
-                        IsEnabled="{Binding CanUndo}" ToolTip.Tip="Undo"
+                        IsEnabled="{Binding CanUndo}" ToolTip.Tip="{loc:Localize Toolbar_Undo}"
                         Width="22" Height="22" Padding="2">
                   <Path Classes="Lucide" Data="{StaticResource lucide-undo}" Width="11" Height="11"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
                 </Button>
                 <Button Command="{Binding RedoCommand}" Classes="IconBtn"
-                        IsEnabled="{Binding CanRedo}" ToolTip.Tip="Redo"
+                        IsEnabled="{Binding CanRedo}" ToolTip.Tip="{loc:Localize Toolbar_Redo}"
                         Width="22" Height="22" Padding="2">
                   <Path Classes="Lucide" Data="{StaticResource lucide-redo}" Width="11" Height="11"
                             Stroke="{DynamicResource TextSecondaryBrush}" />
@@ -516,7 +519,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
                       <Path Classes="Lucide" Data="{StaticResource lucide-plus}" Width="12" Height="12"
                                 Stroke="{DynamicResource TextSecondaryBrush}" />
-                      <TextBlock Text="Hinzufügen" VerticalAlignment="Center"
+                      <TextBlock Text="{loc:Localize Array_Add}" VerticalAlignment="Center"
                                  FontFamily="{StaticResource FontJetBrainsMono}" FontSize="{DynamicResource EditorFontSizeBase}" />
                     </StackPanel>
                   </Button>
@@ -546,7 +549,7 @@
                                     IsEnabled="{Binding ElementName=RootWindow, Path=DataContext.ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                     Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
                                     CommandParameter="{Binding Index}"
-                                    Tapped="CardDelete_Tapped" ToolTip.Tip="Delete">
+                                    Tapped="CardDelete_Tapped" ToolTip.Tip="{loc:Localize Action_Delete}">
                               <Path Classes="Lucide" Data="{StaticResource lucide-trash-2}" Width="12" Height="12"
                                         Stroke="{DynamicResource TextTertiaryBrush}" />
                             </Button>
@@ -563,7 +566,7 @@
               <Grid RowDefinitions="*,Auto">
                 <Border Grid.Row="0" IsVisible="{Binding ShowEmptyDetailState}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
-                  <TextBlock Text="Kein Item ausgewählt"
+                  <TextBlock Text="{loc:Localize Editor_NoItemSelected}"
                              Foreground="{DynamicResource TextTertiaryBrush}" FontStyle="Italic" FontSize="{DynamicResource EditorFontSizeBase}" />
                 </Border>
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasObjectFields}">
@@ -597,7 +600,7 @@
                                      VerticalAlignment="Center"
                                      IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                                      Click="FieldRowAction_Click"
-                                     Tapped="FieldRowDelete_Tapped" ToolTip.Tip="Property actions">
+                                     Tapped="FieldRowDelete_Tapped" ToolTip.Tip="{loc:Localize Property_Actions}">
                                <TextBlock Text="⋮" FontSize="{DynamicResource EditorFontSizeLarge}" FontWeight="Bold"
                                           Foreground="{DynamicResource TextSecondaryBrush}" />
                              </Button>
@@ -625,7 +628,7 @@
                 <Border Grid.Row="1" Classes="HelpStrip HelpStripCompact" IsVisible="{Binding EditorHelpVisible}">
                   <StackPanel Spacing="3">
                     <Border IsVisible="{Binding EditorHelpInfo.HasValidationErrors}">
-                      <TextBlock Text="{Binding EditorHelpInfo.ErrorMessages}" Classes="ErrorText" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding EditorHelpInfo.ErrorMessages, Converter={x:Static conv:EditorConverters.ValidationMessagesToText}}" Classes="ErrorText" TextWrapping="Wrap" />
                     </Border>
                     <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
                            IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
@@ -639,13 +642,13 @@
                               ItemTemplate="{StaticResource MetaItemTemplate}" />
                 <WrapPanel>
                   <Border Classes="Badge BadgeRequired" IsVisible="{Binding EditorHelpInfo.IsRequired}">
-                    <TextBlock Text="REQUIRED" Classes="BadgeText" Foreground="{DynamicResource ErrorBrush}" />
+                    <TextBlock Text="{loc:Localize Badge_Required}" Classes="BadgeText" Foreground="{DynamicResource ErrorBrush}" />
                   </Border>
                   <Border Classes="Badge BadgeWarn" IsVisible="{Binding EditorHelpInfo.IsDeprecated}">
-                    <TextBlock Text="DEPRECATED" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
+                    <TextBlock Text="{loc:Localize Badge_Deprecated}" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
                   </Border>
                   <Border Classes="Badge BadgeMuted" IsVisible="{Binding EditorHelpInfo.IsReadOnly}">
-                    <TextBlock Text="READ-ONLY" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
+                    <TextBlock Text="{loc:Localize Badge_ReadOnly}" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
                   </Border>
                 </WrapPanel>
                 <TextBlock Text="{Binding EditorHelpInfo.Comment}" Classes="HelpComment"
@@ -707,12 +710,12 @@
             <DockPanel VerticalAlignment="Center">
               <Button DockPanel.Dock="Right" Classes="IconBtn"
                       Command="{Binding CloseDiffCommand}" Width="22" Height="22" Padding="2"
-                      ToolTip.Tip="Close">
+                      ToolTip.Tip="{loc:Localize Action_Close}">
                 <Path Classes="Lucide" Data="{StaticResource lucide-x}" Width="12" Height="12"
                       Stroke="{DynamicResource TextSecondaryBrush}" />
               </Button>
               <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                <TextBlock Text="JSON Diff" Classes="HeaderLabel" />
+                <TextBlock Text="{loc:Localize Diff_Title}" Classes="HeaderLabel" />
                 <TextBlock Text="{Binding Diff.SummaryText}" VerticalAlignment="Center"
                            Foreground="{DynamicResource TextSecondaryBrush}"
                            FontSize="{DynamicResource EditorFontSizeBase}" />

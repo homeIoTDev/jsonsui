@@ -15,6 +15,7 @@ public sealed class CliArguments
     public string? SchemaPath { get; set; }
     public string? DiffFileA { get; set; }
     public string? DiffFileB { get; set; }
+    public string? Language { get; set; }
     public string? Error { get; set; }
 }
 
@@ -27,10 +28,27 @@ public static class CliParser
 
         for (int i = 0; i < args.Length; i++)
         {
+            if (args[i].StartsWith("--lang=", StringComparison.Ordinal))
+            {
+                var language = args[i]["--lang=".Length..];
+                if (string.IsNullOrWhiteSpace(language))
+                    result.Error = "Option '--lang' requires a language argument (e.g. en, de).";
+                else
+                    result.Language = language;
+                continue;
+            }
+
             switch (args[i])
             {
                 case "--diff":
                     result.Command = CliCommand.Diff;
+                    break;
+
+                case "--lang":
+                    if (i + 1 < args.Length && !args[i + 1].StartsWith('-'))
+                        result.Language = args[++i];
+                    else
+                        result.Error = "Option '--lang' requires a language argument (e.g. en, de).";
                     break;
 
                 case "--schema":
