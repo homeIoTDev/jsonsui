@@ -5,7 +5,6 @@ Mon–Fri:
 
 [ ] Extract MainWindow.axaml into UserControls
 [ ] Moving object properties
-[ ] Creating objects
 
 
 [ ] Future features:
