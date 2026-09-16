@@ -7,6 +7,7 @@
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://jsonsui/Styles/LucideIcons.axaml" />
+        <ResourceInclude Source="avares://jsonsui/Resources/EditorTemplates.axaml" />
       </ResourceDictionary.MergedDictionaries>
 
       <ResourceDictionary.ThemeDictionaries>

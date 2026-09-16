@@ -2,9 +2,8 @@ DeepSeek peak times:
 Mon–Fri:
 03:00–06:00 and
 08:00–12:00!
+ 
 
-[ ] Extract MainWindow.axaml into UserControls
-[ ] Moving object properties
 
 
 [ ] Future features:
@@ -14,4 +13,4 @@ Mon–Fri:
   Support for MS comments in JSON (not part of the JSON standard)
   Support for advanced schema constructs such as oneOf, anyOf, allOf
       current schema constraints: minimum / maximum, minLength / maxLength, pattern, required, const, default, readOnly, deprecated
-
+   Moving object properties

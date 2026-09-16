@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Jsonsui.UI.ViewModels"
+             xmlns:views="using:Jsonsui.UI.Views"
+             xmlns:conv="clr-namespace:Jsonsui.UI.Converters"
+             xmlns:loc="using:Jsonsui.UI.Localization"
+             x:Class="Jsonsui.UI.Views.HelpStripView"
+             x:DataType="vm:MainWindowViewModel">
+
+  <Border Classes="HelpStrip"
+          Classes.HelpStripCompact="{Binding $parent[views:HelpStripView].Compact}">
+    <StackPanel Spacing="{Binding $parent[views:HelpStripView].Spacing}">
+
+      <!-- Validation errors (only where details are shown) -->
+      <Border IsVisible="{Binding $parent[views:HelpStripView].ShowDetails}">
+        <Border IsVisible="{Binding EditorHelpInfo.HasValidationErrors}">
+          <TextBlock Text="{Binding EditorHelpInfo.ErrorMessages, Converter={x:Static conv:EditorConverters.ValidationMessagesToText}}" Classes="ErrorText" TextWrapping="Wrap" />
+        </Border>
+      </Border>
+
+      <TextBlock Text="{Binding EditorHelpInfo.ContextDescription}" Classes="HelpDescription"
+                 IsVisible="{Binding EditorHelpInfo.ContextDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+
+      <ItemsControl IsVisible="{Binding $parent[views:HelpStripView].ShowMetaItems}"
+                    ItemsSource="{Binding EditorHelpInfo.ContextMetaItems}"
+                    ItemsPanel="{StaticResource MetaItemsPanel}"
+                    ItemTemplate="{StaticResource MetaItemTemplate}" />
+
+      <TextBlock Text="{Binding EditorHelpInfo.FieldDescription}" Classes="HelpFieldDescription"
+                 IsVisible="{Binding EditorHelpInfo.FieldDescription, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+
+      <ItemsControl IsVisible="{Binding $parent[views:HelpStripView].ShowMetaItems}"
+                    ItemsSource="{Binding EditorHelpInfo.FieldMetaItems}"
+                    ItemsPanel="{StaticResource MetaItemsPanel}"
+                    ItemTemplate="{StaticResource MetaItemTemplate}" />
+
+      <!-- Badges (only where details are shown) -->
+      <WrapPanel IsVisible="{Binding $parent[views:HelpStripView].ShowDetails}">
+        <Border Classes="Badge BadgeRequired" IsVisible="{Binding EditorHelpInfo.IsRequired}">
+          <TextBlock Text="{loc:Localize Badge_Required}" Classes="BadgeText" Foreground="{DynamicResource ErrorBrush}" />
+        </Border>
+        <Border Classes="Badge BadgeWarn" IsVisible="{Binding EditorHelpInfo.IsDeprecated}">
+          <TextBlock Text="{loc:Localize Badge_Deprecated}" Classes="BadgeText" Foreground="{DynamicResource WarnBrush}" />
+        </Border>
+        <Border Classes="Badge BadgeMuted" IsVisible="{Binding EditorHelpInfo.IsReadOnly}">
+          <TextBlock Text="{loc:Localize Badge_ReadOnly}" Classes="BadgeText" Foreground="{DynamicResource TextTertiaryBrush}" />
+        </Border>
+      </WrapPanel>
+
+      <!-- Comment (only where details are shown) -->
+      <Border IsVisible="{Binding $parent[views:HelpStripView].ShowDetails}">
+        <TextBlock Text="{Binding EditorHelpInfo.Comment}" Classes="HelpComment"
+                   IsVisible="{Binding EditorHelpInfo.Comment, Converter={x:Static conv:EditorConverters.NullToBool}}" />
+      </Border>
+
+    </StackPanel>
+  </Border>
+</UserControl>

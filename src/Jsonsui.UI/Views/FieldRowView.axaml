@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="using:Jsonsui.Core.Models"
+             xmlns:conv="clr-namespace:Jsonsui.UI.Converters"
+             xmlns:views="using:Jsonsui.UI.Views"
+             xmlns:loc="using:Jsonsui.UI.Localization"
+             x:Class="Jsonsui.UI.Views.FieldRowView"
+             x:DataType="models:FieldRow">
+
+  <Border Margin="0,0,0,8" Padding="0" Background="Transparent" Classes="FieldRowDeleteHost"
+          Tapped="FieldRow_Tapped" KeyDown="FieldRow_KeyDown" Tag="{Binding Path}">
+    <Grid ColumnDefinitions="130,10,*,Auto">
+      <StackPanel Grid.Column="0" VerticalAlignment="Center">
+        <Grid>
+          <TextBlock Text="{Binding Key}" Classes="FieldLabel"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                     DoubleTapped="FieldName_DoubleTapped"
+                     IsVisible="{Binding IsEditingName, Converter={x:Static conv:EditorConverters.InverseBool}}" />
+          <TextBox Text="{Binding EditName}" Classes="FieldNameEditor"
+                   VerticalContentAlignment="Center"
+                   IsVisible="{Binding IsEditingName}"
+                   GotFocus="FieldNameEditor_GotFocus"
+                   KeyDown="FieldNameEditor_KeyDown"
+                   LostFocus="FieldNameEditor_LostFocus" />
+        </Grid>
+        <TextBlock Text="{Binding RenameError}" Classes="RenameErrorText"
+                   IsVisible="{Binding HasRenameError}" />
+      </StackPanel>
+      <Grid Grid.Column="1" />
+      <views:FieldEditorView Grid.Column="2" VerticalAlignment="Center" />
+        <Button Grid.Column="3" Classes="IconBtn FieldRowDeleteBtn" Width="22" Height="22" Padding="2"
+                VerticalAlignment="Center"
+                IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                Click="FieldRowAction_Click"
+                Tapped="FieldRowDelete_Tapped" ToolTip.Tip="{loc:Localize Property_Actions}">
+          <TextBlock Text="⋮" FontSize="{DynamicResource EditorFontSizeLarge}" FontWeight="Bold"
+                     Foreground="{DynamicResource TextSecondaryBrush}" />
+        </Button>
+      </Grid>
+    </Border>
+</UserControl>
