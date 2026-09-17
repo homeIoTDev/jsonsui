@@ -46,4 +46,7 @@ jsonsui config.json --schema ./schemas/app-schema.json
 
 # Compare and sync two production environments
 jsonsui --diff prod.json dev.json
+
+# Set UI language
+jsonsui  config.json --lang=en
 ```
