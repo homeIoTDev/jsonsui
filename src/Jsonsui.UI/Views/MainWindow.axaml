@@ -310,10 +310,15 @@
             </DockPanel>
           </Border>
           <!-- Split Content: Cards | Detail -->
-          <Grid Grid.Row="1" ColumnDefinitions="240,*">
+          <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="240" MinWidth="160" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" MinWidth="200" />
+            </Grid.ColumnDefinitions>
             <!-- Card List -->
-            <Border Grid.Column="0" BorderThickness="0,0,1,0"
-                    BorderBrush="{DynamicResource CardSplitBrush}"
+            <Border Grid.Column="0"
+                    BorderThickness="0"
                     Background="{DynamicResource PanelBackgroundBrush}">
               <DockPanel>
                 <Border Classes="HelpStripCompact" DockPanel.Dock="Top"
@@ -374,8 +379,11 @@
                 </ScrollViewer>
               </DockPanel>
             </Border>
+            <GridSplitter Grid.Column="1"
+                          Theme="{StaticResource PanelSplitterTheme}"
+                          BorderBrush="{DynamicResource CardSplitBrush}" />
             <!-- Detail Panel -->
-            <Border Grid.Column="1" Background="{DynamicResource PanelBackgroundBrush}">
+            <Border Grid.Column="2" Background="{DynamicResource PanelBackgroundBrush}">
               <Grid RowDefinitions="*,Auto">
                 <Border Grid.Row="0" IsVisible="{Binding ShowEmptyDetailState}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
