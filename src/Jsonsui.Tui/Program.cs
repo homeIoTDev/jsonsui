@@ -1,3 +1,4 @@
+using System.Globalization;
 using Jsonsui.Core;
 using Jsonsui.Core.Services;
 
@@ -5,6 +6,8 @@ namespace Jsonsui.Tui;
 
 internal static class Program
 {
+    private const string AppName = "jsonsui-tui";
+
     public static int Main(string[] args)
     {
         var cli = CliParser.Parse(args);
@@ -16,13 +19,35 @@ internal static class Program
             return 2;
         }
 
+        ApplyLanguage(cli.Language);
+
         return cli.Command switch
         {
             CliCommand.Help => PrintUsage(),
+            CliCommand.Version => PrintVersion(),
             CliCommand.Diff => RunDiff(cli),
             CliCommand.Open => RunOpen(cli),
             _ => PrintUsage()
         };
+    }
+
+    private static void ApplyLanguage(string? language)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+            return;
+
+        try
+        {
+            var culture = CultureInfo.GetCultureInfo(language);
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+        }
+        catch (CultureNotFoundException)
+        {
+            Console.Error.WriteLine($"Warning: unknown language '{language}', using system language.");
+        }
     }
 
     private static int RunDiff(CliArguments cli)
@@ -78,11 +103,13 @@ internal static class Program
 
     private static int PrintUsage()
     {
-        Console.WriteLine("Usage:");
-        Console.WriteLine("  jsonsui-tui <json> [--schema <path>] [--lang <code>]");
-        Console.WriteLine("  jsonsui-tui <json> --schema <path>");
-        Console.WriteLine("  jsonsui-tui --diff <fileA> <fileB>");
-        Console.WriteLine("  jsonsui-tui --help");
+        Console.WriteLine(CliParser.GetUsage(AppName));
+        return 0;
+    }
+
+    private static int PrintVersion()
+    {
+        Console.WriteLine(CliParser.GetVersion(AppName));
         return 0;
     }
 }

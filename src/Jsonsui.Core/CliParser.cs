@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace Jsonsui.Core;
 
 public enum CliCommand
@@ -5,7 +7,8 @@ public enum CliCommand
     None,
     Open,
     Diff,
-    Help
+    Help,
+    Version
 }
 
 public sealed class CliArguments
@@ -21,6 +24,25 @@ public sealed class CliArguments
 
 public static class CliParser
 {
+    public static string GetUsage(string appName)
+    {
+        return string.Join(Environment.NewLine, new[]
+        {
+            "Usage:",
+            $"  {appName} <json> [--schema <path>] [--lang <code>]",
+            $"  {appName} <json> --schema <path>",
+            $"  {appName} --diff <fileA> <fileB>",
+            $"  {appName} --help",
+            $"  {appName} --version",
+        });
+    }
+
+    public static string GetVersion(string appName)
+    {
+        var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "unknown";
+        return $"{appName} {version}";
+    }
+
     public static CliArguments Parse(string[] args)
     {
         var result = new CliArguments();
@@ -63,6 +85,11 @@ public static class CliParser
                     result.Command = CliCommand.Help;
                     break;
 
+                case "--version":
+                case "-v":
+                    result.Command = CliCommand.Version;
+                    break;
+
                 default:
                     var arg = args[i];
                     if (arg.StartsWith('-') && arg.Length > 1)
@@ -85,7 +112,7 @@ public static class CliParser
                 result.Error = "Option '--diff' requires two file arguments.";
             }
         }
-        else if (result.Command != CliCommand.Help)
+        else if (result.Command != CliCommand.Help && result.Command != CliCommand.Version)
         {
             if (positional.Count > 0)
                 result.JsonPath = positional[0];

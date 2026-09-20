@@ -48,5 +48,18 @@ jsonsui config.json --schema ./schemas/app-schema.json
 jsonsui --diff prod.json dev.json
 
 # Set UI language
-jsonsui  config.json --lang=en
+jsonsui config.json --lang=en
+
+# Show help or version
+jsonsui --help
+jsonsui --version
+```
+
+The console app prints formatted JSON and diffs to stdout instead of opening a window:
+
+```bash
+jsonsui-tui appsettings.json
+jsonsui-tui config.json --schema ./schemas/app-schema.json
+jsonsui-tui --diff prod.json dev.json
+jsonsui-tui --help
 ```
