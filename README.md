@@ -1,65 +1,312 @@
 # 🚀 jsonsui
 
-> **No more raw text. Navigate and edit JSON configurations through a schema-driven UI**  
-> A blazing-fast, cross-platform config editor powered by Avalonia UI.
+> **No more raw text. Navigate and edit JSON configurations through a schema-driven UI.**
 
-[![GitHub license](https://shields.io)](LICENSE)
-[![Build Status](https://shields.io)](actions)
-[![AvaloniaUI](https://shields.io)](https://avaloniaui.net)
+> A fast, cross-platform JSON configuration editor powered by Avalonia UI.
 
-**jsonsui** turns standard JSON Schema into a focused, human-friendly configuration experience for complex JSON files.
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-10-512BD4.svg)](https://dotnet.microsoft.com/)
+[![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B5CF6.svg)](https://avaloniaui.net/)
 
-Instead of exposing the entire JSON document as a form or forcing users to edit raw JSON, jsonsui separates navigation from editing:
+Built with Avalonia UI for Windows and Linux, with a shared UI-independent core designed to support additional frontends in the future.
 
-* The tree is for navigation
-* The editor is for the selected JSON context
-* Arrays become card-based editors
-* Nested structures can be drilled into without cluttering the main tree
-* JSON Schema provides validation, field descriptions, defaults, constraints and UI metadata
-
-The result is a configuration editor designed for large and deeply nested configuration files — without making users understand the underlying JSON structure.
-
-Built with Avalonia UI for Windows and Linux, with a shared core architecture prepared for a web-based configuration experience.
-[Key Features](#-key-features) • [Installation](#-installation) • [CLI Usage](#-cli-usage) • [Architecture](#-architecture)
+**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Getting Started](#-getting-started) • [CLI](#-cli) • [Architecture](#-architecture)**
 
 ---
 
-## 🎯 Key Features
+## ✨ Why jsonsui?
 
-* **Schema-Driven UI:** Automatically turns types, enums, arrays, and descriptions into intuitive UI forms.
-* **Pixel-Perfect & Native:** Built with **Avalonia UI** for lightning-fast performance on Windows and Linux.
-* **Diff & Merge:** Compare two JSON configs side-by-side and merge changes field by field.
-* **Dev-First Integration:** Includes a dedicated **VS Code Extension** to open your files with a single click.
-* **Web-Ready Architecture:** Shared core logic prepared for **Blazor WebAssembly** configuration servers.
-* **Extensible Core:** Dynamic plugin system to inject custom UI components, validators, and diff strategies.
+JSON is everywhere — especially in configuration files.
 
-## 💻 CLI Usage
+But as configurations grow, editing raw JSON becomes increasingly difficult:
 
-Open any JSON configuration file instantly from your terminal:
+* Where is the setting I need?
+* What value is actually allowed here?
+* Which fields are required?
+* What does this property mean?
+* How do I safely edit deeply nested objects and arrays?
 
-```bash
-# Open a config file (auto-detects schema via \$schema)
-jsonsui appsettings.json
+**jsonsui** takes a different approach.
 
-# Force a specific JSON schema
-jsonsui config.json --schema ./schemas/app-schema.json
+Instead of navigating large configuration files as raw text, you can explore their structure visually and edit the relevant parts through an intuitive UI.
 
-# Compare and sync two production environments
-jsonsui --diff prod.json dev.json
+### 🧭 Navigate
 
-# Set UI language
-jsonsui config.json --lang=en
+Use a structured tree to move through objects and arrays without turning every individual JSON property into a tree node.
 
-# Show help or version
-jsonsui --help
-jsonsui --version
+### ✏️ Edit visually
+
+Properties are presented as appropriate UI controls instead of requiring manual JSON syntax.
+
+### 🧩 Let the schema do the work
+
+When a JSON Schema is available, jsonsui uses it to understand the configuration and provide appropriate controls, descriptions, defaults, constraints, enums and validation.
+
+### 🔎 Handle complex configurations
+
+Nested objects can be opened where they are needed, while arrays are presented as editable cards rather than a long list of indexed tree nodes.
+
+---
+
+## 🎯 Visual JSON Editing
+
+The main experience in jsonsui is **visual editing of JSON configurations**.
+
+Depending on the schema and value type, jsonsui can present properties as:
+
+* Text fields
+* Checkboxes
+* Numeric controls
+* Enum drop-downs
+* Nullable value controls
+* Array editors
+* Nested object editors
+
+Schema information can also provide:
+
+* Descriptions and help text
+* Default values
+* Required fields
+* Minimum / maximum constraints
+* String length constraints
+* Patterns
+* Read-only properties
+* Deprecated properties
+
+The goal is simple:
+
+> **Work with the configuration — not with its syntax.**
+
+---
+
+## 🧩 JSON Schema
+
+JSON Schema is a central part of jsonsui.
+
+If a JSON document contains a `$schema` reference, jsonsui can automatically detect and load the associated schema.
+
+Schemas can also be loaded manually when needed.
+
+For example, a schema can turn a configuration such as:
+
+```json
+{
+  "port": 8080,
+  "tls": true,
+  "mode": "production"
+}
 ```
 
-The console app prints formatted JSON and diffs to stdout instead of opening a window:
+into an editor with appropriate controls and constraints instead of requiring the user to edit the raw JSON directly.
+
+This allows the same JSON structure to become a guided configuration experience.
+
+---
+
+## 📚 Arrays & Nested Objects
+
+Complex configurations should not require endlessly scrolling through raw JSON.
+
+jsonsui keeps the main navigation focused on meaningful structural elements and lets you drill into nested objects when needed.
+
+Arrays are handled through an editor view with individual cards for their elements, making larger collections easier to understand and edit.
+
+---
+
+## 🔍 JSON Diff
+
+Before saving changes, jsonsui can compare the current configuration with the previous state and show structural changes.
+
+The diff currently identifies:
+
+* Added values
+* Removed values
+* Modified values
+* Unchanged values
+* Type changes
+* Object and array changes
+
+The result is presented in a dedicated diff view so changes can be reviewed before committing them to disk.
+
+---
+
+## 📝 Raw JSON Editing
+
+Visual editing is the primary experience, but jsonsui also provides a text-based JSON editor for situations where direct JSON editing is more appropriate.
+
+This gives you a choice between:
+
+**Visual editing when structure and schema guidance matter.**
+
+**Raw JSON when direct text editing is faster.**
+
+---
+
+## 🛠️ More than just editing
+
+jsonsui also includes:
+
+* ↩️ Undo / Redo
+* 💾 Load and Save
+* ✅ Live validation of supported schema constraints
+* ➕ Add properties
+* 🗑️ Remove properties
+* 🌍 Localization
+* 🔎 Tree filtering
+* 🌓 Avalonia-based desktop UI
+* 🖥️ Windows and Linux support
+* ⌨️ Command-line entry points
+
+The feature set is focused on making configuration editing safer and easier without hiding the underlying JSON.
+
+---
+
+## 🤖 AI-Assisted Development
+
+`jsonsui` is developed with **AI-assisted development tools**.
+
+Rather than generating the project in one large step, development is done iteratively in small, verifiable stages.
+
+The workflow typically looks like this:
+
+```text
+Idea / Requirement
+       ↓
+Architecture & UX decision
+       ↓
+Small implementation step
+       ↓
+Build & verification
+       ↓
+Manual UI testing
+       ↓
+Regression check
+       ↓
+Next iteration
+```
+
+AI is used as a development tool for tasks such as implementation, refactoring, investigation and debugging.
+
+**Architecture, requirements, design decisions, verification and final acceptance remain human-driven.**
+
+This approach allows jsonsui to be developed quickly while keeping the codebase understandable and intentionally designed.
+
+---
+
+## 🏗️ Architecture
+
+jsonsui is built around a UI-independent core:
+
+```text
+┌──────────────────────┐
+│      Jsonsui.UI      │
+│      Avalonia UI     │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│     Jsonsui.Core     │
+│                      │
+│  JSON editing logic  │
+│  Schema handling     │
+│  Validation          │
+│  Navigation          │
+│  Undo / Redo         │
+│  Diff                │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│     Jsonsui.Tui      │
+│   CLI / console      │
+└──────────────────────┘
+```
+
+The separation keeps the core JSON and schema logic independent from Avalonia and leaves room for additional frontends in the future.
+
+---
+
+## 🚀 Getting Started
+
+### Requirements
+
+* .NET 10 SDK
+
+### Build
 
 ```bash
-jsonsui-tui appsettings.json
-jsonsui-tui config.json --schema ./schemas/app-schema.json
-jsonsui-tui --diff prod.json dev.json
-jsonsui-tui --help
+dotnet build Jsonsui.slnx
 ```
+
+### Run the application
+
+```bash
+dotnet run --project src/Jsonsui.UI
+```
+
+You can also provide a JSON configuration and, if required, a schema through the command line.
+
+---
+
+## ⌨️ CLI
+
+The project also includes a lightweight command-line entry point.
+
+Example:
+
+```bash
+dotnet run --project src/Jsonsui.Tui -- ./config.json
+```
+
+Available functionality includes:
+
+* JSON input
+* Schema input
+* JSON diff
+* Language selection
+* Help
+
+The console project currently provides command-line functionality rather than a full interactive terminal editor.
+
+---
+
+## 🗺️ What's next?
+
+jsonsui is already usable as a JSON configuration editor, but there is plenty of room to expand it.
+
+Possible future directions include:
+
+* More advanced JSON Schema support
+* Improved schema composition (`oneOf`, `anyOf`, `allOf`)
+* Further diff capabilities
+* Additional frontends
+* Web-based configuration editing
+* A fully interactive terminal UI
+* Additional integrations
+
+The roadmap is intentionally open — the project will evolve based on practical use and feedback.
+
+---
+
+## ❤️ Support the Project
+
+jsonsui is open source and developed independently.
+
+If you find it useful, there are several ways to support the project:
+
+* ⭐ Star the repository
+* 🐛 Report bugs
+* 💡 Suggest improvements
+* 🔧 Contribute code
+* 📣 Share the project
+* ❤️ Support future development
+
+Financial support can help make it possible to spend more time on jsonsui and future features.
+
+---
+
+## 📄 License
+
+jsonsui is released under the **MIT License**.
+
+See [LICENSE](LICENSE) for details.
