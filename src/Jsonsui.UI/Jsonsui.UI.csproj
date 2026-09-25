@@ -14,7 +14,7 @@
     <AvaloniaResource Include="Styles\**" />
   </ItemGroup>
 <ItemGroup>
-  <Content Include="TestData\*.json" CopyToOutputDirectory="Always" />
+  <Content Include="TestData\*.json" CopyToOutputDirectory="Always" Condition="'$(Configuration)' != 'Release'" />
 </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.0" />

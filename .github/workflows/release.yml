@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { rid: win-x64,     os: windows-latest }
+          - { rid: linux-x64,   os: ubuntu-latest }
+          - { rid: macos-x64,   os: macos-latest }
+          - { rid: macos-arm64, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish self-contained
+        shell: bash
+        run: >
+          dotnet publish src/Jsonsui.UI/Jsonsui.UI.csproj
+          -c Release -r ${{ matrix.rid }} --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:DebugType=none -o out-sc
+
+      - name: Publish framework-dependent
+        shell: bash
+        run: >
+          dotnet publish src/Jsonsui.UI/Jsonsui.UI.csproj
+          -c Release -r ${{ matrix.rid }} --self-contained false
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:DebugType=none -o out-fd
+
+      - name: Stage
+        shell: bash
+        run: |
+          mkdir -p stage-sc/jsonsui stage-fd/jsonsui
+          cp "out-sc/jsonsui.exe" stage-sc/jsonsui/ 2>/dev/null || cp "out-sc/jsonsui" stage-sc/jsonsui/
+          cp -r out-fd/. stage-fd/jsonsui/
+          chmod +x stage-sc/jsonsui/jsonsui* || true
+          chmod +x stage-fd/jsonsui/jsonsui* || true
+
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          tar -czf "jsonsui-${{ matrix.rid }}-selfcontained.tar.gz"      -C stage-sc jsonsui
+          tar -czf "jsonsui-${{ matrix.rid }}-frameworkdependent.tar.gz" -C stage-fd jsonsui
+
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          codesign -s - stage-sc/jsonsui/jsonsui || true
+          codesign -s - stage-fd/jsonsui/jsonsui || true
+          zip -r "jsonsui-${{ matrix.rid }}-selfcontained.zip"      stage-sc/jsonsui
+          zip -r "jsonsui-${{ matrix.rid }}-frameworkdependent.zip" stage-fd/jsonsui
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path stage-sc/jsonsui -DestinationPath "jsonsui-${{ matrix.rid }}-selfcontained.zip"
+          Compress-Archive -Path stage-fd/jsonsui -DestinationPath "jsonsui-${{ matrix.rid }}-frameworkdependent.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: |
+            jsonsui-*.zip
+            jsonsui-*.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
