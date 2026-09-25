@@ -44,6 +44,9 @@ jobs:
         run: >
           dotnet publish src/Jsonsui.UI/Jsonsui.UI.csproj
           -c Release -r ${{ matrix.rid }} --self-contained false
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:DebugSymbols=false
           -p:Version=${{ steps.version.outputs.version }}
           -p:DebugType=none -o out-fd
 
@@ -52,7 +55,7 @@ jobs:
         run: |
           mkdir -p stage-sc/jsonsui stage-fd/jsonsui
           cp "out-sc/jsonsui.exe" stage-sc/jsonsui/ 2>/dev/null || cp "out-sc/jsonsui" stage-sc/jsonsui/
-          cp -r out-fd/. stage-fd/jsonsui/
+          cp "out-fd/jsonsui.exe" stage-fd/jsonsui/ 2>/dev/null || cp "out-fd/jsonsui" stage-fd/jsonsui/
           chmod +x stage-sc/jsonsui/jsonsui* || true
           chmod +x stage-fd/jsonsui/jsonsui* || true
 

@@ -235,7 +235,7 @@ Two variants are provided for every platform:
 | Variant | Requires | Size | Contents |
 |---|---|---|---|
 | `*-full.*` | nothing | large | single executable |
-| `*-slim.*` | .NET 10 Runtime | small | executable + DLLs |
+| `*-slim.*` | .NET 10 Runtime | small | single executable |
 
 | Platform | Full (self-contained) | Slim (framework-dependent) |
 |---|---|---|

@@ -68,7 +68,7 @@ Two variants are built for every platform:
 | Variant | Requires | Contents |
 |---|---|---|
 | `*-full.*` | nothing | self-contained, single executable |
-| `*-slim.*` | .NET 10 Runtime | executable + DLLs |
+| `*-slim.*` | .NET 10 Runtime | single executable (framework-dependent) |
 
 Supported platforms: Windows x64, Linux x64, macOS x64 and macOS arm64.
 
