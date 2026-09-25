@@ -60,8 +60,8 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          tar -czf "jsonsui-${{ matrix.rid }}-selfcontained.tar.gz"      -C stage-sc jsonsui
-          tar -czf "jsonsui-${{ matrix.rid }}-frameworkdependent.tar.gz" -C stage-fd jsonsui
+          tar -czf "jsonsui-${{ matrix.rid }}-full.tar.gz"      -C stage-sc jsonsui
+          tar -czf "jsonsui-${{ matrix.rid }}-slim.tar.gz" -C stage-fd jsonsui
 
       - name: Package (macOS)
         if: runner.os == 'macOS'
@@ -69,15 +69,15 @@ jobs:
         run: |
           codesign -s - stage-sc/jsonsui/jsonsui || true
           codesign -s - stage-fd/jsonsui/jsonsui || true
-          zip -r "jsonsui-${{ matrix.rid }}-selfcontained.zip"      stage-sc/jsonsui
-          zip -r "jsonsui-${{ matrix.rid }}-frameworkdependent.zip" stage-fd/jsonsui
+          zip -r "jsonsui-${{ matrix.rid }}-full.zip"      stage-sc/jsonsui
+          zip -r "jsonsui-${{ matrix.rid }}-slim.zip" stage-fd/jsonsui
 
       - name: Package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Compress-Archive -Path stage-sc/jsonsui -DestinationPath "jsonsui-${{ matrix.rid }}-selfcontained.zip"
-          Compress-Archive -Path stage-fd/jsonsui -DestinationPath "jsonsui-${{ matrix.rid }}-frameworkdependent.zip"
+          Compress-Archive -Path stage-sc/jsonsui -DestinationPath "jsonsui-${{ matrix.rid }}-full.zip"
+          Compress-Archive -Path stage-fd/jsonsui -DestinationPath "jsonsui-${{ matrix.rid }}-slim.zip"
 
       - uses: actions/upload-artifact@v4
         with:

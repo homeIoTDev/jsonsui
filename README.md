@@ -10,7 +10,7 @@
 
 Built with Avalonia UI for Windows and Linux, with a shared UI-independent core designed to support additional frontends in the future.
 
-**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Getting Started](#-getting-started) • [CLI](#-cli) • [Architecture](#-architecture)**
+**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Downloads](#-downloads) • [Getting Started](#-getting-started) • [CLI](#-cli) • [Architecture](#-architecture)**
 
 ---
 
@@ -223,6 +223,30 @@ jsonsui is built around a UI-independent core:
 ```
 
 The separation keeps the core JSON and schema logic independent from Avalonia and leaves room for additional frontends in the future.
+
+---
+
+## 📥 Downloads
+
+Pre-built releases are available on the [Releases page](https://github.com/homeIoTDev/jsonsui/releases).
+
+Two variants are provided for every platform:
+
+| Variant | Requires | Size | Contents |
+|---|---|---|---|
+| `*-full.*` | nothing | large | single executable |
+| `*-slim.*` | .NET 10 Runtime | small | executable + DLLs |
+
+| Platform | Full (self-contained) | Slim (framework-dependent) |
+|---|---|---|
+| Windows x64 | `jsonsui-win-x64-full.zip` | `jsonsui-win-x64-slim.zip` |
+| Linux x64 | `jsonsui-linux-x64-full.tar.gz` | `jsonsui-linux-x64-slim.tar.gz` |
+| macOS x64 | `jsonsui-macos-x64-full.zip` | `jsonsui-macos-x64-slim.zip` |
+| macOS arm64 | `jsonsui-macos-arm64-full.zip` | `jsonsui-macos-arm64-slim.zip` |
+
+Each archive contains a `jsonsui/` folder with the executable (`jsonsui.exe` on Windows, `jsonsui` on Linux and macOS).
+
+> macOS binaries are ad-hoc signed. On first launch you may need to allow the app in **System Settings → Privacy & Security**.
 
 ---
 
