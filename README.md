@@ -7,6 +7,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10-512BD4.svg)](https://dotnet.microsoft.com/)
 [![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B5CF6.svg)](https://avaloniaui.net/)
+![Release Download](https://img.shields.io/github/downloads/homeIoTDev/jsonsui/total?style=flat-square)
+[![Release Version](https://img.shields.io/github/v/release/homeIoTDev/jsonsui?style=flat-square)](https://github.com/homeIoTDev/jsonsui/releases/latest)
 
 Built with Avalonia UI for Windows and Linux, with a shared UI-independent core designed to support additional frontends in the future.
 
@@ -247,6 +249,8 @@ Two variants are provided for every platform:
 Each archive contains a `jsonsui/` folder with the executable (`jsonsui.exe` on Windows, `jsonsui` on Linux and macOS).
 
 > macOS binaries are ad-hoc signed. On first launch you may need to allow the app in **System Settings → Privacy & Security**.
+
+> On Windows, if SmartScreen warns about the app, the user only needs to right‑click the EXE, open Properties, and check Unblock under Security. After that, the app runs normally without further warnings.
 
 ---
 
