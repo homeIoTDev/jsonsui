@@ -4,4 +4,7 @@
     <Project Path="src/Jsonsui.UI/Jsonsui.UI.csproj" />
     <Project Path="src/Jsonsui.Tui/Jsonsui.Tui.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Jsonsui.Core.Tests/Jsonsui.Core.Tests.csproj" />
+  </Folder>
 </Solution>

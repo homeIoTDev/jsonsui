@@ -264,6 +264,12 @@ Each archive contains a `jsonsui/` folder with the executable (`jsonsui.exe` on 
 dotnet build Jsonsui.slnx
 ```
 
+### Test
+
+```bash
+dotnet test Jsonsui.slnx
+```
+
 ### Run the application
 
 ```bash
