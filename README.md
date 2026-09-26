@@ -1,3 +1,4 @@
+<img width="1365" height="906" alt="jsonsui-demo" src="https://github.com/user-attachments/assets/82400c99-310d-49ce-845a-79d5f1638b6c" />
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10-512BD4.svg)](https://dotnet.microsoft.com/)
 [![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B5CF6.svg)](https://avaloniaui.net/)
