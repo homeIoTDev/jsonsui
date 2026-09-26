@@ -10,6 +10,7 @@ A fast, cross-platform JSON configuration editor powered by Avalonia UI. **No mo
 <img width="1365" height="906" alt="jsonsui-demo" src="https://github.com/user-attachments/assets/82400c99-310d-49ce-845a-79d5f1638b6c" />
 
 Built with Avalonia UI for Windows and Linux, with additional macOS builds available for community testing and a shared UI‑independent core designed to support future frontends.
+
 ---
 
 ## ✨ Why jsonsui?
