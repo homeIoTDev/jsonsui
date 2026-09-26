@@ -836,14 +836,13 @@ public static class EditorLogic
     }
 
     /// <summary>
-    /// Baut eine einzelne <see cref="FieldRow"/> für den aktuellen Skalar-Kontext
-    /// (z. B. ein Dokument, das selbst nur ein Primitivwert ist). Nutzt dieselbe
-    /// Typerkennung wie <see cref="BuildObjectFields"/>, damit die Scalar-Vollansicht
-    /// typspezifisch rendert (bool → CheckBox, Zahl → NumericUpDown usw.).
+    /// Baut eine einzelne <see cref="FieldRow"/> für einen beliebigen Pfad. Nutzt dieselbe
+    /// Typerkennung wie <see cref="BuildObjectFields"/>, damit der Editor typspezifisch
+    /// rendert (bool → CheckBox, Zahl → NumericUpDown, Array → Array-Drilldown usw.).
+    /// Wird u. a. für das namenlose Array im Detailbereich genutzt.
     /// </summary>
-    public static FieldRow BuildScalarFieldRow(EditorState state)
+    public static FieldRow BuildFieldRow(EditorState state, string[] fieldPath)
     {
-        var fieldPath = state.SelectedPath;
         SchemaProperty? schemaProp = null;
         if (state.ActiveSchema != null)
             schemaProp = ResolveSchemaProperty(state.ActiveSchema, fieldPath);
@@ -851,6 +850,15 @@ public static class EditorLogic
         var value = JsonDocumentService.GetByPath(state.Json, fieldPath);
         return CreateFieldRow(state, fieldPath, value, schemaProp);
     }
+
+    /// <summary>
+    /// Baut eine einzelne <see cref="FieldRow"/> für den aktuellen Skalar-Kontext
+    /// (z. B. ein Dokument, das selbst nur ein Primitivwert ist). Nutzt dieselbe
+    /// Typerkennung wie <see cref="BuildObjectFields"/>, damit die Scalar-Vollansicht
+    /// typspezifisch rendert (bool → CheckBox, Zahl → NumericUpDown usw.).
+    /// </summary>
+    public static FieldRow BuildScalarFieldRow(EditorState state)
+        => BuildFieldRow(state, state.SelectedPath);
 
     private static FieldRow CreateFieldRow(EditorState state, string[] fieldPath, JsonNode? value,
         SchemaProperty? schemaProp)
@@ -933,6 +941,8 @@ public static class EditorLogic
             var pairs = obj.Take(3).Select(kvp => $"{kvp.Key}: {JsonDocumentService.GetScalarPreview(kvp.Value, 20)}");
             return string.Join(", ", pairs) + (obj.Count > 3 ? ", ..." : "");
         }
+        if (item is JsonArray arr)
+            return $"[{arr.Count}]";
         return JsonDocumentService.GetScalarPreview(item, 60);
     }
 

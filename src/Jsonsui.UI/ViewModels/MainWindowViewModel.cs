@@ -123,9 +123,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     public partial FieldRow? ScalarRow { get; set; }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDetailArray))]
+    [NotifyPropertyChangedFor(nameof(ShowEmptyDetailState))]
+    public partial FieldRow? DetailArrayRow { get; set; }
+
     public bool HasScalarDetail => ScalarNode is { Path.Length: > 0 };
 
-    public bool ShowEmptyDetailState => !HasObjectFields && !HasScalarDetail;
+    public bool HasDetailArray => DetailArrayRow != null;
+
+    public bool ShowEmptyDetailState => !HasObjectFields && !HasScalarDetail && !HasDetailArray;
 
     [ObservableProperty]
     public partial DiffViewModel Diff { get; set; } = new();
@@ -379,6 +386,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         CardItems.Clear();
         ScalarNode = new Jsonsui.Core.Models.JsonEditorNode { Label = "", Path = [], NodeType = "scalar" };
         ScalarRow = null;
+        DetailArrayRow = null;
         DetailScalarText = "";
         TextEditorPathString = "";
         if (syncText)
@@ -415,6 +423,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 {
                     DetailScalarText = JsonDocumentService.GetScalarPreview(jv, 200);
                     ScalarNode = EditorLogic.BuildScalarNode(_state, detailPath, detailValue);
+                }
+                else if (detailValue is JsonArray)
+                {
+                    DetailArrayRow = EditorLogic.BuildFieldRow(_state, detailPath);
                 }
             }
         }

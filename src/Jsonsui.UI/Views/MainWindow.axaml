@@ -414,6 +414,10 @@
                     </StackPanel>
                   </DockPanel>
                 </ScrollViewer>
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasDetailArray}">
+                  <views:FieldEditorView Margin="12,14" VerticalAlignment="Top"
+                                         DataContext="{Binding DetailArrayRow}" />
+                </ScrollViewer>
                 <views:HelpStripView Grid.Row="1" IsVisible="{Binding EditorHelpVisible}"
                                      ShowMetaItems="True" ShowDetails="True" Compact="True" />
               </Grid>
