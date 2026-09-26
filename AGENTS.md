@@ -1,6 +1,6 @@
 # Jsonsui Development Guide
 
-> **Always read `ARCHITECTURE_OVERVIEW.md` first** — it defines the project architecture, design decisions, and the strict separation between Core (UI-independent) and UI layers.
+> **Always read `REQUIREMENTS.md` first** — it defines the project architecture, design decisions, and the strict separation between Core (UI-independent) and UI layers.
 
 ## Project Structure
 
@@ -12,7 +12,7 @@ The UI project references the Core library. **Core must never reference UI.**
 
 ## Key Documentation
 
-- **`ARCHITECTURE_OVERVIEW.md`** — Architecture decisions, requirements, Core/UI boundary definition
+- **`REQUIREMENTS.md`** — Architecture decisions, requirements, Core/UI boundary definition
 - **`ui.intent.json`** — Technology-neutral UI specification (layout, panels, widgets, design tokens)
 
 ## Entry Points

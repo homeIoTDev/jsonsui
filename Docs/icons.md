@@ -32,3 +32,12 @@ The array bracket (`array-bracket`) is a custom geometry and not part of Lucide.
 Lucide icons are released under the ISC license (see `LICENSES/LUCIDE.txt`).
 Lucide is a fork of Feather: icons derived from Feather additionally retain the
 MIT attribution of their original author (Cole Bemis).
+
+## Application icon
+
+The jsonsui application icon was created specifically for this project. The
+central fill element was generated with AI using Sleek Design's App Icon
+Generator and incorporated into the final artwork. The surrounding background
+and final composition were created manually by the project author using .NET
+Paint. The JSON-style brackets are a generic visual representation and were
+independently composed as part of the icon.

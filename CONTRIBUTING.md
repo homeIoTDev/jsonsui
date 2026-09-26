@@ -2,7 +2,7 @@
 
 Thanks for your interest in improving jsonsui.
 
-Please read [`ARCHITECTURE_OVERVIEW.md`](ARCHITECTURE_OVERVIEW.md) first — it defines the project architecture and the strict separation between the Core and UI layers.
+Please read [`REQUIREMENTS.md`](REQUIREMENTS.md) first — it defines the project architecture and the strict separation between the Core and UI layers.
 
 ## Prerequisites
 

@@ -1,0 +1,35 @@
+name: License Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nuget-licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install nuget-license
+        run: |
+          dotnet tool install --global nuget-license
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Check NuGet licenses
+        run: >
+          nuget-license
+          -i src/Jsonsui.UI/Jsonsui.UI.csproj
+          -t
+          -a "MIT;Apache-2.0;BSD-3-Clause;ISC;OFL-1.1"
+          -ignore "AvaloniaUI.DiagnosticsSupport"
+          -o Table

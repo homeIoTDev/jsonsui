@@ -9,9 +9,7 @@ A fast, cross-platform JSON configuration editor powered by Avalonia UI. **No mo
 
 <img width="1365" height="906" alt="jsonsui-demo" src="https://github.com/user-attachments/assets/82400c99-310d-49ce-845a-79d5f1638b6c" />
 
-
-Built with Avalonia UI for Windows and Linux, with a shared UI-independent core designed to support additional frontends in the future.
-
+Built with Avalonia UI for Windows and Linux, with additional macOS builds available for community testing and a shared UI‑independent core designed to support future frontends.
 ---
 
 ## ✨ Why jsonsui?
@@ -329,6 +327,15 @@ If you find it useful, there are several ways to support the project:
 * ❤️ Support future development
 
 Financial support can help make it possible to spend more time on jsonsui and future features.
+
+---
+
+## ⚖️ Third-Party Licenses
+
+jsonsui itself is licensed under the MIT License. It uses third-party libraries, fonts and icons that are provided under their own permissive licenses (MIT, BSD-3-Clause, ISC and SIL OFL 1.1).
+
+* [`THIRD-PARTY-NOTICES.txt`](THIRD-PARTY-NOTICES.txt) — full list of bundled components and their license texts.
+* [`LICENSES/`](LICENSES) — license texts for the bundled fonts and icons.
 
 ---
 

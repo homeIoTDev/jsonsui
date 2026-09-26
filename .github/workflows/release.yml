@@ -56,8 +56,22 @@ jobs:
           mkdir -p stage-sc/jsonsui stage-fd/jsonsui
           cp "out-sc/jsonsui.exe" stage-sc/jsonsui/ 2>/dev/null || cp "out-sc/jsonsui" stage-sc/jsonsui/
           cp "out-fd/jsonsui.exe" stage-fd/jsonsui/ 2>/dev/null || cp "out-fd/jsonsui" stage-fd/jsonsui/
+          cp LICENSE THIRD-PARTY-NOTICES.txt stage-sc/jsonsui/
+          cp LICENSE THIRD-PARTY-NOTICES.txt stage-fd/jsonsui/
           chmod +x stage-sc/jsonsui/jsonsui* || true
           chmod +x stage-fd/jsonsui/jsonsui* || true
+
+      - name: Stage .NET runtime notices
+        shell: bash
+        run: |
+          RTPACK="$HOME/.nuget/packages/microsoft.netcore.app.runtime.${{ matrix.rid }}"
+          NOTICE=$(find "$RTPACK" -maxdepth 2 -name THIRD-PARTY-NOTICES.TXT 2>/dev/null | head -1)
+          if [ -n "$NOTICE" ]; then
+            cp "$(dirname "$NOTICE")/LICENSE.TXT" stage-sc/jsonsui/DOTNET-RUNTIME-LICENSE.txt
+            cp "$NOTICE" stage-sc/jsonsui/DOTNET-RUNTIME-THIRD-PARTY-NOTICES.txt
+          else
+            echo "::warning::.NET runtime THIRD-PARTY-NOTICES.TXT not found in $RTPACK"
+          fi
 
       - name: Package (Linux)
         if: runner.os == 'Linux'
