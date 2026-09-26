@@ -25,6 +25,9 @@ jobs:
           dotnet tool install --global nuget-license
           echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
 
+      - name: Restore
+        run: dotnet restore src/Jsonsui.UI/Jsonsui.UI.csproj
+
       - name: Check NuGet licenses
         run: >
           nuget-license
