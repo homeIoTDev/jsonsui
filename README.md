@@ -1,24 +1,21 @@
-
+# jsonsui
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10-512BD4.svg)](https://dotnet.microsoft.com/)
 [![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B5CF6.svg)](https://avaloniaui.net/)
 ![Release Download](https://img.shields.io/github/downloads/homeIoTDev/jsonsui/total?style=flat-square)
 [![Release Version](https://img.shields.io/github/v/release/homeIoTDev/jsonsui?style=flat-square)](https://github.com/homeIoTDev/jsonsui/releases/latest)
-# 🚀 jsonsui
 
-A fast, cross-platform JSON configuration editor powered by Avalonia UI.
+A fast, cross-platform JSON configuration editor powered by Avalonia UI. **No more raw text. Navigate and edit JSON configurations through a schema-driven UI.**
+
 <img width="1365" height="906" alt="jsonsui-demo" src="https://github.com/user-attachments/assets/82400c99-310d-49ce-845a-79d5f1638b6c" />
 
 
 Built with Avalonia UI for Windows and Linux, with a shared UI-independent core designed to support additional frontends in the future.
 
-> **No more raw text. Navigate and edit JSON configurations through a schema-driven UI.**
-
-**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Downloads](#-downloads) • [Getting Started](#-getting-started) • [CLI](#-cli) • [Architecture](#-architecture)**
-
 ---
 
 ## ✨ Why jsonsui?
+**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Downloads](#-downloads) • [Getting Started](#-getting-started) • [CLI](#-cli) • [Architecture](#-architecture)**
 
 JSON is everywhere — especially in configuration files.
 
