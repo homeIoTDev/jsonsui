@@ -87,7 +87,6 @@ JSON Schema Auto-Detection:
 
 ## Required Dependencies
 
-- `JsonSchema.Net` package in Core
 - `Avalonia*` packages in UI (Avalonia UI framework)
 - `CommunityToolkit.Mvvm` in UI
 - .NET 10.0+ runtime target framework

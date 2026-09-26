@@ -176,7 +176,7 @@ Plugins sind DLLs und werden dynamisch geladen.
 Der Core Jsonsui.Core enthält:
 
 - JSON Parser (System.Text.Json)
-- JSON Schema Parser (Json.Schema.Net)
+- JSON Schema Parser (System.Text.Json)
 - Validierungslogik
 - Diff‑Engine
 - Plugin‑System
