@@ -1,3 +1,4 @@
+
 # jsonsui
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10-512BD4.svg)](https://dotnet.microsoft.com/)
@@ -7,7 +8,7 @@
 
 A fast, cross-platform JSON configuration editor powered by Avalonia UI. **No more raw text. Navigate and edit JSON configurations through a schema-driven UI.**
 
-<img width="1365" height="906" alt="jsonsui-demo" src="https://github.com/user-attachments/assets/82400c99-310d-49ce-845a-79d5f1638b6c" />
+<img width="1805" height="1077" alt="Animation (6)" src="https://github.com/user-attachments/assets/9648dd89-4fdc-4ff3-ae13-aa628198aad2" />
 
 Built with Avalonia UI for Windows and Linux, with additional macOS builds available for community testing and a shared UI‑independent core designed to support future frontends.
 
