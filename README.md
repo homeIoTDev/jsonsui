@@ -43,6 +43,8 @@ Properties are presented as appropriate UI controls instead of requiring manual 
 
 When a JSON Schema is available, jsonsui uses it to understand the configuration and provide appropriate controls, descriptions, defaults, constraints, enums and validation.
 
+The schema can also help you discover available properties. With Add Property, supported properties can be selected instead of having to remember or manually enter every possible configuration option.
+
 ### 🔎 Handle complex configurations
 
 Nested objects can be opened where they are needed, while arrays are presented as editable cards rather than a long list of indexed tree nodes.
