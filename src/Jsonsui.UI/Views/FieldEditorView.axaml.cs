@@ -83,13 +83,13 @@ public partial class FieldEditorView : UserControl
     private void EnumComboBox_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (sender is not ComboBox cb || cb.Parent == null) return;
-        if (e.RemovedItems.Count == 0) return;
-        if (cb.DataContext is FieldRow row && Vm is { } vm && e.AddedItems.Count > 0)
-        {
-            var value = e.AddedItems[0]?.ToString();
-            if (value != null)
-                vm.ChangeFieldCommand.Execute(new object[] { row.Path, value });
-        }
+        if (cb.DataContext is not FieldRow row || Vm is not { } vm) return;
+        if (e.AddedItems.Count == 0) return;
+
+        var value = e.AddedItems[0]?.ToString();
+        if (value == null) return;
+        if (value == vm.GetFieldRawValue(row.Path)) return;
+        vm.ApplyTextChange(row, value);
     }
 
     private void BooleanCheckBox_IsCheckedChanged(object? sender, RoutedEventArgs e)
