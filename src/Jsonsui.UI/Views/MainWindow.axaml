@@ -26,10 +26,10 @@
     <!-- ===== MAIN LAYOUT ===== -->
     <DockPanel>
 
-      <!-- ===== TOP HEADER (eigene Titelzeile) ===== -->
+      <!-- ===== TOP HEADER (custom title bar) ===== -->
       <Border x:Name="TopHeaderBar" Classes="Toolbar TopHeader" DockPanel.Dock="Top" Padding="0">
         <DockPanel VerticalAlignment="Stretch" LastChildFill="False">
-          <!-- Fensterbuttons (rechts außen) -->
+          <!-- Window buttons (top right) -->
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Stretch">
             <Button Theme="{StaticResource CaptionButtonTheme}" Click="Minimize_Click" ToolTip.Tip="{loc:Localize Window_Minimize}">
               <Path Classes="CaptionIcon" Data="{StaticResource TitleBarMinIcon}" Width="10" Height="10"
@@ -42,7 +42,7 @@
               <Path Classes="CaptionIcon" Data="{StaticResource lucide-x}" Width="10" Height="10" />
             </Button>
           </StackPanel>
-          <!-- Status (links von den Buttons) -->
+          <!-- Status (left of the buttons) -->
           <StackPanel Orientation="Horizontal" Spacing="6" DockPanel.Dock="Right"
                       Margin="0,0,8,0" VerticalAlignment="Center"
                       IsVisible="{Binding IsSchemaStatusVisible}">
@@ -81,7 +81,7 @@
                        FontFamily="{StaticResource FontJetBrainsMono}"
                        FontSize="{DynamicResource EditorFontSizeTiny}" FontWeight="Bold" />
           </Border>
-          <!-- Links: App-Icon + App-Name + Dateiname -->
+          <!-- Left: app icon + app name + filename -->
           <StackPanel Orientation="Horizontal" Spacing="10" DockPanel.Dock="Left"
                       Margin="5,0,0,0" VerticalAlignment="Center">
             <Image Source="/Assets/app-icon.png" Width="26" Height="26" VerticalAlignment="Center" />

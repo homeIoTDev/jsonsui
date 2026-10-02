@@ -1,8 +1,8 @@
 namespace Jsonsui.Core.Models;
 
 /// <summary>
-/// UI-neutrale, flache Beschreibung eines im Schema definierten, aktuell noch nicht
-/// vorhandenen Properties, das an einem Object-Kontext angelegt werden kann.
+/// UI-neutral, flat description of a property that is defined in the schema but not
+/// yet present and can be added to an object context.
 /// </summary>
 public sealed class PropertyCatalogItem
 {
@@ -21,15 +21,15 @@ public sealed class PropertyCatalogItem
     public bool CanAdd { get; init; }
 
     /// <summary>
-    /// Zugriff auf die vollständige Schema-Property (Constraints, Format usw.),
-    /// falls die UI über die flachen Felder hinaus Details benötigt.
+    /// Access to the full schema property (constraints, format, etc.) in case
+    /// the UI needs more details than the flat fields provide.
     /// </summary>
     public SchemaProperty? SchemaProperty { get; init; }
 }
 
 /// <summary>
-/// Ergebnis der Abfrage "Welche Properties können an einem Object-Kontext
-/// hinzugefügt werden?" – die Datenbasis für ein späteres Add-Property-Flyout.
+/// Result of the query "which properties can be added to an object context?" –
+/// the data source for the add-property flyout.
 /// </summary>
 public sealed class PropertyCatalog
 {
@@ -37,25 +37,25 @@ public sealed class PropertyCatalog
     public List<PropertyCatalogItem> Items { get; } = [];
 
     /// <summary>
-    /// Roher zusätzlicheProperties-Zustand des Object-Schemas (Phase-1-Modellierung):
-    /// null = nicht angegeben, true/false = explizit, bei Schema-Fall siehe
+    /// Raw additionalProperties state of the object schema (phase-1 modeling):
+    /// null = not specified, true/false = explicit, for the schema case see
     /// <see cref="AdditionalPropertiesSchema"/>.
     /// </summary>
     public bool? AdditionalPropertiesAllowed { get; set; }
 
     /// <summary>
-    /// Schema für zusätzliche Properties ("additionalProperties": { ... }), falls vorhanden.
+    /// Schema for additional properties ("additionalProperties": { ... }), if present.
     /// </summary>
     public SchemaProperty? AdditionalPropertiesSchema { get; set; }
 
     /// <summary>
-    /// Bequemer bool für die UI. Regeln:
-    /// - kein Schema bekannt -> true (generisches Custom-Editing)
+    /// Convenience bool for the UI. Rules:
+    /// - no schema known -> true (generic custom editing)
     /// - additionalProperties: false -> false
     /// - additionalProperties: true -> true
-    /// - additionalProperties: Schema -> true
-    /// - nicht angegeben -> true (JSON-Schema-Standard; Entscheidung ist offen,
-    ///   siehe rohes Feld <see cref="AdditionalPropertiesAllowed"/>)
+    /// - additionalProperties: schema -> true
+    /// - not specified -> true (JSON Schema default; the decision is open,
+    ///   see the raw field <see cref="AdditionalPropertiesAllowed"/>)
     /// </summary>
     public bool CanAddCustomProperty { get; set; }
 }

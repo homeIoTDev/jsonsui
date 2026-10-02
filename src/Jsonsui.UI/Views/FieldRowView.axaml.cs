@@ -95,10 +95,10 @@ public partial class FieldRowView : UserControl
             Placement = PlacementMode.BottomEdgeAlignedRight
         };
 
-        // ContextMenu.PopupKeyUp schließt das Menü, wenn der OpenContextMenu-Hotkey
-        // (Shift+F10 / Context-Menü-Taste) losgelassen wird, während das Menü fokussiert
-        // ist. Da wir das Menü per Tastatur öffnen, den KeyUp dieses Gestures als handled
-        // markieren, damit PopupKeyUp das Menü nicht sofort wieder schließt.
+        // ContextMenu.PopupKeyUp closes the menu when the open-context-menu hotkey
+        // (Shift+F10 / context menu key) is released while the menu is focused.
+        // Since we open the menu via keyboard, mark the KeyUp of this gesture as
+        // handled so PopupKeyUp does not close the menu again immediately.
         menu.KeyUp += (_, ke) =>
         {
             if (Avalonia.Application.Current?.PlatformSettings?.HotkeyConfiguration is { } cfg &&
@@ -129,7 +129,7 @@ public partial class FieldRowView : UserControl
         deleteItem.CommandParameter = row;
         menu.Items.Add(deleteItem);
 
-        // Set to null – nur wenn das Schema null erlaubt und der aktuelle Wert nicht bereits null ist.
+        // Set to null - only if the schema allows null and the current value is not already null.
         if (vm.FieldAllowsNull(row.Path) && !vm.FieldIsNull(row.Path))
         {
             var setNullItem = new MenuItem
@@ -137,9 +137,9 @@ public partial class FieldRowView : UserControl
                 Header = Strings.Get("Action_SetNull"),
                 IsEnabled = !row.IsReadOnly
             };
-            // Deferred ausführen: das ContextMenu muss erst vollständig schließen, bevor
-            // RefreshUI() die FieldRow-Controls (inkl. Anker-Button) zerstört. Sonst routet
-            // Avalonia Input/Fokus auf ein bereits detached Control -> "PlatformImpl is null".
+            // Run deferred: the ContextMenu must close completely before RefreshUI()
+            // destroys the FieldRow controls (including the anchor button). Otherwise
+            // Avalonia routes input/focus to an already detached control -> "PlatformImpl is null".
             setNullItem.Click += (_, _) =>
             {
                 var path = (string[])row.Path.Clone();

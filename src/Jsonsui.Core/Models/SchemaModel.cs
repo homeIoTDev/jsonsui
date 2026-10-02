@@ -9,16 +9,16 @@ public class SchemaModel
     public List<string> Required { get; set; } = [];
 
     /// <summary>
-    /// Zustand von "additionalProperties" für dieses Object-Schema:
-    /// null = nicht angegeben, true = erlaubt, false = verboten.
-    /// Ist ein zusätzliches Schema vorhanden, steht es in <see cref="AdditionalPropertiesSchema"/>
-    /// und dieses Feld bleibt null.
+    /// State of "additionalProperties" for this object schema:
+    /// null = not specified, true = allowed, false = forbidden.
+    /// If an additional schema is present, it is stored in
+    /// <see cref="AdditionalPropertiesSchema"/> and this field stays null.
     /// </summary>
     public bool? AdditionalPropertiesAllowed { get; set; }
 
     /// <summary>
-    /// Schema für zusätzliche Properties ("additionalProperties": { ... }).
-    /// null = kein Schema angegeben.
+    /// Schema for additional properties ("additionalProperties": { ... }).
+    /// null = no schema specified.
     /// </summary>
     public SchemaProperty? AdditionalPropertiesSchema { get; set; }
 }

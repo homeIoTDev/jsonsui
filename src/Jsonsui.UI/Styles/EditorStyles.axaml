@@ -7,7 +7,7 @@
     <StreamGeometry x:Key="TitleBarMinIcon">M0,4 H10 V5 H0 Z</StreamGeometry>
     <StreamGeometry x:Key="TitleBarMaxIcon">M0.5,0.5 H9.5 V9.5 H0.5 Z</StreamGeometry>
 
-    <!-- Eigene Fensterbuttons der Titelzeile: minimales Template ohne Fluent-Schatten/Fokusring -->
+    <!-- Custom window buttons for the title bar: minimal template without Fluent shadow/focus ring -->
     <ControlTheme x:Key="CaptionButtonTheme" TargetType="Button">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderThickness" Value="0" />
@@ -500,7 +500,7 @@
     <Setter Property="Background" Value="{DynamicResource TitleBarBackgroundBrush}" />
   </Style>
 
-  <!-- Icons der eigenen Fensterbuttons -->
+  <!-- Icons of the custom window buttons -->
   <Style Selector="Path.CaptionIcon">
     <Setter Property="Stretch" Value="Uniform" />
     <Setter Property="HorizontalAlignment" Value="Center" />
@@ -724,7 +724,7 @@
     <Setter Property="Theme" Value="{StaticResource EditorButtonSpinnerTheme}" />
   </Style>
 
-  <!-- FieldRow Delete Button: nur bei Hover über der FieldRow sichtbar -->
+  <!-- FieldRow delete button: only visible on hover over the FieldRow -->
   <Style Selector="Button.FieldRowDeleteBtn">
     <Setter Property="Opacity" Value="0" />
     <Setter Property="IsHitTestVisible" Value="False" />

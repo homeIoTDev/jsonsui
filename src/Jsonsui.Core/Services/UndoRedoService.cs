@@ -11,7 +11,7 @@ public class UndoCommand
     public int ArrayIndex { get; init; } = -1;
     public string PropertyName { get; init; } = "";
 
-    /// <summary>Alter Property-Name, nur bei Action "rename_property" verwendet.</summary>
+    /// <summary>Old property name, only used for the "rename_property" action.</summary>
     public string OldPropertyName { get; init; } = "";
 }
 

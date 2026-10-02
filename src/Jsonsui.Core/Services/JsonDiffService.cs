@@ -82,7 +82,7 @@ public static class JsonDiffService
     // --- Structural diff ---
 
     /// <summary>
-    /// Vergleicht zwei JSON-Bäume strukturell. Liefert null, wenn keine Änderung vorliegt.
+    /// Compares two JSON trees structurally. Returns null when there is no change.
     /// </summary>
     public static JsonDiffNode? Compare(JsonNode? original, JsonNode? current)
     {

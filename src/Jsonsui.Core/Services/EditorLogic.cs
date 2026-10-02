@@ -37,11 +37,11 @@ public static class EditorLogic
     // --- Filtering (affects only the visible tree/navigation structure) ---
 
     /// <summary>
-    /// Markiert Tree-Knoten als sichtbar/unsichtbar anhand des Filtertextes.
-    /// Sichtbar bleibt ein Knoten, wenn er selbst oder ein Nachkomme matcht.
-    /// Array-Index-Labels ([0], [1], ...) matchen nicht selbst, werden aber
-    /// rekursiv durchsucht. state.Expanded wird nicht verändert; Ancestors von
-    /// Treffern werden nur auf dem frischen Baum temporär aufgeklappt.
+    /// Marks tree nodes as visible/invisible based on the filter text.
+    /// A node stays visible if it matches itself or has a matching descendant.
+    /// Array index labels ([0], [1], ...) do not match themselves but are searched
+    /// recursively. state.Expanded is not modified; ancestors of matches are only
+    /// temporarily expanded on the fresh tree.
     /// </summary>
     public static void ApplyFilter(JsonEditorNode root, string? filterText)
     {
@@ -312,8 +312,8 @@ public static class EditorLogic
     // --- Tree Keyboard Navigation (UI-neutral) ---
 
     /// <summary>
-    /// Liefert alle sichtbaren, navigierbaren Baumknoten in Anzeigereihenfolge.
-    /// Nur Objekt-/Array-Knoten (die Anzeige-Struktur), respektiert IsVisible/IsExpanded.
+    /// Returns all visible, navigable tree nodes in display order.
+    /// Object/array nodes only (the display structure), respects IsVisible/IsExpanded.
     /// </summary>
     public static List<JsonEditorNode> FlattenVisibleNavigable(JsonEditorNode root)
     {
@@ -330,14 +330,14 @@ public static class EditorLogic
         }
     }
 
-    /// <summary>Sucht einen sichtbaren Knoten anhand seines Pfades im aktuellen Baum.</summary>
+    /// <summary>Finds a visible node by its path in the current tree.</summary>
     public static JsonEditorNode? FindNodeByPath(JsonEditorNode root, string[] path)
     {
         var key = string.Join("/", path);
         return FlattenVisibleNavigable(root).FirstOrDefault(n => n.PathKey == key);
     }
 
-    /// <summary>Nachbar in Anzeigereihenfolge (delta -1/+1). null an den Rändern.</summary>
+    /// <summary>Neighbor in display order (delta -1/+1). null at the edges.</summary>
     public static JsonEditorNode? GetNextVisible(JsonEditorNode root, string[] path, int delta)
     {
         var list = FlattenVisibleNavigable(root);
@@ -348,7 +348,7 @@ public static class EditorLogic
         return next >= 0 && next < list.Count ? list[next] : null;
     }
 
-    /// <summary>Nächstgelegener sichtbarer Parent-Knoten (überspringt Array-Element-Container).</summary>
+    /// <summary>Nearest visible parent node (skips array element containers).</summary>
     public static JsonEditorNode? GetVisibleParent(JsonEditorNode node)
     {
         var parent = node.Parent;
@@ -357,11 +357,11 @@ public static class EditorLogic
         return parent;
     }
 
-    /// <summary>Erstes navigierbares Kind eines expandierbaren Knotens.</summary>
+    /// <summary>First navigable child of an expandable node.</summary>
     public static JsonEditorNode? GetFirstVisibleChild(JsonEditorNode node)
         => node.IsExpandable ? node.NavigableChildren.FirstOrDefault() : null;
 
-    /// <summary>Letzter sichtbarer navigierbarer Knoten in Anzeigereihenfolge.</summary>
+    /// <summary>Last visible navigable node in display order.</summary>
     public static JsonEditorNode? GetLastVisibleNavigable(JsonEditorNode root)
     {
         var list = FlattenVisibleNavigable(root);
@@ -477,11 +477,11 @@ public static class EditorLogic
     }
 
     /// <summary>
-    /// Erzeugt den Initialwert für ein neues Element eines leeren Arrays.
-    /// Verwendet das Items-Schema (ArrayItemSchema), sofern vorhanden, damit bei
-    /// primitiven Item-Typen (z. B. "string" bei ["string","null"]) kein JsonObject {}
-    /// entsteht. Ohne Items-Schema bleibt das bisherige Fallback (JsonObject).
-    /// Nullable Items erzeugen nicht automatisch null, sondern den Nicht-null-Initialwert.
+    /// Creates the initial value for a new element of an empty array.
+    /// Uses the items schema (ArrayItemSchema) if available so that primitive item
+    /// types (e.g. "string" for ["string","null"]) do not produce an empty JsonObject.
+    /// Without an items schema the previous fallback (JsonObject) is used.
+    /// Nullable items do not automatically create null but the non-null initial value.
     /// </summary>
     private static JsonNode CreateEmptyArrayItemTemplate(SchemaModel? schema, string[] arrayPath)
     {
@@ -705,7 +705,7 @@ public static class EditorLogic
         if (schemaProp == null)
             return JsonValue.Create<string>("")!;
 
-        // 0 Nicht-null-Typen (z. B. ["null"]): Property als JSON-null anlegen.
+        // 0 non-null types (e.g. ["null"]): create the property as JSON null.
         if (schemaProp.JsonTypes is { Count: 0 })
             return null;
 
@@ -895,10 +895,10 @@ public static class EditorLogic
     }
 
     /// <summary>
-    /// Baut eine einzelne <see cref="FieldRow"/> für einen beliebigen Pfad. Nutzt dieselbe
-    /// Typerkennung wie <see cref="BuildObjectFields"/>, damit der Editor typspezifisch
-    /// rendert (bool → CheckBox, Zahl → NumericUpDown, Array → Array-Drilldown usw.).
-    /// Wird u. a. für das namenlose Array im Detailbereich genutzt.
+    /// Builds a single <see cref="FieldRow"/> for an arbitrary path. Uses the same
+    /// type detection as <see cref="BuildObjectFields"/> so the editor renders
+    /// type-specifically (bool → CheckBox, number → NumericUpDown, array → array drill-down, etc.).
+    /// Used, among other things, for the nameless array in the detail area.
     /// </summary>
     public static FieldRow BuildFieldRow(EditorState state, string[] fieldPath)
     {
@@ -911,10 +911,10 @@ public static class EditorLogic
     }
 
     /// <summary>
-    /// Baut eine einzelne <see cref="FieldRow"/> für den aktuellen Skalar-Kontext
-    /// (z. B. ein Dokument, das selbst nur ein Primitivwert ist). Nutzt dieselbe
-    /// Typerkennung wie <see cref="BuildObjectFields"/>, damit die Scalar-Vollansicht
-    /// typspezifisch rendert (bool → CheckBox, Zahl → NumericUpDown usw.).
+    /// Builds a single <see cref="FieldRow"/> for the current scalar context
+    /// (e.g. a document that is itself only a primitive value). Uses the same
+    /// type detection as <see cref="BuildObjectFields"/> so the scalar full view
+    /// renders type-specifically (bool → CheckBox, number → NumericUpDown, etc.).
     /// </summary>
     public static FieldRow BuildScalarFieldRow(EditorState state)
         => BuildFieldRow(state, state.SelectedPath);
@@ -1223,9 +1223,9 @@ public static class EditorLogic
         if (value is JsonObject) return "object";
         if (value is JsonArray) return "array";
 
-        // Null-Wert bei vorhandenen JSON-Daten: als nullable Typ anzeigen, damit der
-        // tatsächliche null-Wert sichtbar bleibt (unabhängig von der Typ-Anzahl im Schema).
-        // (JSON-null wird von JsonNode als null-Referenz geliefert.)
+        // Null value with existing JSON data: show as a nullable type so the actual
+        // null value stays visible (regardless of the number of types in the schema).
+        // (JSON null is delivered by JsonNode as a null reference.)
         if (value == null &&
             schemaProp != null &&
             schemaProp.IsNullable)
@@ -1233,13 +1233,13 @@ public static class EditorLogic
             return "nullable";
         }
 
-        // Schema-basierte Sonderfälle, die unabhängig vom konkreten Wert gelten.
+        // Schema-based special cases that apply regardless of the concrete value.
         if (schemaProp?.EnumValues is { Count: > 0 }) return "enum";
 
-        // Bei einem vorhandenen, nicht-null JSON-Wert bestimmt der tatsächliche
-        // JsonValueKind die UI-Control-Wahl. Bei Union-Typen wie ["string","boolean","null"]
-        // ist schemaProp.JsonType nur der erste Nicht-null-Typ ("string"); ein tatsächlicher
-        // Boolean-Wert false muss deshalb als "boolean" (CheckBox) erkannt werden.
+        // For an existing, non-null JSON value the actual JsonValueKind determines
+        // the UI control choice. For union types like ["string","boolean","null"],
+        // schemaProp.JsonType is only the first non-null type ("string"); an actual
+        // boolean value false must therefore be detected as "boolean" (CheckBox).
         if (value is JsonValue jv)
         {
             return jv.GetValueKind() switch
@@ -1257,7 +1257,7 @@ public static class EditorLogic
             };
         }
 
-        // Schema-basierte Entscheidung, wenn kein konkreter JSON-Wert vorliegt.
+        // Schema-based decision when no concrete JSON value is present.
         if (schemaProp != null)
         {
             if (schemaProp.JsonType == "string")

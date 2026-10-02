@@ -369,7 +369,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             FindDeepestFocusableCore(child, path, depth + 1, ref bestDepth, ref best);
     }
 
-    /// <summary>Setzt den Tastaturfokus auf die aktuell ausgewählte Baumzeile.</summary>
+    /// <summary>Sets the keyboard focus to the currently selected tree row.</summary>
     public void FocusTreeSelection()
     {
         var path = (string[])_state.SelectedPath.Clone();
@@ -661,7 +661,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         FocusFirstEditorTarget();
     }
 
-    /// <summary>Springt aus dem Baum in das erste editierbare Ziel des Editorbereichs.</summary>
+    /// <summary>Jumps from the tree to the first editable target of the editor area.</summary>
     public void FocusFirstEditorTarget()
     {
         switch (CurrentEditorMode)
@@ -988,8 +988,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     // --- Nullable / Union type helpers ---
 
     /// <summary>
-    /// Liefert die Nicht-null-Typen eines Felds laut Schema (aus JsonTypes oder JsonType).
-    /// Leere Liste = 0 Nicht-null-Typen. null = Feld hat kein Schema.
+    /// Returns the non-null types of a field according to the schema (from JsonTypes or JsonType).
+    /// Empty list = 0 non-null types. null = field has no schema.
     /// </summary>
     public List<string>? GetFieldJsonTypes(string[] path)
     {
@@ -1005,9 +1005,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Liefert die Nicht-null-Typen eines noch nicht angelegten Catalog-Properties
-    /// (aus dessen SchemaProperty.JsonTypes oder JsonType). Leere Liste = 0 Nicht-null-Typen.
-    /// null = kein Schema-Typ bekannt.
+    /// Returns the non-null types of a not-yet-created catalog property
+    /// (from its SchemaProperty.JsonTypes or JsonType). Empty list = 0 non-null types.
+    /// null = no schema type known.
     /// </summary>
     public List<string>? GetItemJsonTypes(PropertyCatalogItem item)
     {
@@ -1021,7 +1021,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return [];
     }
 
-    /// <summary>Gibt an, ob das Schema dieses Felds null erlaubt (IsNullable).</summary>
+    /// <summary>Indicates whether the schema of this field allows null (IsNullable).</summary>
     public bool FieldAllowsNull(string[] path)
     {
         if (_state.ActiveSchema == null) return false;
@@ -1032,14 +1032,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public bool FieldIsNull(string[] path)
     {
         var value = JsonDocumentService.GetByPath(_state.Json, path);
-        // JSON null wird in System.Text.Json.Nodes als C#-null-Referenz repräsentiert
-        // (GetByPath liefert dann null), nicht als JsonValue mit ValueKind.Null.
+        // JSON null is represented in System.Text.Json.Nodes as a C# null reference
+        // (GetByPath then returns null), not as a JsonValue with ValueKind.Null.
         return value == null || (value is JsonValue jv && jv.GetValueKind() == JsonValueKind.Null);
     }
 
     /// <summary>
-    /// Setzt den Wert eines Felds auf den gewünschten (Schema-)Typ über den bestehenden
-    /// Core-Änderungs-/Undo-Pfad (EditorLogic.SetValueAtPath). Danach wird die UI aktualisiert.
+    /// Sets a field's value to the requested (schema) type through the existing
+    /// Core mutation/undo path (EditorLogic.SetValueAtPath). The UI is refreshed afterwards.
     /// </summary>
     public void SetFieldToType(string[] path, string type)
     {
@@ -1053,9 +1053,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             "integer" => JsonValue.Create(0),
             "number" => JsonValue.Create(0.0),
             "string" => JsonValue.Create(""),
-            // JSON null ist in System.Text.Json.Nodes eine C#-null-Referenz
-            // (JsonNode.Parse("null") liefert ebenfalls null). SetValueAtPath/SetByPath
-            // setzen dadurch die Property korrekt auf JSON null (Property bleibt erhalten).
+            // JSON null is a C# null reference in System.Text.Json.Nodes
+            // (JsonNode.Parse("null") also returns null). SetValueAtPath/SetByPath
+            // therefore set the property correctly to JSON null (the property is kept).
             "null" => null,
             _ => null
         };
@@ -1128,7 +1128,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         FocusSelectedCard();
     }
 
-    /// <summary>Escape aus einer fokussierten Array-Karte: Nested-Kontext verlassen und in den Baum.</summary>
+    /// <summary>Escape from a focused array card: step one level up when in a nested
+    /// context (focus stays in the editor), otherwise move focus to the tree.</summary>
     [RelayCommand]
     private void EscapeFromCard()
     {
@@ -1143,7 +1144,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         FocusTreeSelection();
     }
 
-    /// <summary>Setzt den Fokus vom Karten-Enter in den Detail-Editor des aktiven Elements.</summary>
+    /// <summary>Moves focus from the card Enter into the detail editor of the active element.</summary>
     public void FocusCardDetail()
     {
         var (arrayPath, index) = EditorLogic.GetCardArrayContext(_state);
@@ -1174,8 +1175,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    /// <summary>Setzt den Tastaturfokus auf die aktuell ausgewählte Array-Karte.
-    /// Ohne Karten (leeres Array) wird der "Hinzufügen"-Button fokussiert.</summary>
+    /// <summary>Sets the keyboard focus to the currently selected array card.
+    /// Without cards (empty array) the add button is focused.</summary>
     public void FocusSelectedCard()
     {
         var index = EditorLogic.GetCardArrayContext(_state).ActiveCardIndex;

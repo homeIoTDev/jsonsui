@@ -155,9 +155,9 @@ public static class JsonDocumentService
     }
 
     /// <summary>
-    /// Wandelt einen frei eingegebenen Text in einen JSON-Wert um:
-    /// gültiges JSON (Zahl, Boolean, Object, Array, quoted string, null) wird übernommen,
-    /// andernfalls wird der Text als JSON-String verwendet.
+    /// Converts freely entered text into a JSON value: valid JSON (number, boolean,
+    /// object, array, quoted string, null) is used as-is, otherwise the text is
+    /// treated as a JSON string.
     /// </summary>
     public static JsonNode? ParseFlexibleJsonValue(string text)
     {

@@ -89,8 +89,8 @@ public static class TemporalValue
     }
 
     /// <summary>
-    /// Kanonisiert eine manuell eingegebene Zeichenkette für den Feldtyp.
-    /// Liefert null bei ungültiger Eingabe, "" bei leerer Eingabe.
+    /// Canonicalizes a manually entered string for the given field type.
+    /// Returns null for invalid input, "" for empty input.
     /// </summary>
     public static string? Normalize(string fieldType, string? text)
     {

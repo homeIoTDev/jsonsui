@@ -51,7 +51,7 @@ public partial class FieldEditorView : UserControl
             Placement = PlacementMode.BottomEdgeAlignedRight
         };
 
-        // Einziges Nicht-null-Typ-Angebot: direkt der Typ.
+        // Only one non-null type offered: use that type directly.
         foreach (var type in types)
         {
             var label = type switch
@@ -66,8 +66,8 @@ public partial class FieldEditorView : UserControl
 
             var item = new MenuItem { Header = label };
             var captured = type;
-            // Deferred ausführen (wie bei "Set to null"): das ContextMenu muss erst schließen,
-            // bevor RefreshUI() die FieldRow-Controls zerstört -> kein "PlatformImpl is null".
+            // Run deferred (as with "Set to null"): the ContextMenu must close before
+            // RefreshUI() destroys the FieldRow controls -> avoids "PlatformImpl is null".
             item.Click += (_, _) =>
             {
                 var path = (string[])row.Path.Clone();

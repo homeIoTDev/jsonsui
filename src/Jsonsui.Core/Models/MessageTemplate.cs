@@ -1,8 +1,8 @@
 namespace Jsonsui.Core.Models;
 
 /// <summary>
-/// UI-neutraler Nachrichtenschlüssel samt Argumenten. Die konkrete Sprache
-/// wird erst in der UI über die Ressourcen aufgelöst.
+/// UI-neutral message key with arguments. The concrete language is resolved
+/// later in the UI via the resource files.
 /// </summary>
 public sealed class MessageTemplate
 {

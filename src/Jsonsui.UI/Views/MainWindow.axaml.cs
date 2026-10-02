@@ -38,7 +38,7 @@ public partial class MainWindow : Window
 
     private void TopHeaderBar_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        // Klicks auf interaktive Elemente (Status-/Fensterbuttons) nicht als Drag behandeln.
+        // Do not treat clicks on interactive elements (status/window buttons) as a drag.
         if (e.Source is Visual v && v.FindAncestorOfType<Button>(includeSelf: true) != null)
             return;
 
@@ -598,7 +598,7 @@ public partial class MainWindow : Window
         _customPropertyFlyout.ShowAt(anchor);
     }
 
-    // --- Add Property: Typauswahl bei mehrdeutigen Unions (2+ Nicht-null-Typen) ---
+    // --- Add Property: type selection for ambiguous unions (2+ non-null types) ---
 
     private void ShowAddTypeSelectionFlyout(MainWindowViewModel vm, PropertyCatalogItem item)
     {

@@ -8,20 +8,19 @@ using Jsonsui.Core.Models;
 namespace Jsonsui.UI.Controls;
 
 /// <summary>
-/// NumericUpDown, dessen Spin-Buttons/Pfeiltasten auf die Schema-Grenzen
-/// (FieldRow.MinValue/MaxValue) geklemmt werden. Minimum/Maximum bleiben
-/// ungebunden, damit die manuelle Texteingabe auch außerhalb der Grenzen
-/// möglich ist und erst die JSON-Schema-Validierung den Fehler erzeugt.
+/// NumericUpDown whose spin buttons/arrow keys are clamped to the schema bounds
+/// (FieldRow.MinValue/MaxValue). Minimum/Maximum stay unbound so manual text input
+/// is still possible outside the bounds and only JSON schema validation reports the error.
 /// </summary>
 public class SchemaNumericUpDown : NumericUpDown
 {
     public SchemaNumericUpDown()
     {
-        // TEMP DIAG: prüfen, ob das Control erzeugt wird und das Theme gefunden wird.
+        // TEMP DIAG: verify that the control is created and the theme is found.
         ResolveBaseTheme();
 
-        // Retry, sobald das Control in den Visual Tree gehängt wird – zu diesem Zeitpunkt
-        // sind die App-Ressourcen (FluentTheme) definitiv aufgelöst.
+        // Retry once the control is attached to the logical tree - at that point the
+        // app resources (FluentTheme) are definitely resolved.
         AttachedToLogicalTree += (_, _) => ResolveBaseTheme();
     }
 
@@ -31,11 +30,11 @@ public class SchemaNumericUpDown : NumericUpDown
 
         if (Application.Current is not { } app)
         {
-            System.Diagnostics.Debug.WriteLine("[SchemaNumericUpDown] Application.Current is null (Theme bleibt ungesetzt).");
+            System.Diagnostics.Debug.WriteLine("[SchemaNumericUpDown] Application.Current is null (theme stays unset).");
             return;
         }
 
-        // Zuerst mit explizitem ThemeVariant (robust), dann ohne.
+        // First with an explicit ThemeVariant (robust), then without.
         if (app.TryGetResource(typeof(NumericUpDown), Avalonia.Styling.ThemeVariant.Default, out var v1) && v1 is ControlTheme t1)
         {
             Theme = t1;
@@ -50,7 +49,7 @@ public class SchemaNumericUpDown : NumericUpDown
             return;
         }
 
-        System.Diagnostics.Debug.WriteLine("[SchemaNumericUpDown] WARN: kein NumericUpDown-ControlTheme via TryGetResource gefunden -> Control wäre unsichtbar.");
+        System.Diagnostics.Debug.WriteLine("[SchemaNumericUpDown] WARN: no NumericUpDown ControlTheme found via TryGetResource -> control would be invisible.");
     }
 
     protected override void OnSpin(SpinEventArgs e)

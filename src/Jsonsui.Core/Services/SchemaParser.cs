@@ -8,8 +8,8 @@ public class SchemaParser
     private const int MaxRecursionDepth = 32;
 
     /// <summary>
-    /// Root-level "definitions" dieses Schemas. Werden für die Auflösung
-    /// lokaler "$ref": "#/definitions/&lt;Name&gt;"-Verweise genutzt.
+    /// Root-level "definitions" of this schema. Used to resolve local
+    /// "$ref": "#/definitions/&lt;Name&gt;" references.
     /// </summary>
     private Dictionary<string, JsonElement> _definitions = new();
 
@@ -57,8 +57,8 @@ public class SchemaParser
     }
 
     /// <summary>
-    /// Parst ein Object-Schema (die "properties"/"required"/"additionalProperties"
-    /// einer beliebigen Schema-Ebene) mit Zugriff auf die vorhandenen definitions.
+    /// Parses an object schema (the "properties"/"required"/"additionalProperties"
+    /// of any schema level) with access to the existing definitions.
     /// </summary>
     private SchemaModel ParseObjectSchema(JsonElement element)
     {
@@ -227,8 +227,8 @@ public class SchemaParser
     }
 
     /// <summary>
-    /// Liest "type" als String oder als Array (nullable Union) und bestimmt den
-    /// effektiven Nicht-null-Typ. Wirft keine Exception bei ValueKind Array.
+    /// Reads "type" as a string or as an array (nullable union) and determines the
+    /// effective non-null type. Does not throw for ValueKind Array.
     /// </summary>
     private static void ParseType(SchemaProperty prop, JsonElement element)
     {
