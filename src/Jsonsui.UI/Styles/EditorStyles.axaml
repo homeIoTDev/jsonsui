@@ -17,6 +17,8 @@
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
       <Setter Property="FocusAdorner" Value="{x:Null}" />
+      <Setter Property="Focusable" Value="False" />
+      <Setter Property="IsTabStop" Value="False" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="Template">
         <ControlTemplate>
@@ -170,6 +172,11 @@
     </ControlTheme>
   </Styles.Resources>
 
+  <!-- Focus ring: thin accent border with subtle glow (replaces Fluent default) -->
+  <Style Selector="AdornerLayer">
+    <Setter Property="DefaultFocusAdorner" Value="{DynamicResource AppFocusAdorner}" />
+  </Style>
+
   <!-- Window base -->
   <Style Selector="Window">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
@@ -242,6 +249,10 @@
     <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
   </Style>
 
+  <Style Selector="Border.CardItem:focus">
+    <Setter Property="Background" Value="{DynamicResource SelectedBackgroundBrush}" />
+  </Style>
+
   <Style Selector="TextBlock.CardPreview">
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeBase}" />
@@ -304,6 +315,24 @@
   </Style>
 
   <Style Selector="Button.NullableTypeBtn:focus-visible">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Drill-down buttons (nested object/array) -->
+  <Style Selector="Button.DrillBtn">
+    <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="8,4" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+  </Style>
+
+  <Style Selector="Button.DrillBtn:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}" />
+  </Style>
+
+  <Style Selector="Button.DrillBtn:focus-visible">
     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
 

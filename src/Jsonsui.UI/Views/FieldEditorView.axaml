@@ -9,11 +9,9 @@
              x:DataType="models:FieldRow">
 
   <Grid VerticalAlignment="Center">
-    <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
-            Click="DrillIntoObject_Click"
-            Background="{DynamicResource CardBackgroundBrush}"
-            BorderBrush="{DynamicResource PanelBorderBrush}"
-            BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+    <Button Classes="DrillBtn"
+            IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=object}"
+            Click="DrillIntoObject_Click" GotFocus="EditorField_GotFocus">
       <StackPanel Orientation="Horizontal" Spacing="6">
         <TextBlock Text="{Binding NestedObjectCount, Converter={x:Static conv:EditorConverters.CountToObjectTag}}"
                    Foreground="{DynamicResource TextSecondaryBrush}"
@@ -22,11 +20,9 @@
                   Stroke="{DynamicResource TextTertiaryBrush}" />
       </StackPanel>
     </Button>
-    <Button IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
-            Click="DrillIntoArray_Click"
-            Background="{DynamicResource CardBackgroundBrush}"
-            BorderBrush="{DynamicResource PanelBorderBrush}"
-            BorderThickness="1" CornerRadius="3" Padding="8,4" HorizontalAlignment="Left">
+    <Button Classes="DrillBtn"
+            IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=array}"
+            Click="DrillIntoArray_Click" GotFocus="EditorField_GotFocus">
       <StackPanel Orientation="Horizontal" Spacing="6">
         <Path Classes="Lucide" Data="{StaticResource array-bracket}" Width="10" Height="10"
                   Stroke="{DynamicResource AccentBrush}" />
@@ -94,6 +90,7 @@
                  Foreground="{DynamicResource TextTertiaryBrush}"
                  FontStyle="Italic" VerticalAlignment="Center" />
       <Button Classes="NullableTypeBtn" Click="NullableTypeButton_Click"
+              GotFocus="EditorField_GotFocus"
               IsVisible="{Binding FieldType, Converter={x:Static conv:EditorConverters.EditorModeToBool}, ConverterParameter=nullable}"
               IsEnabled="{Binding IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
               Padding="8,4"

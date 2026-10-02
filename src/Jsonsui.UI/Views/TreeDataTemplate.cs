@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using System.Text.Json.Nodes;
@@ -28,6 +29,8 @@ public class TreeDataTemplate : IDataTemplate
         {
             Padding = new Thickness(indent, 1, 8, 1),
             MinHeight = 24,
+            Focusable = true,
+            IsTabStop = false,
             Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand),
             BorderThickness = new Thickness(2, 0, 0, 0),
             BorderBrush = isSelected ? Res<IBrush>("SelectedBorderBrush") : Brushes.Transparent,
@@ -57,6 +60,19 @@ public class TreeDataTemplate : IDataTemplate
                 vm.SelectNodeCommand.Execute(node);
             }
         };
+
+        rootBorder.GotFocus += (_, _) =>
+        {
+            if (!isSelected)
+                rootBorder.BorderBrush = Res<IBrush>("AccentBrush") ?? Brushes.Transparent;
+        };
+        rootBorder.LostFocus += (_, _) =>
+        {
+            if (!isSelected)
+                rootBorder.BorderBrush = Brushes.Transparent;
+        };
+
+        rootBorder.KeyDown += (_, e) => HandleTreeKey(node, rootBorder, e);
 
         var row = new StackPanel
         {
@@ -182,6 +198,46 @@ public class TreeDataTemplate : IDataTemplate
     }
 
     public bool Match(object? data) => data is JsonEditorNode;
+
+    private static void HandleTreeKey(JsonEditorNode node, Control source, KeyEventArgs e)
+    {
+        if (TopLevel.GetTopLevel(source)?.DataContext is not MainWindowViewModel vm) return;
+
+        switch (e.Key)
+        {
+            case Key.Up:
+                vm.MoveTreeSelectionCommand.Execute(-1);
+                break;
+            case Key.Down:
+                vm.MoveTreeSelectionCommand.Execute(1);
+                break;
+            case Key.Home:
+                vm.TreeHomeCommand.Execute(null);
+                break;
+            case Key.End:
+                vm.TreeEndCommand.Execute(null);
+                break;
+            case Key.Right:
+                vm.ExpandTreeCommand.Execute(null);
+                break;
+            case Key.Left:
+                vm.CollapseTreeCommand.Execute(null);
+                break;
+            case Key.Enter:
+                vm.ActivateTreeNodeCommand.Execute(node);
+                break;
+            case Key.Space:
+                if (node.IsExpandable)
+                    vm.ToggleExpandCommand.Execute(node);
+                else
+                    vm.SelectNodeCommand.Execute(node);
+                break;
+            default:
+                return;
+        }
+
+        e.Handled = true;
+    }
 
     private static string TagFor(JsonEditorNode node) => node.NodeType switch
     {

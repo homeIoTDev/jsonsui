@@ -68,13 +68,13 @@
     <value>Schließen</value>
   </data>
   <data name="Toolbar_OpenFile" xml:space="preserve">
-    <value>Datei öffnen</value>
+    <value>Datei öffnen (Strg+O)</value>
   </data>
   <data name="Toolbar_Save" xml:space="preserve">
-    <value>Speichern</value>
+    <value>Speichern (Strg+S)</value>
   </data>
   <data name="Toolbar_ShowDiff" xml:space="preserve">
-    <value>Diff anzeigen</value>
+    <value>Diff anzeigen (Strg+D)</value>
   </data>
   <data name="Toolbar_ToggleTextMode" xml:space="preserve">
     <value>Textmodus umschalten</value>
@@ -83,13 +83,13 @@
     <value>Design umschalten</value>
   </data>
   <data name="Toolbar_Undo" xml:space="preserve">
-    <value>Rückgängig</value>
+    <value>Rückgängig (Strg+Z)</value>
   </data>
   <data name="Toolbar_Redo" xml:space="preserve">
-    <value>Wiederholen</value>
+    <value>Wiederholen (Strg+Y / Strg+Umschalt+Z)</value>
   </data>
   <data name="Tree_FilterPlaceholder" xml:space="preserve">
-    <value>Filtern...</value>
+    <value>Filtern... (Strg+Umschalt+L)</value>
   </data>
   <data name="Tree_ObjectTag" xml:space="preserve">
     <value>{0} Felder</value>

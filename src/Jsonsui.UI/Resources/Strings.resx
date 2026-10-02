@@ -68,13 +68,13 @@
     <value>Close</value>
   </data>
   <data name="Toolbar_OpenFile" xml:space="preserve">
-    <value>Open file</value>
+    <value>Open file (Ctrl+O)</value>
   </data>
   <data name="Toolbar_Save" xml:space="preserve">
-    <value>Save</value>
+    <value>Save (Ctrl+S)</value>
   </data>
   <data name="Toolbar_ShowDiff" xml:space="preserve">
-    <value>Show diff</value>
+    <value>Show diff (Ctrl+D)</value>
   </data>
   <data name="Toolbar_ToggleTextMode" xml:space="preserve">
     <value>Toggle text mode</value>
@@ -83,13 +83,13 @@
     <value>Toggle theme</value>
   </data>
   <data name="Toolbar_Undo" xml:space="preserve">
-    <value>Undo</value>
+    <value>Undo (Ctrl+Z)</value>
   </data>
   <data name="Toolbar_Redo" xml:space="preserve">
-    <value>Redo</value>
+    <value>Redo (Ctrl+Y / Ctrl+Shift+Z)</value>
   </data>
   <data name="Tree_FilterPlaceholder" xml:space="preserve">
-    <value>Filter...</value>
+    <value>Filter... (Ctrl+Shift+L)</value>
   </data>
   <data name="Tree_ObjectTag" xml:space="preserve">
     <value>{0} fields</value>

@@ -309,6 +309,65 @@ public static class EditorLogic
         state.FocusFieldPath = path;
     }
 
+    // --- Tree Keyboard Navigation (UI-neutral) ---
+
+    /// <summary>
+    /// Liefert alle sichtbaren, navigierbaren Baumknoten in Anzeigereihenfolge.
+    /// Nur Objekt-/Array-Knoten (die Anzeige-Struktur), respektiert IsVisible/IsExpanded.
+    /// </summary>
+    public static List<JsonEditorNode> FlattenVisibleNavigable(JsonEditorNode root)
+    {
+        var list = new List<JsonEditorNode>();
+        Visit(root);
+        return list;
+
+        void Visit(JsonEditorNode node)
+        {
+            list.Add(node);
+            if (!node.IsExpanded) return;
+            foreach (var child in node.NavigableChildren)
+                Visit(child);
+        }
+    }
+
+    /// <summary>Sucht einen sichtbaren Knoten anhand seines Pfades im aktuellen Baum.</summary>
+    public static JsonEditorNode? FindNodeByPath(JsonEditorNode root, string[] path)
+    {
+        var key = string.Join("/", path);
+        return FlattenVisibleNavigable(root).FirstOrDefault(n => n.PathKey == key);
+    }
+
+    /// <summary>Nachbar in Anzeigereihenfolge (delta -1/+1). null an den Rändern.</summary>
+    public static JsonEditorNode? GetNextVisible(JsonEditorNode root, string[] path, int delta)
+    {
+        var list = FlattenVisibleNavigable(root);
+        var key = string.Join("/", path);
+        var index = list.FindIndex(n => n.PathKey == key);
+        if (index < 0) return null;
+        var next = index + delta;
+        return next >= 0 && next < list.Count ? list[next] : null;
+    }
+
+    /// <summary>Nächstgelegener sichtbarer Parent-Knoten (überspringt Array-Element-Container).</summary>
+    public static JsonEditorNode? GetVisibleParent(JsonEditorNode node)
+    {
+        var parent = node.Parent;
+        while (parent != null && parent.NodeType is not ("root" or "object"))
+            parent = parent.Parent;
+        return parent;
+    }
+
+    /// <summary>Erstes navigierbares Kind eines expandierbaren Knotens.</summary>
+    public static JsonEditorNode? GetFirstVisibleChild(JsonEditorNode node)
+        => node.IsExpandable ? node.NavigableChildren.FirstOrDefault() : null;
+
+    /// <summary>Letzter sichtbarer navigierbarer Knoten in Anzeigereihenfolge.</summary>
+    public static JsonEditorNode? GetLastVisibleNavigable(JsonEditorNode root)
+    {
+        var list = FlattenVisibleNavigable(root);
+        return list.Count > 0 ? list[^1] : null;
+    }
+
     // --- Document Mutations ---
 
     public static void SetValueAtPath(EditorState state, string[] path, JsonNode? value, UndoRedoService undoRedo)

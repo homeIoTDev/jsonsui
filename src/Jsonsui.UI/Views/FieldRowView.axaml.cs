@@ -46,10 +46,28 @@ public partial class FieldRowView : UserControl
 
     private void FieldRow_KeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Apps && !(e.Key == Key.F10 && e.KeyModifiers.HasFlag(KeyModifiers.Shift))) return;
         if (sender is not Border border) return;
         if (Vm is not { } vm) return;
         if (border.DataContext is not FieldRow row) return;
+
+        if (e.Key == Key.F2)
+        {
+            if (row.IsReadOnly) return;
+            e.Handled = true;
+            vm.BeginRename(row);
+            FocusFieldNameEditor(row);
+            return;
+        }
+
+        if (e.Key == Key.Delete && !IsTextInputSource(e.Source))
+        {
+            if (row.IsReadOnly) return;
+            e.Handled = true;
+            vm.DeletePropertyCommand.Execute(row);
+            return;
+        }
+
+        if (e.Key != Key.Apps && !(e.Key == Key.F10 && e.KeyModifiers.HasFlag(KeyModifiers.Shift))) return;
         e.Handled = true;
 
         // anchor at the ⋮ action button of the focused row, independent of the mouse position
@@ -61,6 +79,13 @@ public partial class FieldRowView : UserControl
         // open after the key event fully completes so the popup keeps focus
         Avalonia.Threading.Dispatcher.UIThread.Post(() => OpenPropertyActionsMenu(vm, target, row),
             Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    private static bool IsTextInputSource(object? source)
+    {
+        if (source is not Avalonia.Visual visual) return false;
+        return visual.FindAncestorOfType<TextBox>(includeSelf: true) != null
+            || visual.FindAncestorOfType<NumericUpDown>(includeSelf: true) != null;
     }
 
     private void OpenPropertyActionsMenu(MainWindowViewModel vm, Control target, FieldRow row)

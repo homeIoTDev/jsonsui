@@ -17,6 +17,23 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         TopHeaderBar.PointerPressed += TopHeaderBar_PointerPressed;
+        Opened += MainWindow_Opened;
+    }
+
+    private void MainWindow_Opened(object? sender, System.EventArgs e)
+    {
+        if (DataContext is not MainWindowViewModel vm) return;
+
+        void FocusInitial()
+        {
+            if (vm.HasDocument)
+                vm.FocusTreeSelection();
+            else
+                this.FindControl<Button>("OpenFileButton")?.Focus();
+        }
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(FocusInitial, Avalonia.Threading.DispatcherPriority.Loaded);
+        Avalonia.Threading.Dispatcher.UIThread.Post(FocusInitial, Avalonia.Threading.DispatcherPriority.Background);
     }
 
     private void TopHeaderBar_PointerPressed(object? sender, PointerPressedEventArgs e)
@@ -55,6 +72,47 @@ public partial class MainWindow : Window
         if (e.Key != Key.Escape || sender is not TextBox tb) return;
         e.Handled = true;
         tb.Clear();
+        if (DataContext is MainWindowViewModel vm)
+            vm.FocusTreeSelection();
+    }
+
+    // --- Tree keyboard focus ---
+
+    private void Tree_GotFocus(object? sender, FocusChangedEventArgs e)
+    {
+        if (e.Source is ItemsControl && DataContext is MainWindowViewModel vm)
+            vm.FocusTreeSelection();
+    }
+
+    private void Tree_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (DataContext is not MainWindowViewModel vm) return;
+
+        switch (e.Key)
+        {
+            case Key.Up:
+                vm.MoveTreeSelectionCommand.Execute(-1);
+                break;
+            case Key.Down:
+                vm.MoveTreeSelectionCommand.Execute(1);
+                break;
+            case Key.Home:
+                vm.TreeHomeCommand.Execute(null);
+                break;
+            case Key.End:
+                vm.TreeEndCommand.Execute(null);
+                break;
+            case Key.Right:
+                vm.ExpandTreeCommand.Execute(null);
+                break;
+            case Key.Left:
+                vm.CollapseTreeCommand.Execute(null);
+                break;
+            default:
+                return;
+        }
+
+        e.Handled = true;
     }
 
     private void CardItem_Tapped(object? sender, TappedEventArgs e)
@@ -71,18 +129,139 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
+    private void Cards_GotFocus(object? sender, FocusChangedEventArgs e)
+    {
+        if (e.Source is ItemsControl && DataContext is MainWindowViewModel vm)
+            vm.FocusSelectedCard();
+    }
+
+    private void CardItem_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (sender is not Border { DataContext: CardItem card }) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+
+        switch (e.Key)
+        {
+            case Key.Up:
+                vm.MoveCardSelectionCommand.Execute(-1);
+                break;
+            case Key.Down:
+                vm.MoveCardSelectionCommand.Execute(1);
+                break;
+            case Key.Enter:
+                vm.SelectCardCommand.Execute(card.Index);
+                vm.FocusCardDetail();
+                break;
+            case Key.Delete:
+                vm.DeleteCardCommand.Execute(card.Index);
+                break;
+            case Key.Insert:
+            case Key.Add:
+                vm.AddCardCommand.Execute(null);
+                break;
+            case Key.Escape:
+                vm.EscapeFromCardCommand.Execute(null);
+                break;
+            default:
+                return;
+        }
+
+        e.Handled = true;
+    }
+
     protected override void OnKeyDown(KeyEventArgs e)
     {
-        if (e.Key == Key.Escape &&
-            DataContext is MainWindowViewModel vm &&
-            vm.Diff.IsOpen)
+        if (DataContext is MainWindowViewModel vm && HandleShortcut(vm, e))
         {
-            vm.CloseDiffCommand.Execute(null);
             e.Handled = true;
             return;
         }
 
         base.OnKeyDown(e);
+    }
+
+    private bool IsFocusInDetailPanel()
+    {
+        if (FocusManager?.GetFocusedElement() is not Visual focused) return false;
+        return focused == ArrayDetailPanel || ArrayDetailPanel.IsVisualAncestorOf(focused);
+    }
+
+    private bool IsFocusInTree()
+    {
+        if (FocusManager?.GetFocusedElement() is not Visual focused) return false;
+        return focused == TreePanel || TreePanel.IsVisualAncestorOf(focused);
+    }
+
+    private bool HandleShortcut(MainWindowViewModel vm, KeyEventArgs e)
+    {
+        var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+
+        if (ctrl && shift && e.Key == Key.L)
+        {
+            vm.FocusTreeFilterCommand.Execute(null);
+            return true;
+        }
+
+        if (ctrl && !shift)
+        {
+            switch (e.Key)
+            {
+                case Key.O:
+                    vm.OpenFileCommand.Execute(null);
+                    return true;
+                case Key.S:
+                    vm.SaveCommand.Execute(null);
+                    return true;
+                case Key.Z:
+                    vm.UndoCommand.Execute(null);
+                    return true;
+                case Key.Y:
+                    vm.RedoCommand.Execute(null);
+                    return true;
+                case Key.D:
+                    vm.OpenDiffCommand.Execute(null);
+                    return true;
+            }
+        }
+
+        if (ctrl && shift && e.Key == Key.Z)
+        {
+            vm.RedoCommand.Execute(null);
+            return true;
+        }
+
+        if (e.Key == Key.Escape)
+        {
+            if (vm.Diff.IsOpen)
+            {
+                vm.CloseDiffCommand.Execute(null);
+                return true;
+            }
+
+            if (vm.NestedCtx != null)
+            {
+                var returnToEditor = !IsFocusInTree();
+                vm.ExitNestedArrayCommand.Execute(null);
+                if (returnToEditor)
+                    vm.FocusFirstEditorTarget();
+                return true;
+            }
+
+            if (vm.IsArrayMode && IsFocusInDetailPanel())
+            {
+                vm.FocusSelectedCard();
+                return true;
+            }
+
+            if (vm.HasDocument)
+            {
+                vm.FocusTreeSelection();
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void ScalarDetail_LostFocus(object? sender, RoutedEventArgs e)

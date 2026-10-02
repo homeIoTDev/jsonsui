@@ -108,7 +108,7 @@
           <ColumnDefinition Width="*" MinWidth="280" />
         </Grid.ColumnDefinitions>
         <!-- ===== TREE PANEL ===== -->
-         <Border Grid.Column="0"
+         <Border x:Name="TreePanel" Grid.Column="0"
                 Background="{DynamicResource TreeBackgroundBrush}">
           <Grid RowDefinitions="Auto,*,Auto">
             <!-- Tree Search -->
@@ -125,8 +125,10 @@
                      BorderThickness="0,0,0,1"
                      Margin="0" />
             <!-- Tree Scroll Area -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-              <ItemsControl ItemsSource="{Binding TreeRootNodes}" Margin="0,4,0,0">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" IsTabStop="False">
+              <ItemsControl x:Name="TreeItems" ItemsSource="{Binding TreeRootNodes}" Margin="0,4,0,0"
+                            Focusable="True" IsTabStop="True"
+                            GotFocus="Tree_GotFocus" KeyDown="Tree_KeyDown">
                 <ItemsControl.ItemTemplate>
                   <views:TreeDataTemplate />
                 </ItemsControl.ItemTemplate>
@@ -137,7 +139,7 @@
               <DockPanel>
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="6"
                             VerticalAlignment="Center" >
-                  <Button Command="{Binding OpenFileCommand}" Classes="IconBtn"
+                  <Button x:Name="OpenFileButton" Command="{Binding OpenFileCommand}" Classes="IconBtn"
                           ToolTip.Tip="{loc:Localize Toolbar_OpenFile}" Width="28" Height="28" Padding="4">
                     <Path Classes="Lucide" Data="{StaticResource lucide-folder}" Width="14" Height="14"
                               Stroke="{DynamicResource TextSecondaryBrush}" />
@@ -199,7 +201,7 @@
                          TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
                          VerticalAlignment="Center" ToolTip.Tip="{Binding TextParseError}" />
             </Border>
-            <TextBox Text="{Binding TextContent, Mode=TwoWay}"
+            <TextBox x:Name="TextEditorBox" Text="{Binding TextContent, Mode=TwoWay}"
                      Classes="MonoEditor" AcceptsReturn="True"
                      Background="{DynamicResource InputBackgroundBrush}" BorderThickness="0" />
           </DockPanel>
@@ -224,7 +226,7 @@
                   </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="4" DockPanel.Dock="Right">
-                  <Button Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
+                  <Button x:Name="AddPropertyButton" Classes="AddPropertyBtn" IsVisible="{Binding CanAddProperty}"
                           Click="AddProperty_Click" ToolTip.Tip="{loc:Localize Property_Add}"
                           VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="4">
@@ -331,7 +333,7 @@
                 </Border>
                 <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
                         DockPanel.Dock="Bottom" Padding="8,12">
-                  <Button Classes="DashedBtn" Command="{Binding AddCardCommand}"
+                  <Button x:Name="AddCardButton" Classes="DashedBtn" Command="{Binding AddCardCommand}"
                           IsEnabled="{Binding ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
                           HorizontalAlignment="Stretch" Height="32">
                     <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
@@ -342,11 +344,15 @@
                     </StackPanel>
                   </Button>
                 </Border>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                  <ItemsControl ItemsSource="{Binding CardItems}" Margin="10,12">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" IsTabStop="False">
+                  <ItemsControl ItemsSource="{Binding CardItems}" Margin="10,12"
+                                Focusable="True" IsTabStop="True"
+                                GotFocus="Cards_GotFocus">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="models:CardItem">
                         <Border Classes="CardItem" Margin="0,0,0,6"
+                                Focusable="True" IsTabStop="False"
+                                KeyDown="CardItem_KeyDown"
                                 BorderBrush="{Binding IsSelected, Converter={x:Static conv:EditorConverters.CardSelectedToBorderBrush}}"
                                 Tapped="CardItem_Tapped">
                           <Grid ColumnDefinitions="*,Auto">
@@ -383,7 +389,7 @@
                           Theme="{StaticResource PanelSplitterTheme}"
                           BorderBrush="{DynamicResource CardSplitBrush}" />
             <!-- Detail Panel -->
-            <Border Grid.Column="2" Background="{DynamicResource PanelBackgroundBrush}">
+            <Border x:Name="ArrayDetailPanel" Grid.Column="2" Background="{DynamicResource PanelBackgroundBrush}">
               <Grid RowDefinitions="*,Auto">
                 <Border Grid.Row="0" IsVisible="{Binding ShowEmptyDetailState}"
                         VerticalAlignment="Center" HorizontalAlignment="Center">

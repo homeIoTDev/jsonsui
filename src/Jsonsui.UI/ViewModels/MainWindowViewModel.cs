@@ -39,7 +39,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public partial bool ShowSaved { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDocument))]
     public partial string DocumentFilename { get; set; } = "";
+
+    public bool HasDocument => !string.IsNullOrEmpty(DocumentFilename);
 
     [ObservableProperty]
     public partial string SelectedPathString { get; set; } = "";
@@ -254,11 +257,19 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     // --- Refresh UI from EditorState ---
 
+    private enum FocusOwner
+    {
+        None,
+        Field,
+        Tree,
+        Card
+    }
+
     public void RefreshUI(bool syncText = true)
     {
-        string[]? focusedPath = null;
-        if (_refreshDepth == 0)
-            focusedPath = CaptureFocusedFieldPath();
+        var (focusOwner, focusedPath) = _refreshDepth == 0
+            ? CaptureFocus()
+            : (FocusOwner.None, null);
 
         _refreshDepth++;
         try
@@ -278,8 +289,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             OnPropertyChanged(nameof(SchemaTooltip));
         }
 
-        if (_refreshDepth == 0 && focusedPath != null)
-            RestoreFocus(focusedPath);
+        if (_refreshDepth != 0) return;
+
+        switch (focusOwner)
+        {
+            case FocusOwner.Field when focusedPath != null:
+                RestoreFocus(focusedPath);
+                break;
+            case FocusOwner.Tree:
+                FocusTreeSelection();
+                break;
+            case FocusOwner.Card:
+                FocusSelectedCard();
+                break;
+        }
     }
 
     private Avalonia.Controls.Window? GetWindow()
@@ -288,14 +311,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)?.MainWindow;
     }
 
-    private string[]? CaptureFocusedFieldPath()
+    private (FocusOwner Owner, string[]? Path) CaptureFocus()
     {
         var window = GetWindow();
-        if (window == null) return null;
-        var focused = window.FocusManager?.GetFocusedElement();
-        if (focused is Avalonia.Controls.Control c && c.DataContext is FieldRow row)
-            return (string[])row.Path.Clone();
-        return null;
+        var focused = window?.FocusManager?.GetFocusedElement();
+        switch (focused)
+        {
+            case Avalonia.Controls.Control c1 when c1.DataContext is FieldRow row:
+                return (FocusOwner.Field, (string[])row.Path.Clone());
+            case Avalonia.Controls.Control c2 when c2.DataContext is JsonEditorNode:
+                return (FocusOwner.Tree, null);
+            case Avalonia.Controls.Control c3 when c3.DataContext is CardItem:
+                return (FocusOwner.Card, null);
+            default:
+                return (FocusOwner.None, null);
+        }
     }
 
     private void RestoreFocus(string[] path)
@@ -309,7 +339,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             if (window == null) return;
             var control = FindDeepestFocusable(window, path);
             if (control != null)
-                control.Focus();
+                control.Focus(Avalonia.Input.NavigationMethod.Directional);
         }, priority);
     }
 
@@ -337,6 +367,50 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         foreach (var child in node.GetVisualChildren())
             FindDeepestFocusableCore(child, path, depth + 1, ref bestDepth, ref best);
+    }
+
+    /// <summary>Setzt den Tastaturfokus auf die aktuell ausgewählte Baumzeile.</summary>
+    public void FocusTreeSelection()
+    {
+        var path = (string[])_state.SelectedPath.Clone();
+        RestoreFocusToTree(path, Avalonia.Threading.DispatcherPriority.Loaded);
+        RestoreFocusToTree(path, Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    private void RestoreFocusToTree(string[] path, Avalonia.Threading.DispatcherPriority priority)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            var window = GetWindow();
+            if (window == null) return;
+            FindFocusableTreeRow(window, path)?.Focus(Avalonia.Input.NavigationMethod.Directional);
+        }, priority);
+    }
+
+    private static Avalonia.Controls.Control? FindFocusableTreeRow(Avalonia.Visual node, string[] path)
+    {
+        Avalonia.Controls.Control? best = null;
+        int bestDepth = -1;
+        FindFocusableTreeRowCore(node, path, 0, ref bestDepth, ref best);
+        return best;
+    }
+
+    private static void FindFocusableTreeRowCore(Avalonia.Visual node, string[] path, int depth,
+        ref int bestDepth, ref Avalonia.Controls.Control? best)
+    {
+        if (node is Avalonia.Controls.Control c &&
+            c.DataContext is JsonEditorNode n &&
+            n.Path.SequenceEqual(path) &&
+            c.Focusable &&
+            c.IsEffectivelyVisible &&
+            depth > bestDepth)
+        {
+            bestDepth = depth;
+            best = c;
+        }
+
+        foreach (var child in node.GetVisualChildren())
+            FindFocusableTreeRowCore(child, path, depth + 1, ref bestDepth, ref best);
     }
 
     private void RefreshUIImpl(bool syncText)
@@ -472,12 +546,179 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         RefreshUI();
     }
 
+    // --- Tree keyboard navigation ---
+
+    [RelayCommand]
+    private void MoveTreeSelection(int delta)
+    {
+        var root = TreeRootNodes.FirstOrDefault();
+        if (root == null) return;
+
+        var next = EditorLogic.GetNextVisible(root, _state.SelectedPath, delta);
+        if (next == null) return;
+
+        EditorLogic.SelectNode(_state, next);
+        RefreshUI();
+        FocusTreeSelection();
+    }
+
+    [RelayCommand]
+    private void TreeHome()
+    {
+        var root = TreeRootNodes.FirstOrDefault();
+        if (root == null) return;
+
+        var first = EditorLogic.FlattenVisibleNavigable(root).FirstOrDefault();
+        if (first == null) return;
+
+        EditorLogic.SelectNode(_state, first);
+        RefreshUI();
+        FocusTreeSelection();
+    }
+
+    [RelayCommand]
+    private void TreeEnd()
+    {
+        var root = TreeRootNodes.FirstOrDefault();
+        if (root == null) return;
+
+        var last = EditorLogic.GetLastVisibleNavigable(root);
+        if (last == null) return;
+
+        EditorLogic.SelectNode(_state, last);
+        RefreshUI();
+        FocusTreeSelection();
+    }
+
+    [RelayCommand]
+    private void ExpandTree()
+    {
+        var root = TreeRootNodes.FirstOrDefault();
+        if (root == null) return;
+
+        var node = EditorLogic.FindNodeByPath(root, _state.SelectedPath);
+        if (node == null) return;
+
+        if (node.IsExpandable && !node.IsExpanded)
+        {
+            EditorLogic.ToggleExpand(_state, node);
+            RefreshUI();
+        }
+        else if (node.IsExpanded)
+        {
+            var child = EditorLogic.GetFirstVisibleChild(node);
+            if (child != null)
+            {
+                EditorLogic.SelectNode(_state, child);
+                RefreshUI();
+            }
+        }
+
+        FocusTreeSelection();
+    }
+
+    [RelayCommand]
+    private void CollapseTree()
+    {
+        var root = TreeRootNodes.FirstOrDefault();
+        if (root == null) return;
+
+        var node = EditorLogic.FindNodeByPath(root, _state.SelectedPath);
+        if (node == null) return;
+
+        if (node.IsExpanded)
+        {
+            EditorLogic.ToggleExpand(_state, node);
+            RefreshUI();
+        }
+        else
+        {
+            var parent = EditorLogic.GetVisibleParent(node);
+            if (parent != null)
+            {
+                EditorLogic.SelectNode(_state, parent);
+                RefreshUI();
+            }
+        }
+
+        FocusTreeSelection();
+    }
+
+    [RelayCommand]
+    private void FocusTreeFilter()
+    {
+        var box = GetWindow()?.FindControl<TextBox>("FilterBox");
+        box?.Focus(Avalonia.Input.NavigationMethod.Directional);
+        box?.SelectAll();
+    }
+
+    [RelayCommand]
+    private void ActivateTreeNode(JsonEditorNode? node)
+    {
+        if (node == null) return;
+        EditorLogic.SelectNode(_state, node);
+        RefreshUI();
+        FocusFirstEditorTarget();
+    }
+
+    /// <summary>Springt aus dem Baum in das erste editierbare Ziel des Editorbereichs.</summary>
+    public void FocusFirstEditorTarget()
+    {
+        switch (CurrentEditorMode)
+        {
+            case EditorMode.Object:
+                if (ObjectFields.Count > 0)
+                {
+                    FocusEditorField(ObjectFields[0].Path);
+                }
+                else
+                {
+                    FocusNamedButton("AddPropertyButton");
+                }
+                break;
+
+            case EditorMode.ArraySplit:
+                if (CardItems.Count > 0)
+                    FocusSelectedCard();
+                else
+                    FocusNamedButton("AddCardButton");
+                break;
+
+            case EditorMode.Scalar:
+                if (ScalarRow != null)
+                    FocusEditorField(ScalarRow.Path);
+                break;
+
+            case EditorMode.Text:
+                FocusNamedControl<TextBox>("TextEditorBox");
+                break;
+        }
+    }
+
+    private void FocusEditorField(string[] path)
+    {
+        var copy = (string[])path.Clone();
+        RestoreFocus(copy);
+        RestoreFocus(copy, Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    private void FocusNamedButton(string name)
+        => FocusNamedControl<Button>(name);
+
+    private void FocusNamedControl<T>(string name) where T : Avalonia.Controls.Control
+    {
+        void FocusOnce() => GetWindow()?.FindControl<T>(name)?.Focus(Avalonia.Input.NavigationMethod.Directional);
+        Avalonia.Threading.Dispatcher.UIThread.Post(FocusOnce, Avalonia.Threading.DispatcherPriority.Loaded);
+        Avalonia.Threading.Dispatcher.UIThread.Post(FocusOnce, Avalonia.Threading.DispatcherPriority.Background);
+    }
+
     [RelayCommand]
     private void DrillInto(string[]? path)
     {
         if (path == null) return;
         EditorLogic.DrillInto(_state, path);
         RefreshUI();
+        FocusFirstEditorTarget();
     }
 
     [RelayCommand]
@@ -842,11 +1083,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     private void FocusScalarDetailEditor()
+        => FocusScalarDetailEditor(Avalonia.Threading.DispatcherPriority.Loaded);
+
+    private void FocusScalarDetailEditor(Avalonia.Threading.DispatcherPriority priority)
     {
         Avalonia.Threading.Dispatcher.UIThread.Post(() =>
         {
-            GetWindow()?.FindControl<TextBox>("ScalarDetailTextBox")?.Focus();
-        }, Avalonia.Threading.DispatcherPriority.Loaded);
+            GetWindow()?.FindControl<TextBox>("ScalarDetailTextBox")?.Focus(Avalonia.Input.NavigationMethod.Directional);
+        }, priority);
     }
 
     [RelayCommand]
@@ -867,11 +1111,128 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void MoveCardSelection(int delta)
+    {
+        if (CardItems.Count == 0) return;
+
+        var current = EditorLogic.GetCardArrayContext(_state).ActiveCardIndex ?? 0;
+        var next = Math.Clamp(current + delta, 0, CardItems.Count - 1);
+        if (next == current)
+        {
+            FocusSelectedCard();
+            return;
+        }
+
+        EditorLogic.SelectCard(_state, next);
+        RefreshUI();
+        FocusSelectedCard();
+    }
+
+    /// <summary>Escape aus einer fokussierten Array-Karte: Nested-Kontext verlassen und in den Baum.</summary>
+    [RelayCommand]
+    private void EscapeFromCard()
+    {
+        if (_state.NestedCtx != null)
+        {
+            EditorLogic.ExitNestedArray(_state);
+            RefreshUI();
+            FocusFirstEditorTarget();
+            return;
+        }
+
+        FocusTreeSelection();
+    }
+
+    /// <summary>Setzt den Fokus vom Karten-Enter in den Detail-Editor des aktiven Elements.</summary>
+    public void FocusCardDetail()
+    {
+        var (arrayPath, index) = EditorLogic.GetCardArrayContext(_state);
+        if (index == null) return;
+
+        var detailPath = arrayPath.Concat([index.Value.ToString()]).ToArray();
+        var value = JsonDocumentService.GetByPath(_state.Json, detailPath);
+
+        if (value is JsonValue)
+        {
+            FocusScalarDetailEditor(Avalonia.Threading.DispatcherPriority.Loaded);
+            FocusScalarDetailEditor(Avalonia.Threading.DispatcherPriority.Background);
+            return;
+        }
+
+        if (value is JsonArray)
+        {
+            if (DetailArrayRow != null)
+                FocusEditorField(DetailArrayRow.Path);
+            return;
+        }
+
+        if (ObjectFields.Count > 0)
+        {
+            var path = (string[])ObjectFields[0].Path.Clone();
+            RestoreFocus(path);
+            RestoreFocus(path, Avalonia.Threading.DispatcherPriority.Background);
+        }
+    }
+
+    /// <summary>Setzt den Tastaturfokus auf die aktuell ausgewählte Array-Karte.
+    /// Ohne Karten (leeres Array) wird der "Hinzufügen"-Button fokussiert.</summary>
+    public void FocusSelectedCard()
+    {
+        var index = EditorLogic.GetCardArrayContext(_state).ActiveCardIndex;
+        if (index == null)
+        {
+            FocusNamedButton("AddCardButton");
+            return;
+        }
+        var target = index.Value;
+        RestoreFocusToCard(target, Avalonia.Threading.DispatcherPriority.Loaded);
+        RestoreFocusToCard(target, Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    private void RestoreFocusToCard(int index, Avalonia.Threading.DispatcherPriority priority)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            var window = GetWindow();
+            if (window == null) return;
+            FindFocusableCard(window, index)?.Focus(Avalonia.Input.NavigationMethod.Directional);
+        }, priority);
+    }
+
+    private static Avalonia.Controls.Control? FindFocusableCard(Avalonia.Visual node, int index)
+    {
+        Avalonia.Controls.Control? best = null;
+        int bestDepth = -1;
+        FindFocusableCardCore(node, index, 0, ref bestDepth, ref best);
+        return best;
+    }
+
+    private static void FindFocusableCardCore(Avalonia.Visual node, int index, int depth,
+        ref int bestDepth, ref Avalonia.Controls.Control? best)
+    {
+        if (node is Avalonia.Controls.Control c &&
+            c.Classes.Contains("CardItem") &&
+            c.DataContext is CardItem card &&
+            card.Index == index &&
+            c.Focusable &&
+            c.IsEffectivelyVisible &&
+            depth > bestDepth)
+        {
+            bestDepth = depth;
+            best = c;
+        }
+
+        foreach (var child in node.GetVisualChildren())
+            FindFocusableCardCore(child, index, depth + 1, ref bestDepth, ref best);
+    }
+
+    [RelayCommand]
     private void DrillIntoArray(string[]? path)
     {
         if (path == null) return;
         EditorLogic.DrillIntoArray(_state, path);
         RefreshUI();
+        FocusFirstEditorTarget();
     }
 
     [RelayCommand]
@@ -1035,6 +1396,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 TryAutoLoadSchema(node, file.Path.LocalPath);
                 EditorLogic.Validate(_state);
                 RefreshUI();
+                FocusTreeSelection();
             }
             catch (JsonException ex)
             {
@@ -1066,6 +1428,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
             EditorLogic.Validate(_state);
             RefreshUI();
+            FocusTreeSelection();
         }
         catch (JsonException ex)
         {

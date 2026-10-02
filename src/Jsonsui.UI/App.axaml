@@ -40,6 +40,10 @@
           <SolidColorBrush x:Key="WarnSoftBrush" Color="#1a1200" />
           <SolidColorBrush x:Key="ScrollbarBrush" Color="#2a2a2a" />
           <SolidColorBrush x:Key="MutedBackgroundBrush" Color="#1a1a1a" />
+          <FocusAdornerTemplate x:Key="AppFocusAdorner">
+            <Border BorderThickness="1" BorderBrush="#00ffee" CornerRadius="3"
+                    BoxShadow="0 0 4 0 #4000ffee" />
+          </FocusAdornerTemplate>
         </ResourceDictionary>
         <!-- ===== LIGHT ===== -->
         <ResourceDictionary x:Key="Light">
@@ -70,6 +74,10 @@
           <SolidColorBrush x:Key="WarnSoftBrush" Color="#fff4e6" />
           <SolidColorBrush x:Key="ScrollbarBrush" Color="#cccccc" />
           <SolidColorBrush x:Key="MutedBackgroundBrush" Color="#e8e8e8" />
+          <FocusAdornerTemplate x:Key="AppFocusAdorner">
+            <Border BorderThickness="1" BorderBrush="#0066ff" CornerRadius="3"
+                    BoxShadow="0 0 4 0 #400066ff" />
+          </FocusAdornerTemplate>
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
 
