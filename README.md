@@ -15,7 +15,7 @@ Built with Avalonia UI for Windows and Linux, with additional macOS builds avail
 ---
 
 ## ✨ Why jsonsui?
-**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Downloads](#-downloads) • [Getting Started](#-getting-started) • [Keyboard Shortcuts](#-keyboard-shortcuts) • [CLI](#-cli) • [Architecture](#-architecture)**
+**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Downloads](#-downloads) • [Getting Started](#-getting-started) • [Keyboard Shortcuts](#%EF%B8%8F-keyboard-shortcuts) • [CLI](#%EF%B8%8F-cli) • [Architecture](#%EF%B8%8F-architecture)**
 
 JSON is everywhere — especially in configuration files.
 
