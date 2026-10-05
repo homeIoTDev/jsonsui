@@ -15,7 +15,7 @@ Built with Avalonia UI for Windows and Linux, with additional macOS builds avail
 ---
 
 ## ✨ Why jsonsui?
-**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Downloads](#-downloads) • [Getting Started](#-getting-started) • [CLI](#-cli) • [Architecture](#-architecture)**
+**[Why jsonsui?](#-why-jsonsui) • [Visual Editing](#-visual-json-editing) • [Downloads](#-downloads) • [Getting Started](#-getting-started) • [Keyboard Shortcuts](#-keyboard-shortcuts) • [CLI](#-cli) • [Architecture](#-architecture)**
 
 JSON is everywhere — especially in configuration files.
 
@@ -161,6 +161,34 @@ jsonsui also includes:
 * ⌨️ Command-line entry points
 
 The feature set is focused on making configuration editing safer and easier without hiding the underlying JSON.
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+O` | Open file |
+| `Ctrl+S` | Save |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Y` / `Ctrl+Shift+Z` | Redo |
+| `Ctrl+D` | Show diff |
+| `Ctrl+Shift+L` | Focus the tree filter |
+
+**Navigation and editing** (context-sensitive)
+
+| Key | Action |
+|---|---|
+| `↑` / `↓` | Move selection |
+| `Home` / `End` | First / last item |
+| `←` / `→` | Collapse / expand a tree node |
+| `Enter` | Activate node, open card or commit an edit |
+| `Space` | Expand/collapse or select a tree node |
+| `Insert` | Add an array item |
+| `Delete` | Delete property or array card |
+| `F2` | Rename a property |
+| `Shift+F10` / menu key | Open property actions |
+| `Esc` | Close diff, leave a nested context, or return to the tree |
 
 ---
 
