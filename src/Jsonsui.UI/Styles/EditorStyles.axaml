@@ -396,14 +396,6 @@
     <Setter Property="Margin" Value="0,2,0,0" />
   </Style>
 
-  <Style Selector="TextBlock.HelpMeta">
-    <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
-    <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
-    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
-    <Setter Property="TextWrapping" Value="Wrap" />
-    <Setter Property="Margin" Value="0,1,0,0" />
-  </Style>
-
   <Style Selector="TextBlock.HelpMetaLabel">
     <Setter Property="FontFamily" Value="{StaticResource FontInter}" />
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
@@ -414,6 +406,7 @@
     <Setter Property="FontFamily" Value="{StaticResource FontJetBrainsMono}" />
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
   </Style>
 
   <Style Selector="TextBlock.HelpComment">
@@ -421,6 +414,7 @@
     <Setter Property="FontSize" Value="{DynamicResource EditorFontSizeSmall}" />
     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
     <Setter Property="FontStyle" Value="Italic" />
+    <Setter Property="TextWrapping" Value="Wrap" />
   </Style>
 
   <!-- Badges -->

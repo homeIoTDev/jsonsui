@@ -8,10 +8,10 @@
   </ItemsPanelTemplate>
 
   <DataTemplate x:Key="MetaItemTemplate" x:DataType="models:MetaItem">
-    <StackPanel Orientation="Horizontal" Spacing="3" Margin="0,0,14,0">
-      <TextBlock Text="{Binding Label, StringFormat={}{0}:}" Classes="HelpMetaLabel" />
+    <DockPanel Margin="0,0,14,0">
+      <TextBlock DockPanel.Dock="Left" Margin="0,0,3,0" Text="{Binding Label, StringFormat={}{0}:}" Classes="HelpMetaLabel" />
       <TextBlock Text="{Binding Value}" Classes="HelpMetaValue" />
-    </StackPanel>
+    </DockPanel>
   </DataTemplate>
 
 </ResourceDictionary>
