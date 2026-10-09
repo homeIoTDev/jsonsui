@@ -58,12 +58,12 @@ public static class JsonDocumentService
         return cloned;
     }
 
-    public static JsonNode AddArrayItem(JsonNode root, string[] arrayPath, JsonNode template)
+    public static JsonNode AddArrayItem(JsonNode root, string[] arrayPath, JsonNode? template)
     {
         var cloned = Clone(root);
         var arr = GetByPath(cloned, arrayPath) as JsonArray;
         if (arr != null)
-            arr.Add(template.DeepClone());
+            arr.Add(template?.DeepClone());
         return cloned;
     }
 

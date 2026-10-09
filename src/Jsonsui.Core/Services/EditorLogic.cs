@@ -452,13 +452,9 @@ public static class EditorLogic
     public static void AddArrayItem(EditorState state, string[] arrayPath, UndoRedoService undoRedo)
     {
         var arr = JsonDocumentService.GetByPath(state.Json, arrayPath) as JsonArray;
-        JsonNode? template;
-        if (arr != null && arr.Count > 0)
-            template = JsonDocumentService.CreateTemplate(arr[0]);
-        else
-            template = CreateEmptyArrayItemTemplate(state.ActiveSchema, arrayPath);
+        var template = CreateNewArrayItemTemplate(state.ActiveSchema, arrayPath, arr);
 
-        state.Json = JsonDocumentService.AddArrayItem(state.Json, arrayPath, template!);
+        state.Json = JsonDocumentService.AddArrayItem(state.Json, arrayPath, template);
         var newIndex = ((JsonArray?)JsonDocumentService.GetByPath(state.Json, arrayPath))?.Count - 1 ?? 0;
         undoRedo.PushUndo(new UndoCommand
         {
@@ -477,23 +473,43 @@ public static class EditorLogic
     }
 
     /// <summary>
-    /// Creates the initial value for a new element of an empty array.
-    /// Uses the items schema (ArrayItemSchema) if available so that primitive item
-    /// types (e.g. "string" for ["string","null"]) do not produce an empty JsonObject.
-    /// Without an items schema the previous fallback (JsonObject) is used.
-    /// Nullable items do not automatically create null but the non-null initial value.
+    /// Creates the initial value for a new array element.
+    /// When an items schema (ArrayItemSchema) is available, the item type is derived from it
+    /// so that primitive item types (e.g. "string" for ["string","null"]) do not produce an
+    /// empty JsonObject; nullable items get the non-null initial value instead of null.
+    /// Without a schema the type is inferred from the first existing item's actual JSON type
+    /// (object, array, string, number, boolean, null) without copying its properties or values.
+    /// For an empty array without a schema the previous fallback (empty JsonObject) is kept.
     /// </summary>
-    private static JsonNode CreateEmptyArrayItemTemplate(SchemaModel? schema, string[] arrayPath)
+    private static JsonNode? CreateNewArrayItemTemplate(SchemaModel? schema, string[] arrayPath, JsonArray? arr)
     {
         var itemSchema = schema != null
             ? ResolveSchemaProperty(schema, arrayPath)?.ArrayItemSchema
             : null;
 
-        if (itemSchema == null)
-            return new JsonObject();
+        if (itemSchema != null)
+            return CreatePrimitiveForType(itemSchema.JsonType ?? "string");
 
-        return CreatePrimitiveForType(itemSchema.JsonType ?? "string");
+        if (arr is { Count: > 0 })
+            return CreateEmptyItemFromSample(arr[0]);
+
+        return new JsonObject();
     }
+
+    /// <summary>
+    /// Infers the empty initial value for a new array item from the actual JSON type of an
+    /// existing item. Only the type is carried over; properties and values are never copied.
+    /// JSON null is preserved as null and is not coerced to any primitive type.
+    /// </summary>
+    private static JsonNode? CreateEmptyItemFromSample(JsonNode? sample) => sample?.GetValueKind() switch
+    {
+        JsonValueKind.Object => new JsonObject(),
+        JsonValueKind.Array => new JsonArray(),
+        JsonValueKind.String => JsonValue.Create("")!,
+        JsonValueKind.Number => JsonValue.Create(0)!,
+        JsonValueKind.True or JsonValueKind.False => JsonValue.Create(false)!,
+        _ => null
+    };
 
     public static void RemoveArrayItem(EditorState state, string[] arrayPath, int index, UndoRedoService undoRedo)
     {
