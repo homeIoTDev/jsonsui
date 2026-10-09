@@ -137,7 +137,7 @@
     <value>Select type</value>
   </data>
   <data name="Editor_Back" xml:space="preserve">
-    <value>back</value>
+    <value>back (Alt+←, Backspace)</value>
   </data>
   <data name="Editor_NoItemSelected" xml:space="preserve">
     <value>No item selected</value>

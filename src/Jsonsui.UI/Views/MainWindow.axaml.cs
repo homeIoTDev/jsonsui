@@ -237,6 +237,23 @@ public partial class MainWindow : Window
             return true;
         }
 
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Alt) && e.Key == Key.Left)
+        {
+            if (vm.NestedCtx != null)
+                ExitNestedContext(vm);
+            return true;
+        }
+
+        if (e.Key == Key.Back)
+        {
+            if (vm.NestedCtx != null && !IsTextInputFocused())
+            {
+                ExitNestedContext(vm);
+                return true;
+            }
+            return false;
+        }
+
         if (e.Key == Key.Escape)
         {
             if (vm.Diff.IsOpen)
@@ -247,10 +264,7 @@ public partial class MainWindow : Window
 
             if (vm.NestedCtx != null)
             {
-                var returnToEditor = !IsFocusInTree();
-                vm.ExitNestedArrayCommand.Execute(null);
-                if (returnToEditor)
-                    vm.FocusFirstEditorTarget();
+                ExitNestedContext(vm);
                 return true;
             }
 
@@ -268,6 +282,23 @@ public partial class MainWindow : Window
         }
 
         return false;
+    }
+
+    /// <summary>Leaves the current nested (drill-down) context, mirroring the back button.
+    /// When focus was not in the tree, focus returns to the editor area.</summary>
+    private void ExitNestedContext(MainWindowViewModel vm)
+    {
+        var returnToEditor = !IsFocusInTree();
+        vm.ExitNestedArrayCommand.Execute(null);
+        if (returnToEditor)
+            vm.FocusFirstEditorTarget();
+    }
+
+    private bool IsTextInputFocused()
+    {
+        if (FocusManager?.GetFocusedElement() is not Visual focused) return false;
+        return focused.FindAncestorOfType<TextBox>(includeSelf: true) != null
+            || focused.FindAncestorOfType<NumericUpDown>(includeSelf: true) != null;
     }
 
     private void ScalarDetail_LostFocus(object? sender, RoutedEventArgs e)

@@ -189,6 +189,8 @@ The feature set is focused on making configuration editing safer and easier with
 | `F2` | Rename a property |
 | `Shift+F10` / menu key | Open property actions |
 | `Esc` | Close diff, leave a nested context, or return to the tree |
+| `Alt+←` | Go up one nested level (same as the back button) |
+| `Backspace` | Go up one nested level (outside text inputs) |
 
 ---
 

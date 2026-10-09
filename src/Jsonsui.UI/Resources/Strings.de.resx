@@ -137,7 +137,7 @@
     <value>Typ auswählen</value>
   </data>
   <data name="Editor_Back" xml:space="preserve">
-    <value>zurück</value>
+    <value>zurück (Alt+←, Backspace)</value>
   </data>
   <data name="Editor_NoItemSelected" xml:space="preserve">
     <value>Kein Item ausgewählt</value>
