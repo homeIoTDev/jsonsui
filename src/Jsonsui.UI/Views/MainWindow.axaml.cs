@@ -129,6 +129,12 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
+    private void CardDuplicate_Tapped(object? sender, TappedEventArgs e)
+    {
+        // Stop propagation so the card select doesn't fire
+        e.Handled = true;
+    }
+
     private void Cards_GotFocus(object? sender, FocusChangedEventArgs e)
     {
         if (e.Source is ItemsControl && DataContext is MainWindowViewModel vm)

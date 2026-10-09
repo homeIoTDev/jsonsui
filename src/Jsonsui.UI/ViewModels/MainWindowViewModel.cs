@@ -1104,6 +1104,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void DuplicateCard(int? index)
+    {
+        if (index == null) return;
+        var (arrayPath, _) = EditorLogic.GetCardArrayContext(_state);
+        if (arrayPath.Length == 0) return;
+        EditorLogic.DuplicateArrayItem(_state, arrayPath, index.Value, _undoRedo);
+        RefreshUI();
+    }
+
+    [RelayCommand]
     private void SelectCard(int? index)
     {
         EditorLogic.SelectCard(_state, index);

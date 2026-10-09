@@ -473,6 +473,37 @@ public static class EditorLogic
     }
 
     /// <summary>
+    /// Duplicates an existing array item including all values, nested objects/arrays and
+    /// explicit JSON nulls. The copy is inserted directly after the source item. The source
+    /// value is deep-cloned before the mutation so the original is never altered.
+    /// </summary>
+    public static void DuplicateArrayItem(EditorState state, string[] arrayPath, int index, UndoRedoService undoRedo)
+    {
+        var arr = JsonDocumentService.GetByPath(state.Json, arrayPath) as JsonArray;
+        if (arr == null || index < 0 || index >= arr.Count)
+            return;
+
+        var source = arr[index];
+        var newIndex = index + 1;
+
+        state.Json = JsonDocumentService.InsertArrayItem(state.Json, arrayPath, newIndex, source);
+        undoRedo.PushUndo(new UndoCommand
+        {
+            Path = arrayPath,
+            NewValue = source?.DeepClone(),
+            Action = "insert_array_item",
+            ArrayIndex = newIndex
+        });
+
+        if (state.NestedCtx != null)
+            state.NestedCtx.CardIndex = newIndex;
+        else
+            state.CardIndex = newIndex;
+
+        Validate(state);
+    }
+
+    /// <summary>
     /// Creates the initial value for a new array element.
     /// When an items schema (ArrayItemSchema) is available, the item type is derived from it
     /// so that primitive item types (e.g. "string" for ["string","null"]) do not produce an

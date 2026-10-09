@@ -175,6 +175,9 @@
   <data name="Action_Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Action_Duplicate" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
   <data name="Action_Rename" xml:space="preserve">
     <value>Rename</value>
   </data>

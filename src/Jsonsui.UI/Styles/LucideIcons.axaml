@@ -44,6 +44,9 @@
   <!-- Trash 2 -->
   <StreamGeometry x:Key="lucide-trash-2">M10 11v6M14 11v6M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</StreamGeometry>
 
+  <!-- Copy -->
+  <StreamGeometry x:Key="lucide-copy">M10 8H20A2 2 0 0 1 22 10V20A2 2 0 0 1 20 22H10A2 2 0 0 1 8 20V10A2 2 0 0 1 10 8ZM4 16C2.9 16 2 15.1 2 14V4C2 2.9 2.9 2 4 2H14C15.1 2 16 2.9 16 4</StreamGeometry>
+
   <!-- X -->
   <StreamGeometry x:Key="lucide-x">M18 6 6 18M6 6l12 12</StreamGeometry>
 

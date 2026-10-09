@@ -67,6 +67,18 @@ public static class JsonDocumentService
         return cloned;
     }
 
+    public static JsonNode InsertArrayItem(JsonNode root, string[] arrayPath, int index, JsonNode? value)
+    {
+        var cloned = Clone(root);
+        var arr = GetByPath(cloned, arrayPath) as JsonArray;
+        if (arr != null)
+        {
+            var at = Math.Clamp(index, 0, arr.Count);
+            arr.Insert(at, value?.DeepClone());
+        }
+        return cloned;
+    }
+
     public static AddPropertyResult AddProperty(JsonNode root, string[] objectPath, string name, JsonNode? value)
     {
         if (string.IsNullOrWhiteSpace(name))

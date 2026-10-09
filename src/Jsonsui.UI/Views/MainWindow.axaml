@@ -368,15 +368,24 @@
                               </StackPanel>
                               <TextBlock Text="{Binding Preview}" Classes="CardPreview" TextTrimming="CharacterEllipsis" />
                             </StackPanel>
-                            <Button Grid.Column="1" VerticalAlignment="Top"
-                                    Classes="IconBtn" Width="20" Height="20" Padding="2"
-                                    IsEnabled="{Binding ElementName=RootWindow, Path=DataContext.ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
-                                    Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
-                                    CommandParameter="{Binding Index}"
-                                    Tapped="CardDelete_Tapped" ToolTip.Tip="{loc:Localize Action_Delete}">
-                              <Path Classes="Lucide" Data="{StaticResource lucide-trash-2}" Width="12" Height="12"
-                                        Stroke="{DynamicResource TextTertiaryBrush}" />
-                            </Button>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2" VerticalAlignment="Top">
+                              <Button Classes="IconBtn" Width="20" Height="20" Padding="2"
+                                      IsEnabled="{Binding ElementName=RootWindow, Path=DataContext.ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                      Command="{Binding ElementName=RootWindow, Path=DataContext.DuplicateCardCommand}"
+                                      CommandParameter="{Binding Index}"
+                                      Tapped="CardDuplicate_Tapped" ToolTip.Tip="{loc:Localize Action_Duplicate}">
+                                <Path Classes="Lucide" Data="{StaticResource lucide-copy}" Width="12" Height="12"
+                                          Stroke="{DynamicResource TextTertiaryBrush}" />
+                              </Button>
+                              <Button Classes="IconBtn" Width="20" Height="20" Padding="2"
+                                      IsEnabled="{Binding ElementName=RootWindow, Path=DataContext.ArrayHelpInfo.IsReadOnly, Converter={x:Static conv:EditorConverters.InverseBool}}"
+                                      Command="{Binding ElementName=RootWindow, Path=DataContext.DeleteCardCommand}"
+                                      CommandParameter="{Binding Index}"
+                                      Tapped="CardDelete_Tapped" ToolTip.Tip="{loc:Localize Action_Delete}">
+                                <Path Classes="Lucide" Data="{StaticResource lucide-trash-2}" Width="12" Height="12"
+                                          Stroke="{DynamicResource TextTertiaryBrush}" />
+                              </Button>
+                            </StackPanel>
                           </Grid>
                         </Border>
                       </DataTemplate>
