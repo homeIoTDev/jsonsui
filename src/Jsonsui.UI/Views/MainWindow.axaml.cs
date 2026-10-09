@@ -397,39 +397,36 @@ public partial class MainWindow : Window
 
     private Flyout BuildAddPropertyFlyout(MainWindowViewModel vm)
     {
-        var root = new StackPanel
+        var root = new Grid
         {
             Width = 280,
             MaxHeight = 360,
-            Spacing = 4,
-            Margin = new Thickness(4)
+            Margin = new Thickness(4),
+            RowDefinitions = new RowDefinitions("Auto,Auto,*,Auto,Auto")
         };
 
-        root.Children.Add(new TextBlock
+        var header = new TextBlock
         {
             Text = Strings.Get("Property_Add"),
             Classes = { "FlyoutHeader" },
             Margin = new Thickness(4, 2, 4, 6)
-        });
+        };
+        Grid.SetRow(header, 0);
+        root.Children.Add(header);
 
-        if (!vm.HasAddPropertySchemaItems)
+        var sectionLabel = new TextBlock
         {
-            root.Children.Add(new TextBlock
-            {
-                Text = Strings.Get("Property_NoneAvailable"),
-                Classes = { "FlyoutEmpty" },
-                Margin = new Thickness(4, 2, 4, 2)
-            });
-        }
-        else
-        {
-            root.Children.Add(new TextBlock
-            {
-                Text = Strings.Get("Property_SchemaSection"),
-                Classes = { "FlyoutItemType" },
-                Margin = new Thickness(4, 2, 4, 2)
-            });
+            Text = vm.HasAddPropertySchemaItems
+                ? Strings.Get("Property_SchemaSection")
+                : Strings.Get("Property_NoneAvailable"),
+            Classes = { vm.HasAddPropertySchemaItems ? "FlyoutItemType" : "FlyoutEmpty" },
+            Margin = new Thickness(4, 2, 4, 2)
+        };
+        Grid.SetRow(sectionLabel, 1);
+        root.Children.Add(sectionLabel);
 
+        if (vm.HasAddPropertySchemaItems)
+        {
             var list = new StackPanel { Spacing = 2 };
             foreach (var item in vm.AddPropertyItems)
             {
@@ -490,21 +487,24 @@ public partial class MainWindow : Window
                 list.Children.Add(btn);
             }
 
-            root.Children.Add(new ScrollViewer
+            var scroll = new ScrollViewer
             {
-                MaxHeight = 300,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                 Content = list
-            });
+            };
+            Grid.SetRow(scroll, 2);
+            root.Children.Add(scroll);
         }
 
         if (vm.CanAddCustomProperty)
         {
-            root.Children.Add(new Border
+            var separator = new Border
             {
                 Classes = { "FlyoutSeparator" },
                 Margin = new Thickness(4, 4, 4, 2)
-            });
+            };
+            Grid.SetRow(separator, 3);
+            root.Children.Add(separator);
 
             var customBtn = new Button
             {
@@ -524,6 +524,7 @@ public partial class MainWindow : Window
                 }, Avalonia.Threading.DispatcherPriority.Background);
             };
 
+            Grid.SetRow(customBtn, 4);
             root.Children.Add(customBtn);
         }
 
