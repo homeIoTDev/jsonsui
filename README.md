@@ -343,7 +343,7 @@ The console project currently provides command-line functionality rather than a 
 
 ## 🗺️ What's next?
 
-jsonsui is already usable as a JSON configuration editor, but there is plenty of room to expand it.
+jsonsui is already usable for schema-driven configuration, but there is plenty of room to expand it.
 
 Possible future directions include:
 
