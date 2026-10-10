@@ -6,11 +6,17 @@
 ![Release Download](https://img.shields.io/github/downloads/homeIoTDev/jsonsui/total?style=flat-square)
 [![Release Version](https://img.shields.io/github/v/release/homeIoTDev/jsonsui?style=flat-square)](https://github.com/homeIoTDev/jsonsui/releases/latest)
 
-A fast, cross-platform JSON configuration editor powered by Avalonia UI. **No more raw text. Navigate and edit JSON configurations through a schema-driven UI.**
+**jsonsui** turns a [JSON Schema](https://json-schema.org/) into a graphical configuration editor. The schema describes your configuration, jsonsui provides the interface: appropriate controls, descriptions, defaults, constraints and live validation. No more guessing which keys exist or which values are allowed.
 
 <img width="1805" height="1077" alt="Animation (6)" src="https://github.com/user-attachments/assets/9648dd89-4fdc-4ff3-ae13-aa628198aad2" />
 
-Built with Avalonia UI for Windows and Linux, with additional macOS builds available for community testing and a shared UI‑independent core designed to support future frontends.
+## How it works
+
+1. **Open** a JSON configuration. If it contains a `$schema` reference, the schema is loaded automatically, otherwise you can load one manually.
+2. **Edit** the values through checkboxes, drop-downs, numeric controls, nested objects and array cards.
+3. **Review and save.** Check your changes in the diff view before they are written to disk.
+
+Built with [Avalonia UI](https://avaloniaui.net/) for Windows and Linux, with additional macOS builds available for community testing and a shared UI-independent core designed to support future frontends.
 
 ---
 
