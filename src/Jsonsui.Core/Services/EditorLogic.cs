@@ -1183,7 +1183,7 @@ public static class EditorLogic
                 }
 
                 var fieldProp = ResolveSchemaProperty(state.ActiveSchema, focusPath);
-                if (fieldProp != null && fieldProp.JsonType != "array")
+                if (fieldProp != null)
                 {
                     info.FieldDescription = fieldProp.Description;
                     info.FieldMetaItems.AddRange(BuildMetaItems(fieldProp));
